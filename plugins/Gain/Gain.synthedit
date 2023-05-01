@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document file_format="130041" vst_latencyCompensation="1" vst_preset_count="64">
+    <master_container type="Container" handle="1790694" name="Main" ViewOpenFlags="256" skin="default2">
+        <plugs>
+            <plug idx="7"/>
+        </plugs>
+        <structRect l="0" r="0" t="0" b="0"/>
+        <PatchManager>
+            <Parameters>
+                <param type="6" handle="268132494" shortName="Gain Input" vstParameterNumber="1" module="806340" moduleParamId="0">
+                    <patch-list>
+                        <s>4.4</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                        <s>0</s>
+                    </patch-list>
+                </param>
+                <param type="10" handle="539244194" private="true" hostControl="49">
+                    <patch-list>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                        <s/>
+                    </patch-list>
+                </param>
+                <param type="4" handle="554809779" shortName="polyDetect" ignorePC="true" private="true" stateful="false" module="1536811686" moduleParamId="2"/>
+                <param type="10" handle="761792938" shortName="Capture Data A" ignorePC="true" private="true" stateful="false" isPolyphonic="true" module="1536811686" moduleParamId="0"/>
+                <param type="6" handle="1124441958" shortName="Gain" vstParameterNumber="0" module="1439034420" moduleParamId="0">
+                    <patch-list>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                        <s>0.8</s>
+                    </patch-list>
+                </param>
+                <param type="10" handle="1144422617" shortName="Capture Data B" ignorePC="true" private="true" stateful="false" isPolyphonic="true" module="1536811686" moduleParamId="1"/>
+            </Parameters>
+        </PatchManager>
+        <modules>
+            <module type="Slider" handle="806340">
+                <plugs>
+                    <plug parameterId="-1" idx="13"/>
+                    <plug parameterId="-1"/>
+                </plugs>
+                <structRect l="24" r="108" t="12" b="100"/>
+                <panelRect l="260" r="260" t="154" b="154"/>
+            </module>
+            <module type="GMPI Gain" handle="1439034420">
+                <structRect l="216" r="276" t="204" b="228"/>
+                <panelRect l="281" r="281" t="123" b="123"/>
+            </module>
+            <module type="SE Scope3 XP" handle="1536811686">
+                <structRect l="368" r="476" t="159" b="259"/>
+                <panelRect l="281" r="281" t="123" b="123"/>
+            </module>
+            <module type="Oscillator" handle="166636159" muted="true">
+                <structRect l="68" r="152" t="134" b="218"/>
+            </module>
+        </modules>
+        <lines>
+            <line type="Line" handle="122902212" lineType="1" fMod="166636159" tMod="1536811686" fPlg="3" tPlg="6"/>
+            <line type="Line" handle="288576693" lineType="1" fMod="166636159" tMod="1439034420" fPlg="3"/>
+            <line type="Line" handle="1306613361" lineType="1" fMod="1439034420" tMod="1536811686" fPlg="1" tPlg="7"/>
+            <line type="Line" handle="139677405" lineType="1" fMod="806340" tMod="1439034420" fPlg="6"/>
+        </lines>
+        <PanelWndPosition l="0" r="0" t="0" b="0"/>
+        <PanelLocation l="30" r="530" t="30" b="330"/>
+        <StructLocation l="0" r="500" t="0" b="400"/>
+        <PanelScroll x="0" y="0"/>
+        <StructScroll x="0" y="0"/>
+        <PanelWndOffset cx="-99999" cy="-99999"/>
+        <panel_rect l="16" r="312" t="16" b="216"/>
+    </master_container>
+    <PluginList>
+        <Plugin id="Container" name="Container" flags="384" category="">
+            <Audio>
+                <Pin name="Spare" datatype="float" rate="audio" autoRename="true" autoDuplicate="true"/>
+                <Pin name="Polyphony" datatype="enum" default="6" private="true" isMinimised="true" metadata="range 1,128"/>
+                <Pin name="MIDI Automation" datatype="bool" private="true" isMinimised="true"/>
+                <Pin name="Show Controls" datatype="enum" private="true" isMinimised="true" metadata="Off,On Panel,On Module"/>
+            </Audio>
+            <GUI>
+                <Pin name="Controls on Parent" datatype="bool" direction="out" isMinimised="true"/>
+                <Pin name="Controls on Module" datatype="bool" noAutomation="true"/>
+                <Pin name="Visible" datatype="bool"/>
+                <Pin name="Ignore Program Change" datatype="bool" noAutomation="true"/>
+            </GUI>
+        </Plugin>
+        <Plugin id="GMPI Gain" name="Gain" flags="8448" category="GMPI/SDK Examples" helpUrl="Gain.htm">
+            <Parameters>
+                <Parameter id="0" datatype="float" name="Gain" default="0.8"/>
+            </Parameters>
+            <Audio>
+                <Pin name="Input" datatype="float" rate="audio"/>
+                <Pin name="Output" datatype="float" rate="audio" direction="out"/>
+                <Pin name="" datatype="float" private="true" parameterId="0"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="Oscillator" name="Oscillator" flags="4352" category="Waveform">
+            <Audio>
+                <Pin name="Pitch" datatype="float" rate="audio" default="0.5" metadata="100, 0, 10, 0"/>
+                <Pin name="Pulse Width" datatype="float" rate="audio" default="0.5"/>
+                <Pin name="Waveform" datatype="enum" default="1" metadata="Sine, Saw, Ramp, Triangle, Pulse,White Noise,Pink Noise"/>
+                <Pin name="Audio Out" datatype="float" rate="audio" direction="out"/>
+                <Pin name="Sync" datatype="float" rate="audio" metadata="100, 0, 5, -5"/>
+                <Pin name="Phase Mod" datatype="float" rate="audio" metadata="100, 0, 10, 0"/>
+                <Pin name="Freq Scale" datatype="enum" isMinimised="true" metadata="1 Volt/Octave, 1 Volt/kHz "/>
+                <Pin name="PM Depth" datatype="float" rate="audio" default="0.5" metadata="100, 0, 10, 0"/>
+                <Pin name="Smooth Peaks (Gibbs Effect)" datatype="bool" default="1" isMinimised="true"/>
+                <Pin name="Sync X-Fade (Anti Alias)" datatype="bool" default="1" isMinimised="true"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE BoolToFloat" name="Bool To Float" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Bool Val" datatype="bool"/>
+                <Pin name="Float Val" datatype="float" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE BoolToInt" name="Bool To Int" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Bool Val" datatype="bool"/>
+                <Pin name="Int Val" datatype="int" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE BoolToText" name="Bool To Text" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Bool Val" datatype="bool"/>
+                <Pin name="Text Val" datatype="string" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE BoolToVolts" name="Bool to Volts" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="In" datatype="bool"/>
+                <Pin name="Out" datatype="float" rate="audio" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE FloatToBool" name="Float To Bool" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Float Val" datatype="float"/>
+                <Pin name="Bool Val" datatype="bool" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE FloatToInt" name="Float To Int" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Float Val" datatype="float"/>
+                <Pin name="Int Val" datatype="int" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE FloatToText" name="Float To Text" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Float Val" datatype="float"/>
+                <Pin name="Text Val" datatype="string" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE IntToBool" name="Int to Bool" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Int Val" datatype="int"/>
+                <Pin name="Bool Val" datatype="bool" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE IntToFloat" name="Int To Float" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Int Val" datatype="int"/>
+                <Pin name="Float Val" datatype="float" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE IntToText" name="Int To Text" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Int Val" datatype="int"/>
+                <Pin name="Text Val" datatype="string" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE IntToVolts" name="Int to Volts" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="In" datatype="int"/>
+                <Pin name="Out" datatype="float" rate="audio" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE ListToInt" name="List To Int" flags="33562880" category="Obsolete" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="List Val" datatype="enum"/>
+                <Pin name="Int Val" datatype="int" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE Scope3 XP" name="Scope3" flags="384" category="Controls">
+            <Parameters>
+                <Parameter id="0" datatype="blob" name="Capture Data A" private="true" ignorePatchChange="true" isPolyphonic="true" persistant="false"/>
+                <Parameter id="1" datatype="blob" name="Capture Data B" private="true" ignorePatchChange="true" isPolyphonic="true" persistant="false"/>
+                <Parameter id="2" datatype="bool" name="polyDetect" private="true" ignorePatchChange="true" persistant="false"/>
+            </Parameters>
+            <Audio>
+                <Pin name="Capture Data A" datatype="blob" direction="out" private="true" isPolyphonic="true" parameterId="0"/>
+                <Pin name="Capture Data B" datatype="blob" direction="out" private="true" isPolyphonic="true" parameterId="1"/>
+                <Pin name="Signal A" datatype="float" rate="audio"/>
+                <Pin name="Signal B" datatype="float" rate="audio"/>
+                <Pin name="VoiceActive" datatype="float" private="true" isPolyphonic="true" hostConnect="Voice/Active"/>
+                <Pin name="polydetect" datatype="bool" direction="out" private="true" parameterId="2"/>
+            </Audio>
+            <GUI graphicsApi="GmpiGui">
+                <Pin name="Capture Data A" datatype="blob" private="true" isPolyphonic="true" parameterId="0"/>
+                <Pin name="Capture Data B" datatype="blob" private="true" isPolyphonic="true" parameterId="1"/>
+                <Pin id="3" name="VoiceGate" datatype="float" private="true" isPolyphonic="true" hostConnect="Voice/Gate"/>
+                <Pin name="polydetect" datatype="bool" private="true" parameterId="2"/>
+            </GUI>
+        </Plugin>
+        <Plugin id="SE Text8ToText" name="Text8 To Text" flags="33562880" category="Debug" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Text Val" datatype="string_utf8"/>
+                <Pin name="Text Val" datatype="string" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE TextToBool" name="Text To Bool" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Text Val" datatype="string"/>
+                <Pin name="Bool Val" datatype="bool" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE TextToFloat" name="Text To Float" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Text Val" datatype="string"/>
+                <Pin name="Float Val" datatype="float" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE TextToInt" name="Text To Int" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Text Val" datatype="string"/>
+                <Pin name="Int Val" datatype="int" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE TextToText8" name="Text To Text8" flags="33562880" category="Debug" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="Text Val" datatype="string"/>
+                <Pin name="Text Val" datatype="string_utf8" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE Voice Mute" name="Voice Mute" flags="33562880" category="Debug" simdOverwritesBufferEnd="true" alwaysExport="true">
+            <Audio>
+                <Pin name="Input1" datatype="float" rate="audio"/>
+                <Pin name="VoiceActive" datatype="float" private="true" isPolyphonic="true" hostConnect="Voice/Active"/>
+                <Pin name="Output" datatype="float" rate="audio" direction="out"/>
+                <Pin name="legacyMode" datatype="bool"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE VoltsToBool" name="Volts to Bool" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="In" datatype="float" rate="audio"/>
+                <Pin name="Out" datatype="bool" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="SE VoltsToInt" name="Volts to Int" flags="33562880" category="Conversion" helpUrl="converters.htm" alwaysExport="true">
+            <Audio>
+                <Pin name="In" datatype="float" rate="audio"/>
+                <Pin name="Out" datatype="int" direction="out"/>
+            </Audio>
+        </Plugin>
+        <Plugin id="Slider" name="Slider" flags="4480" category="Controls">
+            <Parameters>
+                <Parameter id="0" datatype="float" name="patchValue"/>
+            </Parameters>
+            <Audio>
+                <Pin name="Channel" datatype="enum" default="-1" private="true" ignorePatchChange="true" metadata="All=-1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16"/>
+                <Pin name="MIDI In" datatype="midi" private="true"/>
+                <Pin name="MIDI Out" datatype="midi" direction="out" private="true"/>
+                <Pin name="MIDI Controller ID" datatype="enum" default="-1" private="true"/>
+                <Pin name="Ignore Program Change" datatype="bool" private="true"/>
+                <Pin name="MIDI NRPN" datatype="enum" private="true" metadata="range 0,16255"/>
+                <Pin name="Signal Out" datatype="float" rate="audio" direction="out" autoConfigureParameter="true"/>
+                <Pin name="Lo Value" datatype="float" private="true"/>
+                <Pin name="Hi Value" datatype="float" default="10" private="true"/>
+                <Pin name="Appearance" datatype="enum" default="1" isMinimised="true" metadata="None=-1,Plain Slider, Vert Slider, Horiz Slider, Knob, Button, Button (toggle),Plain Button, Small Knob, Small Button, Small Button (Toggle)"/>
+                <Pin name="Show Readout" datatype="bool" default="1" isMinimised="true"/>
+                <Pin name="Show Title On Panel" datatype="bool" default="1" isMinimised="true"/>
+                <Pin name="patchValue" datatype="float" private="true" parameterId="0"/>
+            </Audio>
+            <GUI>
+                <Pin id="13" name="patchValue" datatype="float" direction="out" private="true" parameterId="0"/>
+                <Pin name="Hint" datatype="string" direction="out" isMinimised="true"/>
+            </GUI>
+        </Plugin>
+    </PluginList>
+</Document>
