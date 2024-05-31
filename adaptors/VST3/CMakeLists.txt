@@ -1,7 +1,27 @@
 cmake_minimum_required(VERSION 3.15)
 
+set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+
+include(FetchContent)
+
+# GET VST3 SDK
+if("${VST3_SDK_FOLDER_OVERRIDE}" STREQUAL "")
+message(STATUS "Fetching VST3 from github")
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
+FetchContent_Declare(
+  vst3
+  GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk
+  GIT_TAG origin/master
+  SOURCE_SUBDIR vst3_doc
+)
+FetchContent_MakeAvailable(vst3)
+set(VST3_SDK ${vst3_SOURCE_DIR})
+else()
+message(STATUS "Using local VST3 folder")
+set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
+endif()
 
 project(SynthEdit_VST3)
 
@@ -142,7 +162,8 @@ MARK_AS_ADVANCED (ACCELERATE_LIBRARY)
 endif()
 
 include (GenerateExportHeader)
-add_library(${PROJECT_NAME} MODULE ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
+# dynamic lib: add_library(${PROJECT_NAME} MODULE ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
+add_library(${PROJECT_NAME} STATIC ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
 
 # 'DEBUG' is a steinberg thing, ('_DEBUG' is standard C++)
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
@@ -183,7 +204,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES BUNDLE_EXTENSION vst3)
 endif()
 
 # windows dll extension
-set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".vst3")
+# set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".vst3")
 
 ########################### VST3 SDK #######################################
 message(STATUS "VST3_SDK: ${VST3_SDK}")
@@ -198,14 +219,14 @@ add_subdirectory(${VST3_SDK}/pluginterfaces ${CMAKE_CURRENT_BINARY_DIR}/pluginte
 add_subdirectory(${VST3_SDK}/base           ${CMAKE_CURRENT_BINARY_DIR}/base)
 
 # this should be disabled on CI
-if(SE_LOCAL_BUILD)
-if(CMAKE_HOST_WIN32)
-add_custom_command(TARGET ${PROJECT_NAME}
-    # Run after all other rules within the target have been executed
-    POST_BUILD
-    COMMAND copy "$(OutDir)$(TargetName)$(TargetExt)" "C:\\Program Files\\Common Files\\VST3\\SynthEdit_VST3.vst3\\Contents\\x86_64-win"
-    COMMENT "Copy to plugin folder"
-    VERBATIM
-)
-endif()
-endif()
+#if(SE_LOCAL_BUILD)
+#if(CMAKE_HOST_WIN32)
+#add_custom_command(TARGET ${PROJECT_NAME}
+#    # Run after all other rules within the target have been executed
+#    POST_BUILD
+#    COMMAND copy "$(OutDir)$(TargetName)$(TargetExt)" "C:\\Program Files\\Common Files\\VST3\\SynthEdit_VST3.vst3\\Contents\\x86_64-win"
+#    COMMENT "Copy to plugin folder"
+#    VERBATIM
+#)
+#endif()
+#endif()

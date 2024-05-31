@@ -1,6 +1,14 @@
 #include "AudioPlugin.h"
+#include "public.sdk/source/main/pluginfactory.h"
 
 using namespace gmpi;
+
+namespace Steinberg
+{
+	class IPluginFactory;
+}
+
+extern Steinberg::IPluginFactory* GetPluginFactory();
 
 struct Gain final : public AudioPlugin
 {
@@ -17,6 +25,8 @@ struct Gain final : public AudioPlugin
 
 	ReturnCode open(IUnknown* phost) override
 	{
+		auto test = GetPluginFactory();
+
 		// specify which member to process audio.
 		setSubProcess(&Gain::subProcess);
 

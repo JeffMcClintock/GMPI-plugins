@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(SE_LOCAL_BUILD FALSE CACHE BOOL "Execute extra build steps for developers machine")
+set(GMPI_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI repo, or blank to fetch it automatically.")
 
 include(FetchContent)
 
-#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly include the GMPI examples)
 
+if("${GMPI_SDK_FOLDER_OVERRIDE}" STREQUAL "")
+
+message(STATUS "Fetching GMPI from github")
+
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
 FetchContent_Declare(
   gmpi
   GIT_REPOSITORY https://github.com/JeffMcClintock/GMPI
@@ -14,6 +19,15 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(gmpi)
+
+set(gmpi_sdk_folder ${gmpi_SOURCE_DIR})
+
+else()
+
+message(STATUS "Using local GMPI folder")
+set(gmpi_sdk_folder ${GMPI_SDK_FOLDER_OVERRIDE})
+
+endif()
 
 project(GMPI_Samples)
 
@@ -32,8 +46,9 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast /GS-")
 endif()
 
-include(${CMAKE_BINARY_DIR}/_deps/gmpi-src/gmpi_plugin.cmake)
+include(${gmpi_sdk_folder}/gmpi_plugin.cmake)
 
 add_subdirectory(plugins)
 add_subdirectory(plugins_c)
+add_subdirectory(adaptors)
 

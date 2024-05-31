@@ -1,3 +1,4 @@
+#include "base/source/fstring.h"
 #include "base/source/updatehandler.h"
 #include "pluginterfaces/base/ibstream.h"
 #include "pluginterfaces/base/ustring.h"
@@ -468,8 +469,8 @@ tresult VST3Controller::getParameterInfo(int32 paramIndex, ParameterInfo& info)
 
 	auto temp = ToUtf16(p->name_);
 	
-	_tstrncpy(info.shortTitle, temp.c_str(), static_cast<Steinberg::uint32>(std::size(info.shortTitle)));
-	_tstrncpy(info.title,      temp.c_str(), static_cast<Steinberg::uint32>(std::size(info.title)));
+	_tstrncpy(info.shortTitle, (const TChar*)temp.c_str(), static_cast<Steinberg::uint32>(std::size(info.shortTitle)));
+	_tstrncpy(info.title, (const TChar*)temp.c_str(), static_cast<Steinberg::uint32>(std::size(info.title)));
 
 	info.id = p->getNativeTag();
 	info.unitId = 0;
@@ -493,7 +494,7 @@ tresult PLUGIN_API VST3Controller::getParamStringByValue(ParamID tag, ParamValue
 	{
 		const auto s_wide = p->normalisedToString(p->convertNormalized(valueNormalized));
 		const auto s_UTF16 = ToUtf16(s_wide);
-		strncpy16(string, s_UTF16.c_str(), 128);
+		strncpy16(string, (const TChar*) s_UTF16.c_str(), 128);
 
 		return kResultOk;
 	}

@@ -92,7 +92,7 @@ using namespace Steinberg;
 using namespace Steinberg::Vst;
 
 
-EXPORT_FACTORY IPluginFactory* PLUGIN_API GetPluginFactory ()
+/*EXPORT_FACTORY*/ IPluginFactory* PLUGIN_API GetPluginFactory ()
 {
 	return MyVstPluginFactory::GetInstance();
 }
@@ -803,8 +803,55 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 	}
 }
 
+//VST_EXPORT
+//int32_t MP_STDCALL MP_GetFactory(void** returnInterface);
+
 bool MyVstPluginFactory::initializeFactory()
 {
+	// load GMPI static
+	{
+		gmpi_dynamic_linking::DLL_HANDLE hmodule = 0;
+		gmpi_dynamic_linking::MP_GetDllHandle(&hmodule);
+
+		gmpi::MP_DllEntry dll_entry_point;
+		const char* gmpi_dll_entrypoint_name = "MP_GetFactory";
+		auto r1 = gmpi_dynamic_linking::MP_DllSymbol(hmodule, gmpi_dll_entrypoint_name, (void**)&dll_entry_point);
+
+//		gmpi::IMpUnknown* com_object{};
+		gmpi_sdk::mp_shared_ptr<gmpi::IMpUnknown> com_object;
+		auto r = dll_entry_point(com_object.asIMpUnknownPtr());
+
+		if (r != gmpi::MP_OK || !com_object)
+		{
+			return false;
+		}
+		gmpi_sdk::mp_shared_ptr<gmpi::IMpShellFactory> vst_factory;
+		gmpi_sdk::mp_shared_ptr<gmpi::api::IPluginFactory> gmpi_factory;
+		{
+//			gmpi_sdk::mp_shared_ptr<gmpi::IMpUnknown> com_object;
+//			r = dll_entry_point(com_object.asIMpUnknownPtr());
+
+			r = com_object->queryInterface(gmpi::MP_IID_SHELLFACTORY, vst_factory.asIMpUnknownPtr());
+			r = com_object->queryInterface((const gmpi::MpGuid&)gmpi::api::IPluginFactory::guid, gmpi_factory.asIMpUnknownPtr());
+
+			// skip some steps
+
+			plugins.push_back(
+				{
+					{}, // std::string id;
+					{"GMPI PLUGIN WRAPPER"}, // std::string name;
+					{0}, // int inputCount = {};
+					{0}, // int outputCount = {};
+					{}, // std::vector<pinInfoSem> dspPins;
+					{}, // std::vector<pinInfoSem> guiPins;
+					{}, // std::vector<paramInfoSem> parameters;
+					{}, // platform_string pluginPath; 
+				}
+			);
+		}
+	}
+
+	// load SEM dynamic.
 	const auto semFolderSearch = BundleInfo::instance()->getSemFolder() + L"/*.gmpi";
 
 	platform_string pluginPath;

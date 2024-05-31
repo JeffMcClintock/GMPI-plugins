@@ -404,7 +404,8 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 			while (numInputs > 1)
 			{
 				const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::In, pinIndex));
-				addAudioInput(name.c_str(), SpeakerArr::kStereo);
+
+				addAudioInput((const TChar*) name.c_str(), SpeakerArr::kStereo);
 				numInputs -= 2;
 				pinIndex += 2;
 			}
@@ -413,7 +414,7 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 		while (numInputs > 0)
 		{
 			const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::In, pinIndex));
-			addAudioInput(name.c_str(), SpeakerArr::kMono);
+			addAudioInput((const TChar*) name.c_str(), SpeakerArr::kMono);
 			numInputs -= 1;
 			pinIndex += 1;
 		}
@@ -428,7 +429,7 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 			while (numOutputs > 1)
 			{
 				const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::Out, pinIndex));
-				addAudioOutput(name.c_str(), SpeakerArr::kStereo);
+				addAudioOutput((const TChar*) name.c_str(), SpeakerArr::kStereo);
 				numOutputs -= 2;
 				pinIndex += 2;
 			}
@@ -436,7 +437,7 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 		while (numOutputs > 0)
 		{
 			const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::Out, pinIndex));
-			addAudioOutput(name.c_str(), SpeakerArr::kMono);
+			addAudioOutput((const TChar*) name.c_str(), SpeakerArr::kMono);
 			numOutputs -= 1;
 			pinIndex += 1;
 		}
