@@ -1,13 +1,14 @@
-#include "MyVstPluginFactory.h"
 #include "pluginterfaces/base/funknown.h"
-#include "public.sdk/source/main/pluginfactory.h"
-#include "adelayprocessor.h"
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivsteditcontroller.h"
-#include "adelaycontroller.h"
-#include "tinyxml2/tinyxml2.h"
+#include "public.sdk/source/main/pluginfactory.h"
 #include "public.sdk/source/vst/vstcomponent.h"
-//#include "UgDatabase.h"
+#include "MyVstPluginFactory.h"
+#include "adelaycontroller.h"
+#include "adelayprocessor.h"
+#include "tinyxml2/tinyxml2.h"
+
+#if 0
 #include "it_enum_list.h"
 #include "xp_dynamic_linking.h"
 #include "BundleInfo.h"
@@ -15,6 +16,7 @@
 #include "FileFinder.h"
 #include "GmpiApiAudio.h"
 #include "GmpiSdkCommon.h"
+#endif
 
 #if defined( _WIN32 )
 extern HINSTANCE ghInst;
@@ -808,6 +810,7 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 
 bool MyVstPluginFactory::initializeFactory()
 {
+#if 0
 	// load GMPI static
 	{
 		gmpi_dynamic_linking::DLL_HANDLE hmodule = 0;
@@ -850,11 +853,13 @@ bool MyVstPluginFactory::initializeFactory()
 			);
 		}
 	}
+#endif
 
+	platform_string pluginPath;
+#if 0
 	// load SEM dynamic.
 	const auto semFolderSearch = BundleInfo::instance()->getSemFolder() + L"/*.gmpi";
 
-	platform_string pluginPath;
 
 	FileFinder it(semFolderSearch.c_str());
 	for (; !it.done(); ++it)
@@ -873,7 +878,11 @@ bool MyVstPluginFactory::initializeFactory()
 
 	gmpi_dynamic_linking::DLL_HANDLE hinstLib;
 	gmpi_dynamic_linking::MP_DllLoad(&hinstLib, pluginPath.c_str());
+#else
+	gmpi_dynamic_linking::DLL_HANDLE hinstLib{};
+	gmpi_dynamic_linking::MP_GetDllHandle(&hinstLib);
 
+#endif
 	if (!hinstLib)
 	{
 		return true;
@@ -957,12 +966,11 @@ bool MyVstPluginFactory::initializeFactory()
 		int index = 0;
 		while (true)
 		{
-//			MpString s;
-			gmpi::MpString s;
+			gmpi::ReturnString s;
 			if (gmpi_factory)
 			{
 				// have to cast GMPI 2 types to GMPI 1 types
-				r = (int32_t)gmpi_factory->getPluginInformation(index++, /*(gmpi::api::IString*)&*/&s); // FULL XML
+				r = (int32_t)gmpi_factory->getPluginInformation(index++, &s); // FULL XML
 			}
 			//else
 			//{
@@ -1083,7 +1091,8 @@ bool MyVstPluginFactory::initializeFactory()
 #else
 	vendorName_ = "SynthEdit";
 	pluginInfo_.name_ = "SEM Wrapper";
-	pluginInfo_.processorId.fromRegistryString("{8A389500-D21D-45B6-9FA7-F61DEFA68328}");
+	// TODO derive from SEM id
+	pluginInfo_.processorId .fromRegistryString("{8A389500-D21D-45B6-9FA7-F61DEFA68328}");
 	pluginInfo_.controllerId.fromRegistryString("{D3047E63-2F3F-43A8-96AC-68D068F56106}");
 #endif
 	return true;

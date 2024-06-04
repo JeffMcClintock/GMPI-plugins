@@ -10,6 +10,7 @@
 #include "se_datatypes.h" // kill this
 #include "RawConversions.h"
 #include "unicode_conversion.h"
+#include "BundleInfo.h"
 /*
 #include "midi_defs.h"
 #include "conversion.h"
@@ -20,7 +21,6 @@
 #include "modules/shared/FileFinder.h"
 #include "UgDatabase.h"
 #include "../se_sdk3_hosting/GuiPatchAutomator3.h"
-#include "BundleInfo.h"
 #include "tinyxml/tinyxml.h" // anoyingly defines DEBUG as blank which messes with vstgui. put last.
 #include "../tinyXml2/tinyxml2.h"
 #include "VstPreset.h"
@@ -36,11 +36,13 @@
 #endif
 #include "AuPreset.h"
 #include "mfc_emulation.h"
+
 using namespace std;
 using namespace tinyxml2;
 */
 using namespace JmUnicodeConversions;
 
+#if 0
 void SafeMessagebox(
 	void* hWnd,
 	const wchar_t* lpText,
@@ -50,23 +52,25 @@ void SafeMessagebox(
 {
 	_RPTW1(0, L"%s\n", lpText);
 }
+#endif
 
-MpParameterVst3::MpParameterVst3(Steinberg::Vst::VST3Controller* controller, int strictIndex, int ParameterTag, bool isInverted) :
+MpParameterVst3::MpParameterVst3(Steinberg::Vst::VST3Controller* controller, /*int strictIndex, */int ParameterTag, bool isInverted) :
 	MpParameter_native(controller),
 	vst3Controller(controller),
-	isInverted_(isInverted)
+	isInverted_(isInverted),
+	hostTag(ParameterTag)
 {
-	hostTag = ParameterTag;
-	hostIndex = strictIndex;
 }
 
 void MpParameterVst3::updateProcessor(gmpi::FieldType fieldId, int32_t voice)
 {
 	switch (fieldId)
 	{
+		/* double up
 	case gmpi::MP_FT_GRAB:
 		controller_->ParamGrabbed(this, voice);
 		break;
+		*/
 
 	case gmpi::MP_FT_VALUE:
 	case gmpi::MP_FT_NORMALIZED:
@@ -87,6 +91,11 @@ VST3Controller::VST3Controller() :
 
 	// Scan all presets for preset-browser.
 	ScanPresets();
+}
+
+VST3Controller::~VST3Controller()
+{
+	StopTimer();
 }
 
 tresult PLUGIN_API VST3Controller::connect(IConnectionPoint* other)
@@ -140,14 +149,20 @@ bool VST3Controller::sendMessageToProcessor(const void* data, int size)
 	return true;
 }
 
-void VST3Controller::ParamGrabbed(MpParameter_native* param, int32_t voice)
+void VST3Controller::ParamGrabbed(MpParameter_native* param)
 {
 	auto paramID = param->getNativeTag();
 
-	if(param->isGrabbed() )
+	if (param->isGrabbed())
+	{
+		_RPT0(0, "DAW GRAB\n");
 		beginEdit(paramID);
+	}
 	else
+	{
+		_RPT0(0, "DAW UN-GRAB\n");
 		endEdit(paramID);
+	}
 }
 
 void VST3Controller::ParamToProcessorViaHost(MpParameterVst3* param, int32_t voice)
@@ -158,6 +173,7 @@ void VST3Controller::ParamToProcessorViaHost(MpParameterVst3* param, int32_t voi
 	if (!param->isGrabbed())
 		beginEdit(paramID);
 
+    _RPT2(0, "param[%d] %f => DAW\n", paramID, param->getNormalized());
 	performEdit(paramID, param->convertNormalized(param->getNormalized())); // Send the value to DSP.
 
 	if (!param->isGrabbed())
@@ -287,7 +303,7 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 		{
 			for (int cc = 0; cc < numMidiControllers; ++cc)
 			{
-				if (supportAllCC || cc > 127 || cc == 74) // Channel Presure, Pitch Bend and Brightness
+				if (chan == 0 || supportAllCC || cc > 127 || cc == 74) // Channel Presure, Pitch Bend and Brightness
 				{
 					const ParamID ParameterId = MidiControllersParameterId + chan * numMidiControllers + cc;
 					swprintf(ccName + 9, std::size(ccName), L"%3d", cc);
@@ -361,13 +377,6 @@ tresult PLUGIN_API VST3Controller::getMidiControllerAssignment (int32 busIndex, 
 		}
 	}
 
-	//if (busIndex == 0 && channel < supportedChannels && midiControllerNumber >= 0 && midiControllerNumber < numMidiControllers )
-	//{
-	//	// MIDI CC 0 - 127 + Bender (128) and Aftertouch (129)
-	//	tag = MidiControllersParameterId + channel * numMidiControllers + midiControllerNumber;
-	//	return kResultTrue;
-	//}
-
 	return kResultFalse;
 }
 
@@ -423,7 +432,8 @@ tresult PLUGIN_API VST3Controller::setComponentState (IBStream* state)
 	chunk.resize(chunkSize);
 	state->read((void*) chunk.data(), chunkSize, &bytesRead);
 
-	setPresetFromDaw(chunk, false);
+	DawPreset preset(parametersInfo, chunk);
+	setPreset(&preset);
 
 	return kResultTrue;
 }
@@ -473,7 +483,7 @@ tresult VST3Controller::getParameterInfo(int32 paramIndex, ParameterInfo& info)
 	_tstrncpy(info.title, (const TChar*)temp.c_str(), static_cast<Steinberg::uint32>(std::size(info.title)));
 
 	info.id = p->getNativeTag();
-	info.unitId = 0;
+	info.unitId = kRootUnitId;
     info.stepCount = 0;
 	info.units[0] = 0;
 
@@ -482,7 +492,12 @@ tresult VST3Controller::getParameterInfo(int32 paramIndex, ParameterInfo& info)
 		info.flags |= Steinberg::Vst::ParameterInfo::kIsList;
 		it_enum_list it(p->enumList_);
 		info.stepCount = (std::max)(0, it.size() - 1);
-//?		info.unitId = 0;
+	}
+
+	// Support for VSTs special bypass parameter. Make a bool param called "BYPASS" 
+	if (p->datatype_ == DT_BOOL && p->name_ == L"BYPASS")
+	{
+		info.flags |= Steinberg::Vst::ParameterInfo::kIsBypass;
 	}
 
 	return kResultOk;
@@ -563,6 +578,64 @@ void VST3Controller::loadFactoryPreset(int index, bool fromDaw)
 	auto filenameUtf8 = ToUtf8String(fullFilePath);
 	ImportPresetXml(filenameUtf8.c_str());
 #endif
+}
+
+void VST3Controller::setPresetFromSelf(DawPreset const* preset)
+{
+	// since there is no explicit sharing between controller and processor, we need to send entire preset in one hit via queue
+	const auto xml = preset->toString(BundleInfo::instance()->getPluginId());
+	setPresetXmlFromSelf(xml);
+}
+
+void VST3Controller::setPresetXmlFromSelf(const std::string& xml)
+{
+	// send to processor
+	auto message = allocateMessage();
+	if (message)
+	{
+		FReleaser msgReleaser(message);
+		message->setMessageID("BinaryMessage");
+
+		message->getAttributes()->setBinary("Preset", xml.data(), xml.size());
+		sendMessage(message);
+	}
+
+	// send to controller
+	DawPreset preset(parametersInfo, xml);
+	setPreset(&preset);
+
+#if 0
+	// since there is not explicit sharing between controller and processor, we need to send entire preset in one hit via queue
+	
+	const auto freespace = getQueueToDsp()->freeSpace();
+	const uint32_t messageSize = static_cast<uint32_t>(sizeof(int32_t) + xml.size());
+
+	if (freespace < messageSize)
+	{
+		assert(false); // Preset too large for message queue
+		return;
+	}
+
+	my_msg_que_output_stream s(getQueueToDsp(), UniqueSnowflake::APPLICATION, "PROG"); // Program Change
+
+	s << messageSize;
+	s << xml;
+
+	s.Send();
+#endif
+}
+
+platform_string VST3Controller::calcFactoryPresetFolder()
+{
+	// TODO
+	return {};
+}
+
+std::string VST3Controller::getFactoryPresetXml(std::string filename)
+{
+	auto PresetFolder = calcFactoryPresetFolder();
+	auto fullFilePath = PresetFolder + ToPlatformString(filename);
+	return loadNativePreset(toWstring(fullFilePath));
 }
 
 void VST3Controller::saveNativePreset(const char* filename, const std::string& presetName, const std::string& xml)

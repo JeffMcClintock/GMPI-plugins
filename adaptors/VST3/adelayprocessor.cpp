@@ -239,7 +239,7 @@ SeProcessor::~SeProcessor ()
 		background.join();
 	}
 
-	gmpi_dynamic_linking::MP_DllUnload(plugin_dllHandle);
+	gmpi_dynamic_linking::MP_DllUnload(plugin_dllHandle_to_unload);
 }
 
 void SeProcessor::reInitialise()
@@ -252,12 +252,25 @@ void SeProcessor::reInitialise()
 	if (!plugin_dllHandle)
 	{
 #if defined( _WIN32)
-		if (gmpi_dynamic_linking::MP_DllLoad(&plugin_dllHandle, load_filename.c_str()))
+		if (load_filename.empty()) // plugin is statically linked.
 		{
-			// TODO.
-			//// load failed, try it as a bundle.
-			//const auto bundleFilepath = load_filename + L"/Contents/x86_64-win/" + filename;
-			//gmpi_dynamic_linking::MP_DllLoad(&dllHandle, bundleFilepath.c_str());
+			// no need to load DLL, it's already linked.
+			gmpi_dynamic_linking::MP_GetDllHandle(&plugin_dllHandle);
+		}
+		else
+		{
+			plugin_dllHandle_to_unload = {};
+
+			// Load the DLL.
+			if (gmpi_dynamic_linking::MP_DllLoad(&plugin_dllHandle, load_filename.c_str()))
+			{
+				plugin_dllHandle_to_unload = plugin_dllHandle;
+				assert(false);
+				// TODO.
+				//// load failed, try it as a bundle.
+				//const auto bundleFilepath = load_filename + L"/Contents/x86_64-win/" + filename;
+				//gmpi_dynamic_linking::MP_DllLoad(&dllHandle, bundleFilepath.c_str());
+			}
 		}
 #else
 		// int32_t r = MP_DllLoad( &dllHandle, load_filename.c_str() );
@@ -324,41 +337,40 @@ void SeProcessor::reInitialise()
 
 			events.push(
 				{
+					{},            // next (populated later)
 					0,             // timeDelta
 					gmpi::api::EventType::GraphStart,
-					{},            // parm1
-					{},            // parm2
-					{},            // parm3
-					{},            // parm4
-					{},            // extraData
-					{}             // next (ignored)
+					{},            // pinIdx
+					{},            // size_
+					{}             // data_/oversizeData_
 				}
 			);
 			events.push(
 				{
+					{},            // next (populated later)
 					0,             // timeDelta
 					gmpi::api::EventType::PinStreamingStart,
-					0,             // pin index
-					{},            // parm2
-					{},            // parm3
-					{},            // parm4
-					{},            // extraData
-					{}             // next (ignored)
+					{},            // pinIdx
+					{},            // size_
+					{}             // data_/oversizeData_
 				}
 			);
-			float parameterValue = 0.7f;
-			events.push(
-				{
-					0,             // timeDelta
-					gmpi::api::EventType::PinSet,
-					2,             // pin index
-					4,             // data size in bytes
-					*reinterpret_cast<int32_t*>(&parameterValue),            // data 1
-					{},            // data 2
-					{},            // extraData
-					{}             // next (ignored)
-				}
-			);
+
+			gmpi::api::Event e
+			{
+				{},            // next (populated later)
+				0,             // timeDelta
+				gmpi::api::EventType::PinSet,
+				2,             // pinIdx
+				4,             // size_
+				{}             // data_/oversizeData_
+			};
+
+			const float parameterValue = 0.7f;
+			const auto src = reinterpret_cast<const uint8_t*>(&parameterValue);
+			auto dst = reinterpret_cast<uint8_t*>(& e.data_);
+			std::copy(src, src + sizeof(parameterValue), dst);
+			events.push(e);
 		}
 
 #if 0 // TODO
@@ -1382,9 +1394,9 @@ int32_t SeProcessor::getBlockSize()
 	return processSetup.maxSamplesPerBlock;
 }
 
-int32_t SeProcessor::getSampleRate()
+float SeProcessor::getSampleRate()
 {
-	return processSetup.sampleRate;
+	return static_cast<float>(processSetup.sampleRate);
 }
 
 int32_t SeProcessor::getHandle()

@@ -123,7 +123,9 @@ std::string MyTypeTraits<std::wstring>::toXML( const std::wstring& value );
 template<>
 std::string MyTypeTraits<float>::toXML( const float& value );
 template<>
-std::string MyTypeTraits<int>::toXML( const int& value );
+std::string MyTypeTraits<int>::toXML(const int& value);
+template<>
+std::string MyTypeTraits<int64_t>::toXML(const int64_t& value);
 template<>
 std::string MyTypeTraits<short>::toXML( const short& value );
 template<>

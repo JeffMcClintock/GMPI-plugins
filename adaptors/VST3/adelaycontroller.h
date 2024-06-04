@@ -24,9 +24,12 @@ namespace Steinberg {
 class MpParameterVst3 : public MpParameter_native
 {
 	Steinberg::Vst::VST3Controller* vst3Controller = {};
+	int hostTag = -1;	// index as set in SE, not nesc sequential.
 
 public:
-	MpParameterVst3(Steinberg::Vst::VST3Controller* controller, int strictIndex, int ParameterTag, bool isInverted);
+	MpParameterVst3(Steinberg::Vst::VST3Controller* controller, int ParameterTag, bool isInverted);
+	
+	int getNativeTag() override { return hostTag; }
 
 	// some hosts can't handle parameter min > max, if so calculate normalize in reverse.
 	float convertNormalized(float normalised) const
@@ -38,6 +41,7 @@ public:
 
 	// not required for VST3.
 	void upDateImmediateValue() override {}
+	void updateDawUnsafe(const std::string& rawValue) override {}
 
 	bool isInverted_ = false;
 };
@@ -60,13 +64,16 @@ class VST3Controller :
 	bool isConnected;
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
 	std::map<int, MpParameterVst3* > tagToParameter;	// DAW parameter Index to parameter
-	std::vector<MpParameterVst3* > vst3Parameters; // flat list.
-    // Hold data until timer can put it in VST3 queue mechanism.
+	std::vector<MpParameterVst3* > vst3Parameters;      // flat list.
+
+	// Hold data until timer can put it in VST3 queue mechanism.
 	StagingMemoryBuffer queueToDsp_;
 	int supportedChannels = 1;
 
 public:
 	VST3Controller();
+	~VST3Controller();
+
 	tresult PLUGIN_API initialize (FUnknown* context) override;
 	tresult PLUGIN_API connect(IConnectionPoint* other) override;
 	tresult PLUGIN_API notify( IMessage* message ) override;
@@ -75,15 +82,15 @@ public:
 	virtual tresult PLUGIN_API setComponentState (IBStream* state) override;
 
 	//testing.
-	virtual tresult PLUGIN_API setState(IBStream* state) override
+	tresult PLUGIN_API setState(IBStream* state) override
 	{
 		return kResultOk;
 	}
-	virtual tresult PLUGIN_API getState(IBStream* state) override
+	tresult PLUGIN_API getState(IBStream* state) override
 	{
 		return kResultOk;
 	}
-	void ParamGrabbed(MpParameter_native* param, int32_t voice = 0) override;
+	void ParamGrabbed(MpParameter_native* param) override;
 	void ParamToProcessorViaHost(MpParameterVst3* param, int32_t voice = 0);
 
 	MpParameterVst3* getDawParameter(int nativeTag)
@@ -127,10 +134,10 @@ public:
 	// IUnitInfo
 	//------------------------------------------------------------------------
 	/** Returns the flat count of units. */
-	virtual int32 PLUGIN_API getUnitCount() override { return 1; }
+	int32 PLUGIN_API getUnitCount() override { return 1; }
 
 	/** Gets UnitInfo for a given index in the flat list of unit. */
-	virtual tresult PLUGIN_API getUnitInfo(int32 unitIndex, UnitInfo& info /*out*/) override
+	tresult PLUGIN_API getUnitInfo(int32 unitIndex, UnitInfo& info /*out*/) override
 	{
 		info.id = kRootUnitId;
 		info.name[0] = 0;
@@ -141,10 +148,10 @@ public:
 
 	/** Component intern program structure. */
 	/** Gets the count of Program List. */
-	virtual int32 PLUGIN_API getProgramListCount() override { return 1; } // number of program lists. Always 1.
+	int32 PLUGIN_API getProgramListCount() override { return 1; } // number of program lists. Always 1.
 
 	/** Gets for a given index the Program List Info. */
-	virtual tresult PLUGIN_API getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/) override
+	tresult PLUGIN_API getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/) override
 	{
 		if (listIndex == 0)
 		{
@@ -158,7 +165,7 @@ public:
 	}
 
 	/** Gets for a given program list ID and program index its program name. */
-	virtual tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/) override
+	tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/) override
 	{
 		const int kVstMaxProgNameLen = 24;
 //		if (programIndex < (int32)factoryPresetNames.size())
@@ -234,6 +241,8 @@ public:
 	{
 		if (auto p = getDawParameter(tag); p)
 		{
+//            _RPT2(_CRT_WARN, "getParamNormalized() => DAW %d %f\n", tag, p->getNormalized());
+      
 			return p->convertNormalized(p->getNormalized());
 		}
 
@@ -266,11 +275,17 @@ public:
 	void ResetProcessor() override;
 
 	// Presets
+	void setPresetXmlFromSelf(const std::string& xml) override;
+	void setPresetFromSelf(DawPreset const* preset) override;
+
 	std::wstring getNativePresetExtension() override
 	{
 		return L"vstpreset";
 	}
 	std::vector< MpController::presetInfo > scanFactoryPresets() override;
+	platform_string calcFactoryPresetFolder();
+	std::string getFactoryPresetXml(std::string filename) override;
+
 	void loadFactoryPreset(int index, bool fromDaw) override;
 	void saveNativePreset(const char* filename, const std::string& presetName, const std::string& xml) override;
 	std::string loadNativePreset(std::wstring sourceFilename) override;
@@ -292,7 +307,7 @@ public:
 	{
 		auto param = new MpParameterVst3(
 			this,
-			static_cast<int>(vst3Parameters.size()),
+//			static_cast<int>(vst3Parameters.size()),
 			ParameterTag,
 			isInverted
 		);

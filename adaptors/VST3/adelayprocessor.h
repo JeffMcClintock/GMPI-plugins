@@ -50,8 +50,13 @@ public:
 	{
 		assert(tail != events.size()); // opps, filled event list up.
 
-		if(tail < events.size() - 1)
+		if (tail < events.size() - 1)
+		{
+			//if(tail > 0)
+			//	events[tail - 1].next = &(events[tail]);
+
 			events[tail++] = event;
+		}
 	}
 
 	gmpi::api::Event* head()
@@ -59,7 +64,8 @@ public:
 		if (tail == 0)
 			return {};
 
-		for (int i = 0; i < tail; ++i)
+		// create linked list.
+		for (int i = 0; i < tail - 1; ++i)
 		{
 			events[i].next = &events[i + 1];
 		}
@@ -126,7 +132,7 @@ public:
 	gmpi::ReturnCode setLatency(int32_t latency) override;
 	gmpi::ReturnCode sleep() override;
 	int32_t getBlockSize() override;
-	int32_t getSampleRate() override;
+	float getSampleRate() override;
 	int32_t getHandle() override;
 
 protected:
@@ -152,6 +158,7 @@ protected:
 	EventQue<1000> events;
 
 	gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
+	gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle_to_unload = {};
 
 	bool active_;
 //TODO	my_VstTimeInfo timeInfo;
