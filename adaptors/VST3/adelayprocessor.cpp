@@ -621,6 +621,7 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 	{
 		reInitialise();
 	}
+#endif
 
 	if (data.inputParameterChanges)
 	{
@@ -644,7 +645,26 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 						assert(sampleOffset >=0 && sampleOffset < data.numSamples);
 //						_RPT1(_CRT_WARN, "                     PRESETS-DSP: P%d Set in Process()\n", id);
 
-						synthEditProject.setParameterNormalizedDsp( sampleOffset, id, value );
+						// synthEditProject.setParameterNormalizedDsp( sampleOffset, id, value );
+						// TODO!!!
+						float realVal = value * 10.0f;
+						int pinID = 2;
+
+						gmpi::api::Event e
+						{
+							{},            // next (populated later)
+							sampleOffset,  // timeDelta
+							gmpi::api::EventType::PinSet,
+							pinID,         // pinIdx
+							4,             // size_
+							{}             // data_/oversizeData_
+						};
+
+						const auto src = reinterpret_cast<const uint8_t*>(&realVal);
+						auto dst = reinterpret_cast<uint8_t*>(&e.data_);
+						std::copy(src, src + sizeof(realVal), dst);
+
+						events.push(e);
 					}
 					else
 					{
@@ -691,11 +711,28 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 								}
 							}
 
-							synthEditProject.MidiIn(
-								sampleOffset
-								, msgout.m
-								, sizeof(msgout.m)
-							);
+							//synthEditProject.MidiIn(
+							//	sampleOffset
+							//	, msgout.m
+							//	, sizeof(msgout.m)
+							//);
+
+							int pinID = 0; // TODO!!! for now
+							gmpi::api::Event e
+							{
+								{},            // next (populated later)
+								sampleOffset,  // timeDelta
+								gmpi::api::EventType::Midi,
+								pinID,         // pinIdx
+								sizeof(msgout.m), // size_
+								{}             // data_/oversizeData_
+							};
+
+							const auto src = reinterpret_cast<const uint8_t*>(&msgout.m);
+							auto dst = reinterpret_cast<uint8_t*>(&e.data_);
+							std::copy(src, src + sizeof(msgout.m), dst);
+
+							events.push(e);
 						}
 					}
 				}
@@ -706,6 +743,7 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 	if (data.numSamples <= 0)
 		return kResultTrue;
 
+#if 0
 	const int32 numEvents = data.inputEvents ? data.inputEvents->getEventCount() : 0;
 	
 	for (int32 eventIndex = 0; eventIndex < numEvents ; ++eventIndex)

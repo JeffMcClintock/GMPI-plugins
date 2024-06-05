@@ -810,56 +810,10 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 
 bool MyVstPluginFactory::initializeFactory()
 {
-#if 0
-	// load GMPI static
-	{
-		gmpi_dynamic_linking::DLL_HANDLE hmodule = 0;
-		gmpi_dynamic_linking::MP_GetDllHandle(&hmodule);
-
-		gmpi::MP_DllEntry dll_entry_point;
-		const char* gmpi_dll_entrypoint_name = "MP_GetFactory";
-		auto r1 = gmpi_dynamic_linking::MP_DllSymbol(hmodule, gmpi_dll_entrypoint_name, (void**)&dll_entry_point);
-
-//		gmpi::IMpUnknown* com_object{};
-		gmpi_sdk::mp_shared_ptr<gmpi::IMpUnknown> com_object;
-		auto r = dll_entry_point(com_object.asIMpUnknownPtr());
-
-		if (r != gmpi::MP_OK || !com_object)
-		{
-			return false;
-		}
-		gmpi_sdk::mp_shared_ptr<gmpi::IMpShellFactory> vst_factory;
-		gmpi_sdk::mp_shared_ptr<gmpi::api::IPluginFactory> gmpi_factory;
-		{
-//			gmpi_sdk::mp_shared_ptr<gmpi::IMpUnknown> com_object;
-//			r = dll_entry_point(com_object.asIMpUnknownPtr());
-
-			r = com_object->queryInterface(gmpi::MP_IID_SHELLFACTORY, vst_factory.asIMpUnknownPtr());
-			r = com_object->queryInterface((const gmpi::MpGuid&)gmpi::api::IPluginFactory::guid, gmpi_factory.asIMpUnknownPtr());
-
-			// skip some steps
-
-			plugins.push_back(
-				{
-					{}, // std::string id;
-					{"GMPI PLUGIN WRAPPER"}, // std::string name;
-					{0}, // int inputCount = {};
-					{0}, // int outputCount = {};
-					{}, // std::vector<pinInfoSem> dspPins;
-					{}, // std::vector<pinInfoSem> guiPins;
-					{}, // std::vector<paramInfoSem> parameters;
-					{}, // platform_string pluginPath; 
-				}
-			);
-		}
-	}
-#endif
-
 	platform_string pluginPath;
 #if 0
 	// load SEM dynamic.
 	const auto semFolderSearch = BundleInfo::instance()->getSemFolder() + L"/*.gmpi";
-
 
 	FileFinder it(semFolderSearch.c_str());
 	for (; !it.done(); ++it)
@@ -932,11 +886,11 @@ bool MyVstPluginFactory::initializeFactory()
 
 	{ // restrict scope of 'vst_factory' and 'gmpi_factory' so smart pointers RIAA before dll is unloaded
 
-		// Instansiate factory and query sub-plugins.
-		gmpi_sdk::mp_shared_ptr<gmpi::IMpShellFactory> vst_factory;
-		gmpi_sdk::mp_shared_ptr<gmpi::api::IPluginFactory> gmpi_factory;
+		// Instantiate factory and query sub-plugins.
+		gmpi::shared_ptr<gmpi::IMpShellFactory> vst_factory;
+		gmpi::shared_ptr<gmpi::api::IPluginFactory> gmpi_factory;
 		{
-			gmpi_sdk::mp_shared_ptr<gmpi::IMpUnknown> com_object;
+			gmpi::shared_ptr<gmpi::IMpUnknown> com_object;
 			r = dll_entry_point(com_object.asIMpUnknownPtr());
 
 			r = com_object->queryInterface(gmpi::MP_IID_SHELLFACTORY, vst_factory.asIMpUnknownPtr());
