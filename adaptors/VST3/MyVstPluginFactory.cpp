@@ -132,35 +132,75 @@ int32 MyVstPluginFactory::countClasses ()
 	initialize();
 	return plugins.size() * 2;
 }
+
+uint32 hashString(const std::string& s)
+{
+	uint32_t hash = 5381;
+	{
+		for (auto c : s)
+		{
+			hash = ((hash << 5) + hash) + c; // magic * 33 + c
+		}
+	}
+
+	return hash;
+}
 	
+Steinberg::FUID textIdtoUuid(const std::string& id, bool isController) // else Processor
+{
+	// hash the id
+	const auto hash = hashString(id);// ^ (isController ? 0xff : 0);
+
+	union helper_t
+	{
+		char plain[16] = { "PluginGMPI     " }; // UUID version 4 because 'G' is 0x47
+		Steinberg::TUID tuid;
+	};
+
+	helper_t helper;
+
+	helper.plain[11] = isController ? 'C' : 'P';
+
+	memcpy(helper.plain + 12, &hash, sizeof(hash));
+
+//	helper.plain[6] = 0x40; // UUID version 4
+
+	return Steinberg::FUID::fromTUID(helper.tuid);
+}
+
 /** Fill a PClassInfo structure with information about the class at the specified index. */
 tresult MyVstPluginFactory::getClassInfo (int32 index, PClassInfo* info)
 {
 	initialize();
 
-	if (index < 0 || index > plugins.size() * 2)
+	if (index < 0 || index >= plugins.size())
 	{
 		return kInvalidArgument;
 	}
 
+	const auto& sem = plugins[index];
+
 	const int pluginIndex = index / 2;
 	const int classIndex = index % 2;
+
+	const auto procUUid = textIdtoUuid(sem.id, false);
+	const auto ctrlUUid = textIdtoUuid(sem.id, true);
 
 	switch(classIndex)
 	{
 	case 0:
 		strncpy8 (info->category, kVstAudioEffectClass, PClassInfo::kCategorySize );
-		memcpy(info->cid, &(pluginInfo_.processorId.toTUID()), sizeof(TUID));
+		memcpy(info->cid, &procUUid/*(pluginInfo_.processorId.toTUID()*/, sizeof(TUID));
 		break;
 	case 1:
 		strncpy8 (info->category, kVstComponentControllerClass, PClassInfo::kCategorySize );
-		memcpy(info->cid, &(pluginInfo_.controllerId.toTUID()), sizeof(TUID));
+		memcpy(info->cid, &ctrlUUid/*(pluginInfo_.controllerId.toTUID()*/, sizeof(TUID));
 		break;
 	}
 
 	info->cardinality = PClassInfo::kManyInstances;
 
-	strncpy8 (info->name, plugins[pluginIndex].name.c_str(), PClassInfo::kNameSize );
+	strncpy8 (info->name, sem.name.c_str(), PClassInfo::kNameSize );
 
 	return kResultOk;
 }
@@ -170,10 +210,17 @@ tresult MyVstPluginFactory::getClassInfo2 (int32 index, PClassInfo2* info)
 {
 	initialize();
 
-	if (index < 0 || index > plugins.size() * 2)
+	if (index < 0 || index >= plugins.size())
 	{
 		return kInvalidArgument;
 	}
+
+	const auto& sem = plugins[index];
+
+	std::string version{ "1.0.0" }; // for now
+	std::string subCategories{ "" }; // for now
+	const auto procUUid = textIdtoUuid(sem.id, false);
+	const auto ctrlUUid = textIdtoUuid(sem.id, true);
 
 	const int pluginIndex = index / 2;
 	const int classIndex = index % 2;
@@ -183,38 +230,38 @@ tresult MyVstPluginFactory::getClassInfo2 (int32 index, PClassInfo2* info)
 	strncpy8 (info->name, plugins[pluginIndex].name.c_str(), PClassInfo::kNameSize );
 	strncpy8 (info->sdkVersion, kVstVersionString, PClassInfo2::kVersionSize );
 	strncpy8 (info->vendor, vendorName_.c_str(), PClassInfo2::kVendorSize );
-	strncpy8 (info->version, pluginInfo_.version_.c_str(), PClassInfo2::kVersionSize );
+	strncpy8 (info->version, /*pluginInfo_.version_*/version.c_str(), PClassInfo2::kVersionSize );
 
 	switch(classIndex)
 	{
 	case 0:
 		info->classFlags = Vst::kDistributable;
-		strncpy8 (info->subCategories, pluginInfo_.subCategories_.c_str(), PClassInfo2::kSubCategoriesSize );
+		strncpy8 (info->subCategories, /*pluginInfo_.subCategories_*/subCategories.c_str(), PClassInfo2::kSubCategoriesSize );
 		strncpy8 (info->category, kVstAudioEffectClass, PClassInfo::kCategorySize );
-		memcpy (info->cid, &(pluginInfo_.processorId.toTUID()), sizeof (TUID));
+		memcpy (info->cid, &procUUid/*(pluginInfo_.processorId.toTUID())*/, sizeof (TUID));
 		break;
 	case 1:
 		info->classFlags = 0;
 		strncpy8 (info->subCategories, "", PClassInfo2::kSubCategoriesSize );
 		strncpy8 (info->category, kVstComponentControllerClass, PClassInfo::kCategorySize );
-		memcpy (info->cid, &(pluginInfo_.controllerId.toTUID()), sizeof (TUID));
+		memcpy (info->cid, &ctrlUUid/*(pluginInfo_.controllerId.toTUID())*/, sizeof (TUID));
 		break;
 	}
 
 	return kResultOk;
 }
 
-int32_t MyVstPluginFactory::getVst2Id(int32_t index) // not used for historic reasons. 32-bit comptible.
-{
-	initialize();
-
-	if (index != 0)
-	{
-		return kInvalidArgument;
-	}
-
-	return backwardCompatible4charId;
-}
+//int32_t MyVstPluginFactory::getVst2Id(int32_t index) // not used for historic reasons. 32-bit comptible.
+//{
+//	initialize();
+//
+//	if (index != 0)
+//	{
+//		return kInvalidArgument;
+//	}
+//
+//	return backwardCompatible4charId;
+//}
 
 int32_t MyVstPluginFactory::getVst2Id64(int32_t pluginIndex) // generated from hash of GUID. Not compatible w 32-bit VSTs.
 {
@@ -230,12 +277,17 @@ int32_t MyVstPluginFactory::getVst2Id64(int32_t pluginIndex) // generated from h
 
 	// generate an VST2 ID from VST3 GUIID.
 	// see also CContainer::VstUniqueID()
-	unsigned char vst2ID[4] = { 'A', 'A', 'A', 'A' };
+	unsigned char vst2ID[4]{};
 	int i2 = 0;
 	for (int i = 0; i < sizeof(info.cid); ++i)
 	{
 		vst2ID[i2] = vst2ID[i2] + info.cid[i];
 		i2 = (i2 + 1) & 0x03;
+	}
+
+	for (auto& c : vst2ID)
+	{
+		c = 0x20 + (std::min)(0x7e, c & 0x7f); // make printable
 	}
 
 	return *((int32_t*)vst2ID);
@@ -246,35 +298,41 @@ tresult MyVstPluginFactory::getClassInfoUnicode (int32 index, PClassInfoW* info)
 {
 	initialize();
  
-	if( index < 0 || index > plugins.size() * 2 )
+	if( index < 0 || index >= plugins.size() )
 	{
 		return kInvalidArgument;
 	}
 
+	const auto& sem = plugins[index];
+
+	std::string version{ "1.0.0" }; // for now
+	std::string subCategories{ "" }; // for now
+	const auto procUUid = textIdtoUuid(sem.id, false);
+	const auto ctrlUUid = textIdtoUuid(sem.id, true);
+
 	const int pluginIndex = index / 2;
 	const int classIndex = index % 2;
 
-	// todo unique processor and control GUIDs based on plugin unique-id
 	switch(classIndex)
 	{
 	case 0:
 		info->classFlags = Vst::kDistributable;
-		strncpy8 (info->subCategories, pluginInfo_.subCategories_.c_str(), PClassInfo2::kSubCategoriesSize );
+		strncpy8 (info->subCategories, /*pluginInfo_.subCategories_*/subCategories.c_str(), PClassInfo2::kSubCategoriesSize );
 		strncpy8 (info->category, kVstAudioEffectClass, PClassInfo::kCategorySize );
-		memcpy(info->cid, &(pluginInfo_.processorId.toTUID()), sizeof(TUID));
+		memcpy(info->cid, &procUUid/*(pluginInfo_.processorId.toTUID())*/, sizeof(TUID));
 		break;
 	case 1:
 		info->classFlags = 0;
 		strncpy8 (info->subCategories, "", PClassInfo2::kSubCategoriesSize );
 		strncpy8 (info->category, kVstComponentControllerClass, PClassInfo::kCategorySize );
-		memcpy(info->cid, &(pluginInfo_.controllerId.toTUID()), sizeof(TUID));
+		memcpy(info->cid, &ctrlUUid/*(pluginInfo_.controllerId.toTUID())*/, sizeof(TUID));
 		break;
 	}
 
 	info->cardinality = PClassInfo::kManyInstances;
 
 	str8ToStr16 (info->sdkVersion, kVstVersionString, PClassInfo2::kVersionSize );
-	str8ToStr16 (info->version, pluginInfo_.version_.c_str(), PClassInfo2::kVersionSize );
+	str8ToStr16 (info->version, /*pluginInfo_.version_*/version.c_str(), PClassInfo2::kVersionSize );
 	str8ToStr16 (info->vendor, vendorName_.c_str(), PClassInfo2::kVendorSize );
 	str8ToStr16 (info->name, plugins[pluginIndex].name.c_str(), PClassInfo::kNameSize );
 
@@ -307,22 +365,28 @@ tresult MyVstPluginFactory::createInstance (FIDString cid, FIDString iid, void**
 
 	initialize();
 
-	FUnknown* instance;
-	if (interfaceId == IComponent::iid || classId == pluginInfo_.processorId)
+	FUnknown* instance{};
+
+	for (auto& sem : plugins)
 	{
-		auto i = new SeProcessor();
-/* Now done by detecting MIDI input
-		if( pluginInfo_.subCategories_.find( "Instrument" ) != std::string::npos )
+		if (/*interfaceId == IComponent::iid ||*/ classId == textIdtoUuid(sem.id, false))
 		{
-			i->setSynth();
+			auto i = new SeProcessor();
+			/* Now done by detecting MIDI input
+					if( pluginInfo_.subCategories_.find( "Instrument" ) != std::string::npos )
+					{
+						i->setSynth();
+					}
+			*/
+			i->setControllerClass(textIdtoUuid(sem.id, true)); // associate with controller.
+			instance = (IAudioProcessor*)i;
+			break;
 		}
-*/
-		i->setControllerClass (pluginInfo_.controllerId); // associate with controller.
-		instance = (IAudioProcessor*) i;
-	}
-	else
-	{
-		instance = Steinberg::Vst::VST3Controller::createInstance(0);
+		else if(classId == textIdtoUuid(sem.id, true))
+		{
+			instance = Steinberg::Vst::VST3Controller::createInstance(0);
+			break;
+		}
 	}
 
 	if (instance)
@@ -805,9 +869,6 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 	}
 }
 
-//VST_EXPORT
-//int32_t MP_STDCALL MP_GetFactory(void** returnInterface);
-
 bool MyVstPluginFactory::initializeFactory()
 {
 	platform_string pluginPath;
@@ -872,6 +933,13 @@ bool MyVstPluginFactory::initializeFactory()
 		}
 	}
 
+	// set some fallbacks
+	vendorName_ = "SynthEdit";
+//	pluginInfo_.name_ = "SEM Wrapper";
+	// TODO derive from SEM id
+//	pluginInfo_.processorId.fromRegistryString("{8A389500-D21D-45B6-9FA7-F61DEFA68328}");
+//	pluginInfo_.controllerId.fromRegistryString("{D3047E63-2F3F-43A8-96AC-68D068F56106}");
+
 	// Shell plugins
 	// GMPI & sem V3 export function
 	gmpi::MP_DllEntry dll_entry_point;
@@ -926,129 +994,16 @@ bool MyVstPluginFactory::initializeFactory()
 				// have to cast GMPI 2 types to GMPI 1 types
 				r = (int32_t)gmpi_factory->getPluginInformation(index++, &s); // FULL XML
 			}
-			//else
-			//{
-			//	r = vst_factory->getPluginIdentification(index++, s.getUnknown()); // Summary XML
-			//}
 
 			if (r != gmpi::MP_OK)
 				break;
 
 			RegisterXml(pluginPath, s.c_str());
-			//TiXmlDocument doc2;
-			//doc2.Parse(s.c_str());
-
-			//if (doc2.Error())
-			//{
-			//	std::wostringstream oss;
-			//	oss << L"Module XML Error: [SynthEdit.exe]" << doc2.ErrorDesc() << L"." << doc2.Value();
-			//	SafeMessagebox(0, oss.str().c_str(), L"", MB_OK | MB_ICONSTOP);
-			//	break;
-			//}
 
 			//ModuleFactory()->RegisterExternalPluginsXml(&doc2, full_path, group_name, scanVstsOnly);
 		}
 	}
 
-#if 0 // TODO
-	auto factoryXml = BundleInfo::instance()->getResource( "factory.se.xml" );
-
-	TiXmlDocument doc;
-	doc.Parse( factoryXml.c_str() );
-
-	if ( doc.Error() )
-	{
-		TiXmlNode* e = doc.FirstChildElement();
-		while( e )
-		{
-			_RPT1(_CRT_WARN, "%s\n", e->Value() );
-			TiXmlElement* pElem = e->FirstChildElement("From");
-			if( pElem )
-			{
-				const char* from = pElem->Value();
-				from = from; // to shut compiler up.
-			}
-			e = e->LastChild();
-		}
-		assert(false);
-	}
-	else
-	{
-		TiXmlHandle hDoc(&doc);
-		TiXmlElement* pElem;
-
-		// block: Vendor
-		pElem=hDoc.FirstChildElement().Element();
-
-		// should always have a valid root but handle gracefully if it does
-		if (pElem)
-		{
-			// First element must be the vendor.
-			assert( strcmp(pElem->Value(), "Factory" ) == 0 );
-
-			TiXmlElement* vendor = pElem->FirstChild( "Vendor" )->ToElement();
-
-			vendorName_ = vendor->Attribute("Name");
-			vendorUrl_.assign(vendor->Attribute("Url"));
-			vendorEmail_.assign(vendor->Attribute("Email"));
-			vendorEmail_ = "mailto:" + vendorEmail_; // Steinberg convention to express it like a web link.
-
-			TiXmlNode* plugins = pElem->FirstChild( "Plugins" );
-			assert( plugins ); // Got to have one.
-			TiXmlNode* pluginNode = plugins->FirstChild( "Plugin" );
-			assert( pluginNode ); // Got to have one.
-
-			TiXmlElement* plugin = pluginNode->ToElement();
-
-			pluginInfo_.name_ = plugin->Attribute("Name");
-			pluginInfo_.version_ = plugin->Attribute("Version");
-			pluginInfo_.processorId.fromRegistryString( plugin->Attribute("ProcessorId") );
-			pluginInfo_.controllerId.fromRegistryString( plugin->Attribute("ControllerId") );
-				
-			backwardCompatible4charId = 0;
-			plugin->QueryIntAttribute("PluginID", &backwardCompatible4charId);
-
-			pluginInfo_.subCategories_ = plugin->Attribute("subCategories");
-			pluginInfo_.ElatencyCompensation = 0; // none.
-			plugin->QueryIntAttribute("latencyCompensation", &pluginInfo_.ElatencyCompensation);
-
-			plugin->QueryBoolAttribute("outputsAsStereoPairs", &pluginInfo_.outputsAsStereoPairs);
-			plugin->QueryBoolAttribute("emulateIgnorePC", &pluginInfo_.emulateIgnorePC);
-			
-			pluginInfo_.outputNames = plugin->Attribute("outputNames");
-   
-            BundleInfo::instance()->setPluginId(backwardCompatible4charId);
-		}
-	}
-
-	// VST3 preset folder
-	{
-		// https://steinbergmedia.github.io/vst3_dev_portal/pages/Technical+Documentation/Locations+Format/Preset+Locations.html
-		auto vst3PresetFolder = BundleInfo::instance()->getUserDocumentFolder();
-
-#if defined( _WIN32 )
-		// Correct folder (user presets). [MYDOCUMENTS]/VST3 Presets/$COMPANY/$PLUGIN-NAME/
-		vst3PresetFolder += L"VST3 Presets\\";
-
-#else
-		// Note: !!! This folder may not exist, which will result in presets being saved in 'Documents' (and never scanned by preset browser)
-// might be prefereable to check if this directory exists, and if not fallback to 'Documents' on mac
-		vst3PresetFolder += L"/Library/Audio/Presets/";
-#endif
-
-		// Add Company name.
-		BundleInfo::instance()->presetFolder =
-		vst3PresetFolder +
-		Utf8ToWstring(getVendorName()) + L"/" +       // Vendor
-		Utf8ToWstring(getProductName()) + L"/";       // Product.
-	}
-#else
-	vendorName_ = "SynthEdit";
-	pluginInfo_.name_ = "SEM Wrapper";
-	// TODO derive from SEM id
-	pluginInfo_.processorId .fromRegistryString("{8A389500-D21D-45B6-9FA7-F61DEFA68328}");
-	pluginInfo_.controllerId.fromRegistryString("{D3047E63-2F3F-43A8-96AC-68D068F56106}");
-#endif
 	return true;
 }
 
@@ -1094,7 +1049,7 @@ std::wstring MyVstPluginFactory::getSemFolder()
 
 bool MyVstPluginFactory::GetOutputsAsStereoPairs()
 {
-	return pluginInfo_.outputsAsStereoPairs;
+	return true; // for now.  pluginInfo_.outputsAsStereoPairs;
 }
 
 std::string MyVstPluginFactory::getVendorName()
@@ -1102,16 +1057,16 @@ std::string MyVstPluginFactory::getVendorName()
 	return vendorName_;
 }
 
-std::wstring MyVstPluginFactory::GetOutputsName(int index)
-{
-	it_enum_list it( Utf8ToWstring( pluginInfo_.outputNames ));
-
-	it.FindIndex(index);
-	if( !it.IsDone() )
-	{
-		return ( *it )->text;
-	}
-
-	return L"AudioOutput";
-}
+//std::wstring MyVstPluginFactory::GetOutputsName(int index)
+//{
+//	it_enum_list it( Utf8ToWstring( pluginInfo_.outputNames ));
+//
+//	it.FindIndex(index);
+//	if( !it.IsDone() )
+//	{
+//		return ( *it )->text;
+//	}
+//
+//	return L"AudioOutput";
+//}
 

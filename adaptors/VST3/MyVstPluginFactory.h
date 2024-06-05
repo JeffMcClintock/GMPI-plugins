@@ -116,7 +116,7 @@ public:
 	/** Returns the class info (version 2) for a given index. */
 	virtual Steinberg::tresult PLUGIN_API getClassInfo2 (Steinberg::int32 index, Steinberg::PClassInfo2* info);
 
-	int32_t getVst2Id(int32_t index); // not used. Same ID as 32-bit version.
+//	int32_t getVst2Id(int32_t index); // not used. Same ID as 32-bit version.
 	int32_t getVst2Id64(int32_t index); // generated from hash of GUID. Not compatible w 32-bit VSTs.
 
 	/** Returns the unicode class info for a given index. */
@@ -141,16 +141,16 @@ public:
 //    std::wstring getSemFolder(); // mac only.
 #endif
 	std::string getVendorName();
-	std::string getProductName()
-	{
-		return pluginInfo_.name_;
-	}
+	//std::string getProductName()
+	//{
+	//	return pluginInfo_.name_;
+	//}
 	bool GetOutputsAsStereoPairs();
-	std::wstring GetOutputsName(int index);
-	const pluginInfo& getPluginInfo()
-	{
-		return pluginInfo_;
-	}
+	//std::wstring GetOutputsName(int index);
+	//const pluginInfo& getPluginInfo()
+	//{
+	//	return pluginInfo_;
+	//}
 
 	std::vector<pluginInfoSem> plugins;
 
@@ -165,8 +165,7 @@ private:
 	std::string vendorUrl_;
 	std::string vendorEmail_;
 
-	pluginInfo pluginInfo_;
-	int32_t backwardCompatible4charId = -1;
-
+//	pluginInfo pluginInfo_;
+//	int32_t backwardCompatible4charId = -1;
 };
 
