@@ -146,26 +146,26 @@ uint32 hashString(const std::string& s)
 	return hash;
 }
 	
-Steinberg::FUID textIdtoUuid(const std::string& id, bool isController) // else Processor
+void textIdtoUuid(const std::string& id, bool isController, Steinberg::TUID& ret) // else Processor
 {
 	// hash the id
 	const auto hash = hashString(id);// ^ (isController ? 0xff : 0);
 
-	union helper_t
-	{
-		char plain[16] = { "PluginGMPI     " }; // UUID version 4 because 'G' is 0x47
-		Steinberg::TUID tuid;
-	};
+	//union helper_t
+	//{
+	//	char plain[16] = { "PluginGMPI     " }; // UUID version 4 because 'G' is 0x47
+	//	Steinberg::TUID tuid;
+	//};
 
-	helper_t helper;
+	//helper_t helper;
+	memcpy(ret, "PluginGMPI     ", 16);
+	ret[11] = isController ? 'C' : 'P';
 
-	helper.plain[11] = isController ? 'C' : 'P';
-
-	memcpy(helper.plain + 12, &hash, sizeof(hash));
+	memcpy(ret + 12, &hash, sizeof(hash));
 
 //	helper.plain[6] = 0x40; // UUID version 4
 
-	return Steinberg::FUID::fromTUID(helper.tuid);
+//	return helper.tuid;
 }
 
 /** Fill a PClassInfo structure with information about the class at the specified index. */
@@ -178,13 +178,15 @@ tresult MyVstPluginFactory::getClassInfo (int32 index, PClassInfo* info)
 		return kInvalidArgument;
 	}
 
-	const auto& sem = plugins[index];
-
 	const int pluginIndex = index / 2;
 	const int classIndex = index % 2;
 
-	const auto procUUid = textIdtoUuid(sem.id, false);
-	const auto ctrlUUid = textIdtoUuid(sem.id, true);
+	const auto& sem = plugins[pluginIndex];
+
+	Steinberg::TUID procUUid{};
+	Steinberg::TUID ctrlUUid{};
+	textIdtoUuid(sem.id, false, procUUid);
+	textIdtoUuid(sem.id,  true, ctrlUUid);
 
 	switch(classIndex)
 	{
@@ -215,15 +217,18 @@ tresult MyVstPluginFactory::getClassInfo2 (int32 index, PClassInfo2* info)
 		return kInvalidArgument;
 	}
 
-	const auto& sem = plugins[index];
-
 	std::string version{ "1.0.0" }; // for now
 	std::string subCategories{ "" }; // for now
-	const auto procUUid = textIdtoUuid(sem.id, false);
-	const auto ctrlUUid = textIdtoUuid(sem.id, true);
 
 	const int pluginIndex = index / 2;
 	const int classIndex = index % 2;
+
+	const auto& sem = plugins[pluginIndex];
+
+	Steinberg::TUID procUUid{};
+	Steinberg::TUID ctrlUUid{};
+	textIdtoUuid(sem.id, false, procUUid);
+	textIdtoUuid(sem.id, true, ctrlUUid);
 
 	info->cardinality = PClassInfo::kManyInstances;
 
@@ -303,15 +308,18 @@ tresult MyVstPluginFactory::getClassInfoUnicode (int32 index, PClassInfoW* info)
 		return kInvalidArgument;
 	}
 
-	const auto& sem = plugins[index];
-
 	std::string version{ "1.0.0" }; // for now
 	std::string subCategories{ "" }; // for now
-	const auto procUUid = textIdtoUuid(sem.id, false);
-	const auto ctrlUUid = textIdtoUuid(sem.id, true);
 
 	const int pluginIndex = index / 2;
 	const int classIndex = index % 2;
+
+	const auto& sem = plugins[pluginIndex];
+
+	Steinberg::TUID procUUid{};
+	Steinberg::TUID ctrlUUid{};
+	textIdtoUuid(sem.id, false, procUUid);
+	textIdtoUuid(sem.id, true, ctrlUUid);
 
 	switch(classIndex)
 	{
@@ -369,7 +377,12 @@ tresult MyVstPluginFactory::createInstance (FIDString cid, FIDString iid, void**
 
 	for (auto& sem : plugins)
 	{
-		if (/*interfaceId == IComponent::iid ||*/ classId == textIdtoUuid(sem.id, false))
+		Steinberg::TUID procUUid{};
+		Steinberg::TUID ctrlUUid{};
+		textIdtoUuid(sem.id, false, procUUid);
+		textIdtoUuid(sem.id, true, ctrlUUid);
+
+		if (/*interfaceId == IComponent::iid ||*/ classId == Steinberg::FUID(procUUid))
 		{
 			auto i = new SeProcessor();
 			/* Now done by detecting MIDI input
@@ -378,11 +391,11 @@ tresult MyVstPluginFactory::createInstance (FIDString cid, FIDString iid, void**
 						i->setSynth();
 					}
 			*/
-			i->setControllerClass(textIdtoUuid(sem.id, true)); // associate with controller.
+			i->setControllerClass(ctrlUUid); // associate with controller.
 			instance = (IAudioProcessor*)i;
 			break;
 		}
-		else if(classId == textIdtoUuid(sem.id, true))
+		else if(classId == Steinberg::FUID(ctrlUUid))
 		{
 			instance = Steinberg::Vst::VST3Controller::createInstance(0);
 			break;
