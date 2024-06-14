@@ -7,4 +7,4 @@ include_directories(
 
 add_subdirectory(Gain)
 add_subdirectory(TestDatatypes)
-# TODO add_subdirectory(AGraphics)
+add_subdirectory(AGraphics)

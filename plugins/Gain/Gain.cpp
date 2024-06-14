@@ -3,12 +3,7 @@
 
 using namespace gmpi;
 
-namespace Steinberg
-{
-	class IPluginFactory;
-}
-
-extern Steinberg::IPluginFactory* GetPluginFactory();
+//extern Steinberg::IPluginFactory* GetPluginFactory();
 
 struct Gain final : public AudioPlugin
 {

@@ -2,18 +2,26 @@
 #include "adelaycontroller.h"
 //#include "JsonDocPresenter.h"
 
-SEVSTGUIEditorWin::SEVSTGUIEditorWin(IGuiHost2* pcontroller, int pwidth, int pheight) :
+SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* pcontroller, int pwidth, int pheight) :
 controller(pcontroller)
 , width(pwidth)
 , height(pheight)
+, pluginParameters_GMPI(peditor)
 {
+    pluginGraphics_GMPI = peditor.As<gmpi::api::IGraphicsClient>();
 }
 
 Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinberg::FIDString type)
 {
+    if (pluginGraphics_GMPI)
+    {
+        drawingframe.AddView(pluginGraphics_GMPI.get());
+
+        const gmpi::drawing::SizeL overrideSize{ width, height };
+        drawingframe.open(parent, &overrideSize);
+    }
 #if 0
     auto presenter = new JsonDocPresenter(controller);
-    drawingframe.Init(presenter, CF_PANEL_VIEW);
     presenter->RefreshView();
 
     // Ableton opens at the wrong size, then resizes to correct size. Which we handle in onSize()
@@ -40,6 +48,6 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::getSize (Steinberg::ViewRect* s
 
 Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::onSize(Steinberg::ViewRect* newSize)
 {
-    drawingframe.ReSize(newSize->left, newSize->top, newSize->right, newSize->bottom);
+    drawingframe.reSize(newSize->left, newSize->top, newSize->right, newSize->bottom);
     return Steinberg::kResultTrue;
 }

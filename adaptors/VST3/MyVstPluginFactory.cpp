@@ -742,8 +742,8 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 			vendorName_ = "GMPI";
 
 		// PARAMETERS
+		if (auto parametersE = pluginE->FirstChildElement("Parameters"); parametersE)
 		{
-			auto parametersE = pluginE->FirstChildElement("Parameters");
 			int nextId = 0;
 			for (auto paramE = parametersE->FirstChildElement("Parameter"); paramE; paramE = paramE->NextSiblingElement("Parameter"))
 			{
@@ -765,11 +765,11 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 				int controllerType = ControllerType::None;
 				if (!XmlStringToController(FixNullCharPtr(paramE->Attribute("automation")), controllerType))
 				{
-//					std::wostringstream oss;
-//					oss << L"err. module XML file (" << Filename() << L"): pin id " << param.id << L" unknown automation type.";
-//#if defined( SE_EDIT_SUPPORT )
-//					Messagebox(oss);
-//#endif
+					//					std::wostringstream oss;
+					//					oss << L"err. module XML file (" << Filename() << L"): pin id " << param.id << L" unknown automation type.";
+					//#if defined( SE_EDIT_SUPPORT )
+					//					Messagebox(oss);
+					//#endif
 					controllerType = controllerType << 24;
 				}
 
@@ -777,17 +777,17 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 #endif
 				// Datatype.
 				int temp;
-				if (XmlStringToDatatype(pin_datatype, temp) )//&& temp != DT_CLASS)
+				if (XmlStringToDatatype(pin_datatype, temp))//&& temp != DT_CLASS)
 				{
 					param.datatype = (gmpi::PinDatatype)temp;
 				}
 				else
 				{
-//					std::wostringstream oss;
-//					oss << L"err. module XML file (" << Filename() << L"): parameter id " << param.id << L" unknown datatype '" << Utf8ToWstring(pin_datatype) << L"'. Valid [float, int ,string, blob, midi ,bool ,enum ,double]";
-//#if defined( SE_EDIT_SUPPORT )
-//					Messagebox(oss);
-//#endif
+					//					std::wostringstream oss;
+					//					oss << L"err. module XML file (" << Filename() << L"): parameter id " << param.id << L" unknown datatype '" << Utf8ToWstring(pin_datatype) << L"'. Valid [float, int ,string, blob, midi ,bool ,enum ,double]";
+					//#if defined( SE_EDIT_SUPPORT )
+					//					Messagebox(oss);
+					//#endif
 				}
 
 				paramE->QueryBoolAttribute("private", &param.is_private);
@@ -804,7 +804,7 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 				if (persistantFlag == "false")
 				{
 					CLEAR_BITS(param.flags, IO_PARAMETER_PERSISTANT);
-				}
+			}
 #endif
 
 #if 0
@@ -828,7 +828,7 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 				{
 					//bool res = m_parameters.insert(std::pair<int, parameter_description*>(param.id, pind)).second;
 					//assert(res && "parameter already registered");
-				}
+		}
 #endif
 				info.parameters.push_back(param);
 

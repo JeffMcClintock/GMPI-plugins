@@ -2,7 +2,10 @@
 
 #include "pluginterfaces/gui/iplugview.h"
 #include "base/source/fobject.h"
-#include "DrawingFrame_win32.h"
+#include "backends/DrawingFrameWin.h"
+#include "GmpiSdkCommon.h"
+#include "GmpiApiEditor.h"
+#include "GmpiApiDrawingClient.h"
 
 class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 {
@@ -10,8 +13,11 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 	class IGuiHost2* controller = {};
     int width, height;
     
+	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
+	gmpi::shared_ptr<gmpi::api::IGraphicsClient> pluginGraphics_GMPI;
+
 public:
-    SEVSTGUIEditorWin(IGuiHost2* controller, int width, int height);
+    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* controller, int width, int height);
 
 	//---from IPlugView-------
 	Steinberg::tresult PLUGIN_API isPlatformTypeSupported (Steinberg::FIDString type) SMTG_OVERRIDE { return Steinberg::kResultTrue; }

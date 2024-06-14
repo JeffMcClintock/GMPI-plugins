@@ -49,6 +49,7 @@ message(STATUS "Using local SynthEdit modules folder")
 set(se_sdk_folder ${SE_SDK_FOLDER_OVERRIDE}/se_sdk3)
 set(se_shared_folder ${SE_SDK_FOLDER_OVERRIDE}/shared)
 set(se_sdk_hosting_folder ${SE_SDK_FOLDER_OVERRIDE}/se_sdk3_hosting)
+# hosting classes rewritten for GMPI not SE_SDK3 anymore
 endif()
 
 project(SynthEdit_VST3)
@@ -85,52 +86,49 @@ adelaycontroller.h
 adelaycontroller.cpp
 MyTypeTraits.h
 MyTypeTraits.cpp
-${se_sdk_folder}/it_enum_list.h
-${se_sdk_folder}/it_enum_list.cpp
-${se_sdk_hosting_folder}/MpParameter.h
-${se_sdk_hosting_folder}/MpParameter.cpp
-${se_sdk_hosting_folder}/platform_plugin.cpp
-${se_sdk_hosting_folder}/GmpiResourceManager.h
-${se_sdk_hosting_folder}/GmpiResourceManager.cpp
-${se_sdk_hosting_folder}/platform_plugin.cpp
 interThreadQue.h
 interThreadQue.cpp
-${se_sdk_folder}/TimerManager.h
-${se_sdk_folder}/TimerManager.cpp
 ${se_shared_folder}/FileFinder.h
 ${se_shared_folder}/FileFinder.cpp
 ${se_shared_folder}/FileWatcher.h
 ${se_shared_folder}/FileWatcher.cpp
+${se_shared_folder}/xp_dynamic_linking.h
+${se_shared_folder}/xp_dynamic_linking.cpp
 conversion.h
 conversion.cpp
 HostControls.h
 HostControls.cpp
-${se_sdk_hosting_folder}/BundleInfo.h
-${se_sdk_hosting_folder}/BundleInfo.cpp
 RawConversions.h
 RawConversions.cpp
-${se_sdk_hosting_folder}/DrawingFrame_win32.h
-${se_sdk_hosting_folder}/DrawingFrame_win32.cpp
 my_input_stream.h
 my_input_stream.cpp
-${se_sdk_hosting_folder}/DirectXGfx.h
-${se_sdk_hosting_folder}/DirectXGfx.cpp
-${se_shared_folder}/xp_dynamic_linking.h
-${se_shared_folder}/xp_dynamic_linking.cpp
-${se_sdk_hosting_folder}/gmpi_gui_hosting.h
-${se_sdk_hosting_folder}/gmpi_gui_hosting.cpp
-${se_sdk_hosting_folder}/ElatencyContraintType.h
-${se_sdk_hosting_folder}/Controller.h
-${se_sdk_hosting_folder}/Controller.cpp
-${se_sdk_hosting_folder}/ProcessorStateManager.h
-${se_sdk_hosting_folder}/ProcessorStateManager.cpp
 interThreadQue.cpp
 interThreadQue.h
 tinyxml2/tinyxml2.h
 tinyxml2/tinyxml2.cpp
+${se_sdk_folder}/it_enum_list.h
+${se_sdk_folder}/it_enum_list.cpp
+${se_sdk_hosting_folder}/BundleInfo.h
+${se_sdk_hosting_folder}/BundleInfo.cpp
+${se_sdk_hosting_folder}/ProcessorStateManager.h
+${se_sdk_hosting_folder}/ProcessorStateManager.cpp
+${ADAPTORS_COMMON_FOLDER}/MpParameter.h
+${ADAPTORS_COMMON_FOLDER}/MpParameter.cpp
+${ADAPTORS_COMMON_FOLDER}/GmpiResourceManager.h
+${ADAPTORS_COMMON_FOLDER}/GmpiResourceManager.cpp
+${ADAPTORS_COMMON_FOLDER}/platform_plugin.cpp
+${ADAPTORS_COMMON_FOLDER}/Controller.h
+${ADAPTORS_COMMON_FOLDER}/Controller.cpp
+${gmpi_ui_folder}/backends/DrawingFrameWin.h
+${gmpi_ui_folder}/backends/DrawingFrameWin.cpp
+${gmpi_ui_folder}/backends/DirectXGfx.h
+${gmpi_ui_folder}/backends/DirectXGfx.cpp
+${gmpi_ui_folder}/helpers/TimerManager.h
+${gmpi_ui_folder}/helpers/TimerManager.cpp
 )
-#ContainerView.h
-#ContainerView.cpp
+#${se_sdk_hosting_folder}/ElatencyContraintType.h
+#${se_sdk_hosting_folder}/gmpi_gui_hosting.h
+#${se_sdk_hosting_folder}/gmpi_gui_hosting.cpp
 
 #adelay.def
 IF(WIN32)
@@ -176,13 +174,16 @@ set(vst_gui_minimal_srcs
 )
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
+${CMAKE_CURRENT_SOURCE_DIR}
+${ADAPTORS_COMMON_FOLDER}
+${VST3_SDK}
+${DSP_CORE}
+${gmpi_sdk_folder}/Core
+${gmpi_ui_folder}
+${gmpi_ui_folder}/helpers
+${se_sdk_hosting_folder}
 ${se_sdk_folder}
 ${se_shared_folder}
-${se_sdk_hosting_folder}
-${DSP_CORE}
-${VST3_SDK}
-${gmpi_sdk_folder}/Core
 )
 
 source_group(se_sdk FILES ${sdk_srcs})

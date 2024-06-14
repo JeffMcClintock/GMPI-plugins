@@ -11,6 +11,17 @@
 #include "RawConversions.h"
 #include "unicode_conversion.h"
 #include "BundleInfo.h"
+#include "GmpiApiEditor.h"
+
+#ifdef _WIN32
+#include "SEVSTGUIEditorWin.h"
+//#include "../../se_vst3/source/MyVstPluginFactory.h"
+//#include "pluginterfaces/base/funknown.h"
+//#include "../shared/unicode _conversion.h"
+#else
+#include "SEVSTGUIEditorMac.h"
+#endif
+
 /*
 #include "midi_defs.h"
 #include "conversion.h"
@@ -30,7 +41,7 @@
 #include "SEVSTGUIEditorWin.h"
 #include "../../se_vst3/source/MyVstPluginFactory.h"
 #include "pluginterfaces/base/funknown.h"
-#include "../shared/unicode_conversion.h"
+#include "../shared/unicode _conversion.h"
 #else
 #include "SEVSTGUIEditorMac.h"
 #endif
@@ -382,9 +393,110 @@ tresult PLUGIN_API VST3Controller::getMidiControllerAssignment (int32 busIndex, 
 
 IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 {
-#if 0 // TODO
 	if (ConstString (name) == ViewType::kEditor)
 	{
+		// Get a handle to the DLL module.
+		auto vstfactory = MyVstPluginFactory::GetInstance();
+		auto& semInfo = vstfactory->plugins[0];
+		auto load_filename = semInfo.pluginPath;
+
+		gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
+//		if (!plugin_dllHandle)
+//		{
+#if defined( _WIN32)
+			if (load_filename.empty()) // plugin is statically linked.
+			{
+				// no need to load DLL, it's already linked.
+				gmpi_dynamic_linking::MP_GetDllHandle(&plugin_dllHandle);
+			}
+			else
+			{
+				/* TODO
+				plugin_dllHandle_to_unload = {};
+
+				// Load the DLL.
+				if (gmpi_dynamic_linking::MP_DllLoad(&plugin_dllHandle, load_filename.c_str()))
+				{
+					plugin_dllHandle_to_unload = plugin_dllHandle;
+					assert(false);
+					// TODO.
+					//// load failed, try it as a bundle.
+					//const auto bundleFilepath = load_filename + L"/Contents/x86_64-win/" + filename;
+					//gmpi_dynamic_linking::MP_DllLoad(&dllHandle, bundleFilepath.c_str());
+				}
+				*/
+			}
+#else
+			// int32_t r = MP_DllLoad( &dllHandle, load_filename.c_str() );
+
+			// Create a path to the bundle
+			CFStringRef pluginPathStringRef = CFStringCreateWithCString(NULL,
+				WStringToUtf8(load_filename).c_str(), kCFStringEncodingASCII);
+
+			CFURLRef bundleUrl = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
+				pluginPathStringRef, kCFURLPOSIXPathStyle, true);
+			if (bundleUrl == NULL) {
+				printf("Couldn't make URL reference for plugin\n");
+				return;
+			}
+
+			// Open the bundle
+			dllHandle = (DLL_HANDLE)CFBundleCreate(kCFAllocatorDefault, bundleUrl);
+			if (dllHandle == 0) {
+				printf("Couldn't create bundle reference\n");
+				CFRelease(pluginPathStringRef);
+				CFRelease(bundleUrl);
+				return;
+			}
+#endif
+
+			// Factory
+			int32_t r{};
+
+			gmpi::MP_DllEntry dll_entry_point = {};
+#ifdef _WIN32
+			r = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
+#else
+			dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
+#endif        
+
+			if (!dll_entry_point)
+			{
+				return {};
+			}
+
+			gmpi::shared_ptr<gmpi::api::IUnknown> factoryBase;
+			r = dll_entry_point(factoryBase.asIMpUnknownPtr());
+
+			gmpi::shared_ptr<gmpi::api::IPluginFactory> factory;
+			auto r2 = factoryBase->queryInterface(&gmpi::api::IPluginFactory::guid, factory.asIMpUnknownPtr());
+
+			if (!factory || r != gmpi::MP_OK)
+			{
+				return {};
+			}
+
+			gmpi::shared_ptr<gmpi::api::IUnknown> pluginUnknown;
+			r2 = factory->createInstance(semInfo.id.c_str(), gmpi::api::PluginSubtype::Editor, pluginUnknown.asIMpUnknownPtr());
+			if (!pluginUnknown || r != gmpi::MP_OK)
+			{
+				return {};
+			}
+
+			if (auto editor = pluginUnknown.As<gmpi::api::IEditor>(); editor)
+			{
+				int width{ 100 };
+				int height{ 100 };
+#ifdef _WIN32
+				return new SEVSTGUIEditorWin(editor, this, width, height);
+#else
+				return new SEVSTGUIEditorMac(editor, this, width, height);
+#endif
+			}
+
+
+
+#if 0 // TODO
 		// somewhat inefficient to parse entire JSON file just for GUI size
 		// would be nice to pass ownership of document to presenter to save it doing the same all over again.
 		Json::Value document_json;
@@ -411,14 +523,9 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 		//estimatedViewRect.top = estimatedViewRect.left = 0;
 		//estimatedViewRect.bottom = height;
 		//estimatedViewRect.right = width;
+#endif
 
-#ifdef _WIN32
-		return new SEVSTGUIEditorWin(this, width, height);
-#else
-		return new SEVSTGUIEditorMac(this, width, height);
-#endif
 	}
-#endif
 	return {};
 }
 

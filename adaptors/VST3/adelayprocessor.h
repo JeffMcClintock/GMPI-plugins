@@ -195,7 +195,7 @@ protected:
 
 	std::vector<float> silence;
 
-//	GMPI_QUERYINTERFACE(gmpi::api::IAudioPluginHost);
+//	GMPI_QUERYINTERFACE_METHOD(gmpi::api::IAudioPluginHost);
 	gmpi::ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override
 	{
 		*returnInterface = 0;
