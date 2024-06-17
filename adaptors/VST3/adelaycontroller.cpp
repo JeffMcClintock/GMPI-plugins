@@ -485,8 +485,9 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 
 			if (auto editor = pluginUnknown.As<gmpi::api::IEditor>(); editor)
 			{
-				int width{ 100 };
-				int height{ 100 };
+				// TODO currently in pixels, should be DIPs???
+				int width{ 200 };
+				int height{ 200 };
 #ifdef _WIN32
 				return new SEVSTGUIEditorWin(editor, this, width, height);
 #else

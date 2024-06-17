@@ -14,7 +14,7 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
     int width, height;
     
 	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
-	gmpi::shared_ptr<gmpi::api::IGraphicsClient> pluginGraphics_GMPI;
+	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
 
 public:
     SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* controller, int width, int height);

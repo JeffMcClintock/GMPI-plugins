@@ -2,13 +2,14 @@
 #include "adelaycontroller.h"
 //#include "JsonDocPresenter.h"
 
+// TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
 SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* pcontroller, int pwidth, int pheight) :
 controller(pcontroller)
 , width(pwidth)
 , height(pheight)
 , pluginParameters_GMPI(peditor)
 {
-    pluginGraphics_GMPI = peditor.As<gmpi::api::IGraphicsClient>();
+    pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
 }
 
 Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinberg::FIDString type)

@@ -5,12 +5,13 @@
 #include "Drawing.h"
 // hack for now, to prevent linker from discarding plugin factory
 #include "public.sdk/source/main/pluginfactory.h"
+#include "helpers/GraphicsRedrawClient.h"
 
 using namespace gmpi;
 using namespace gmpi::drawing;
 
 // TODO IDrawingClient and IGraphicsClient are essentially the same thing, merge them. Currently gimpi_ui expects IDrawingClient
-class AGraphicsGui final : public gmpi::api::IEditor, public gmpi::api::IGraphicsClient
+class AGraphicsGui final : public gmpi::api::IEditor, public gmpi::api::IDrawingClient
 {
 	Rect bounds;
 
@@ -44,8 +45,32 @@ public:
 		return ReturnCode::Ok;
 	}
 
-	// IGraphicsClient
-	ReturnCode render(drawing::api::IDeviceContext* drawingContext) override
+	// IDrawingClient
+	ReturnCode open(gmpi::api::IUnknown* host) override
+	{
+		return ReturnCode::Ok;
+	}
+	ReturnCode measure(const gmpi::drawing::Size* availableSize, gmpi::drawing::Size* returnDesiredSize) override
+//		ReturnCode measure(drawing::SizeU availableSize, drawing::SizeU* returnDesiredSize) override
+	{
+		*returnDesiredSize = *availableSize;
+		return ReturnCode::Ok;
+	}
+
+	ReturnCode arrange(const gmpi::drawing::Rect* finalRect) override
+//		ReturnCode arrange(drawing::RectL const* finalRect) override
+	{
+		bounds = *finalRect;
+		//drawing::Rect{
+		//	static_cast<float>(finalRect->left),
+		//	static_cast<float>(finalRect->top),
+		//	static_cast<float>(finalRect->right),
+		//	static_cast<float>(finalRect->bottom)
+		//};
+		return ReturnCode::Ok;
+	}
+
+	ReturnCode onRender(gmpi::drawing::api::IDeviceContext* drawingContext) override
 	{
 		Graphics g(drawingContext);
 
@@ -69,36 +94,17 @@ public:
 		return ReturnCode::Ok;
 	}
 
-	// First pass of layout update. Return minimum size required for given available size
-	ReturnCode measure(drawing::SizeU availableSize, drawing::SizeU* returnDesiredSize) override
+	ReturnCode getClipArea(drawing::Rect* returnRect) override
 	{
-		*returnDesiredSize = availableSize;
+		*returnRect = bounds;
 		return ReturnCode::Ok;
-	}
-
-	// Second pass of layout.
-	// TODO: should all rects be passed as pointers (for speed and consistency w D2D). !!!
-	ReturnCode arrange(drawing::RectL const* finalRect) override
-	{
-		bounds = drawing::Rect{
-			static_cast<float>(finalRect->left),
-			static_cast<float>(finalRect->top),
-			static_cast<float>(finalRect->right),
-			static_cast<float>(finalRect->bottom)
-		};
-		return ReturnCode::Ok;
-	}
-
-	ReturnCode getClipArea(drawing::RectL* returnRect) override
-	{
-		return ReturnCode::NoSupport;
 	}
 
 	// IUnknown
 	ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override
 	{
 		GMPI_QUERYINTERFACE(gmpi::api::IEditor);
-		GMPI_QUERYINTERFACE(gmpi::api::IGraphicsClient);
+		GMPI_QUERYINTERFACE(gmpi::api::IDrawingClient);
 		return ReturnCode::NoSupport;
 	}
 	GMPI_REFCOUNT;
