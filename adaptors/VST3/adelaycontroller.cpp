@@ -246,6 +246,12 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 		{
 			int hostParameterIndex = 0;
 			int ParameterHandle = 0;
+
+			for (auto& i : ParameterHandleIndex)
+			{
+				ParameterHandle = (std::max)(ParameterHandle, i.first + 1);
+			}
+
 			for (auto& param : semInfo.parameters)
 			{
 				bool isPrivate =
@@ -254,7 +260,7 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 					param.datatype == gmpi::PinDatatype::Blob;
 
 				float pminimum = 0.0f;
-				float pmaximum = 10.0f;
+				float pmaximum = 1.0f;
 
 				if (!param.meta_data.empty())
 				{

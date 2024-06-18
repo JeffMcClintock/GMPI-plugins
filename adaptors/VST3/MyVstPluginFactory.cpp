@@ -347,7 +347,7 @@ tresult MyVstPluginFactory::getClassInfoUnicode (int32 index, PClassInfoW* info)
 	return kResultOk;
 }
 	
-		/** Recieves information about host*/
+/** Receives information about host*/
 tresult MyVstPluginFactory::setHostContext (FUnknown* context)
 {
 	return kNotImplemented;

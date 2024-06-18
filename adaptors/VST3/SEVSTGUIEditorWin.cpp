@@ -2,14 +2,59 @@
 #include "adelaycontroller.h"
 //#include "JsonDocPresenter.h"
 
+ParameterHelper::ParameterHelper(class SEVSTGUIEditorWin* editor)
+{
+	editor_ = editor;
+}
+
+int32_t ParameterHelper::setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size)
+{
+	editor_->onParameterUpdate(parameterHandle, fieldId, voice, data, size);
+	return 0;
+}
+
+GuiHelper::GuiHelper(class SEVSTGUIEditorWin* editor)
+{
+    editor_ = editor;
+}
+
+void GuiHelper::invalidateRect(const gmpi::drawing::Rect* invalidRect)
+{
+    editor_->drawingframe.invalidateRect(invalidRect);
+}
+
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
 SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* pcontroller, int pwidth, int pheight) :
 controller(pcontroller)
 , width(pwidth)
 , height(pheight)
 , pluginParameters_GMPI(peditor)
+, helper(this)
+, guiHelper(this)
 {
     pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
+
+    controller->RegisterGui2(&helper);
+
+    if(peditor)
+        peditor->setHost((gmpi::api::IUnknown*) &guiHelper);
+}
+
+SEVSTGUIEditorWin::~SEVSTGUIEditorWin()
+{
+	controller->UnRegisterGui2(&helper);
+}
+
+void SEVSTGUIEditorWin::onParameterUpdate(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size)
+{
+	if (!pluginParameters_GMPI)
+		return;
+
+	if (fieldId == 0) // value TODO: lookup pinID from parameterHandle
+    {
+        int32_t pinId = 0;
+	    pluginParameters_GMPI->setPin(pinId, voice, size, data);
+    }
 }
 
 Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinberg::FIDString type)
@@ -31,6 +76,10 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinbe
 
     drawingframe.open(parent, &overrideSize);
 #endif
+
+    // TODO !!! LOOKUP PARAM HANDLE
+    controller->initializeGui(&helper, 3, gmpi::FieldType::MP_FT_VALUE);
+
 	return Steinberg::kResultTrue;
 }
 

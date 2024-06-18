@@ -244,9 +244,12 @@ SeProcessor::~SeProcessor ()
 
 void SeProcessor::reInitialise()
 {
+	silence.assign(processSetup.maxSamplesPerBlock, 0.0f);
+
 	// Get a handle to the DLL module.
 	auto factory = MyVstPluginFactory::GetInstance();
 	auto& semInfo = factory->plugins[0];
+
 	auto load_filename = semInfo.pluginPath;
 
 	if (!plugin_dllHandle)
@@ -331,7 +334,30 @@ void SeProcessor::reInitialise()
 
 		plugin_ = pluginUnknown.As<gmpi::api::IAudioPlugin>();
 
-		if (plugin_)
+		if (!plugin_)
+			return;
+
+		{
+			param2pin.clear();
+			for (auto& pin : semInfo.dspPins)
+			{
+				if (pin.direction == gmpi::PinDirection::In && pin.datatype == gmpi::PinDatatype::Float32 && pin.parameterId != -1)
+				{
+					int paramStrictIndex = 0;
+					for (auto& param : semInfo.parameters)
+					{
+						if (param.id == pin.parameterId)
+						{
+							param2pin[paramStrictIndex] = pin.id;
+							break;
+						}
+
+						++paramStrictIndex;
+					}
+				}
+			}
+		}
+
 		{
 			plugin_->open(this);
 
@@ -382,7 +408,6 @@ void SeProcessor::reInitialise()
 		);
 #endif
 
-		silence.assign(processSetup.maxSamplesPerBlock, 0.0f);
 	}
 }
 //-----------------------------------------------------------------------------
@@ -407,7 +432,7 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 	auto& semInfo = factory->plugins[0];
 
 	{
-		int numInputs = countPins(semInfo, gmpi::PinDirection::In, gmpi::PinDatatype::Audio);;
+		int numInputs = countPins(semInfo, gmpi::PinDirection::In, gmpi::PinDatatype::Audio);
 		inputBuffers.assign(numInputs, nullptr);
 
 		int pinIndex = 0;
@@ -645,26 +670,29 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 						assert(sampleOffset >=0 && sampleOffset < data.numSamples);
 //						_RPT1(_CRT_WARN, "                     PRESETS-DSP: P%d Set in Process()\n", id);
 
-						// synthEditProject.setParameterNormalizedDsp( sampleOffset, id, value );
-						// TODO!!!
-						float realVal = value * 10.0f;
-						int pinID = 2;
-
-						gmpi::api::Event e
+						// TODO!!! more datatypes than only float
+						auto it = param2pin.find(id);
+						if (it != param2pin.end())
 						{
-							{},            // next (populated later)
-							sampleOffset,  // timeDelta
-							gmpi::api::EventType::PinSet,
-							pinID,         // pinIdx
-							4,             // size_
-							{}             // data_/oversizeData_
-						};
+							float realVal = value;
+							int pinID = (*it).second;
 
-						const auto src = reinterpret_cast<const uint8_t*>(&realVal);
-						auto dst = reinterpret_cast<uint8_t*>(&e.data_);
-						std::copy(src, src + sizeof(realVal), dst);
+							gmpi::api::Event e
+							{
+								{},            // next (populated later)
+								sampleOffset,  // timeDelta
+								gmpi::api::EventType::PinSet,
+								pinID,         // pinIdx
+								4,             // size_
+								{}             // data_/oversizeData_
+							};
 
-						events.push(e);
+							const auto src = reinterpret_cast<const uint8_t*>(&realVal);
+							auto dst = reinterpret_cast<uint8_t*>(&e.data_);
+							std::copy(src, src + sizeof(realVal), dst);
+
+							events.push(e);
+						}
 					}
 					else
 					{
@@ -1073,12 +1101,18 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 		}
 	}
 
-//	timestamp_t SeStartClock = synthEditProject.getSampleClock();
+	// Process audio.
+int assumedId = 0; // TODO !!! get actual pin IDs
+	for (int i = 0; i < numChannelsIn; ++i)
+	{
+		plugin_->setBuffer(assumedId++, inputBuffers[0]);
+	}
 
-	plugin_->setBuffer(0, inputBuffers[0]);
-	plugin_->setBuffer(1, outputBuffers[0]);
+	for (int i = 0; i < numChannelsOut; ++i)
+	{
+		plugin_->setBuffer(assumedId++, outputBuffers[0]);
+	}
 
-	// synthEditProject.process(data.numSamples, (const float**) inputBuffers.data(), outputBuffers.data(), numChannelsIn, numChannelsOut);
 	plugin_->process(data.numSamples, events.head());
 
 	events.clear();

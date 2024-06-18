@@ -193,6 +193,8 @@ protected:
 	avoidRepeatedCCs ControlChangeValue[128];
 	Steinberg::Vst::ProcessData* dataptr = {};
 
+	std::unordered_map<int32_t, int32_t> param2pin;
+
 	std::vector<float> silence;
 
 //	GMPI_QUERYINTERFACE_METHOD(gmpi::api::IAudioPluginHost);

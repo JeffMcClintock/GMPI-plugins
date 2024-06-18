@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include "GmpiApiEditor.h"
 #include "GmpiApiDrawingClient.h"
 #include "RefCountMacros.h"
@@ -14,6 +16,8 @@ using namespace gmpi::drawing;
 class AGraphicsGui final : public gmpi::api::IEditor, public gmpi::api::IDrawingClient
 {
 	Rect bounds;
+	float pinGain = 0.0f;
+	gmpi::shared_ptr<gmpi::api::IDrawingHost> host;
 
 public:
 	AGraphicsGui()
@@ -25,8 +29,10 @@ public:
 	}
 
 	// IEditor
-	ReturnCode setHost(gmpi::api::IUnknown* host) override
+	ReturnCode setHost(gmpi::api::IUnknown* phost) override
 	{
+		phost->queryInterface(&gmpi::api::IDrawingHost::guid, host.asIMpUnknownPtr());
+		 
 		return ReturnCode::Ok;
 	}
 
@@ -37,6 +43,13 @@ public:
 
 	ReturnCode setPin(int32_t pinId, int32_t voice, int32_t size, const void* data) override
 	{
+		if (pinId == 0 && size == sizeof(pinGain))
+		{
+			pinGain = *(const float*) data;
+
+			if(host)
+				host->invalidateRect(nullptr);
+		}
 		return ReturnCode::Ok;
 	}
 
@@ -78,6 +91,62 @@ public:
 
 		g.clear(Colors::YellowGreen);
 
+		auto r = bounds;
+
+		auto center = Point{ (r.left + r.right) * 0.5f, (r.top + r.bottom) * 0.5f };
+		auto radius = (std::min)(r.right, r.bottom) * 0.4f;
+		auto thickness = radius * 0.2f;
+
+		auto brush = g.createSolidColorBrush(Colors::Chocolate);
+
+		// inner gray circle
+		auto dimBrush = g.createSolidColorBrush(Colors::LightSlateGray);
+
+		const float startAngle = 35.0f; // angle between "straight-down" and start of arc. In degrees.
+		const float startAngleRadians = startAngle * M_PI / 180.f; // angle between "straight-down" and start of arc. In degrees.
+		const float quarterTurnClockwise = M_PI * 0.5f;
+
+		Point startPoint{ center.x + radius * cosf(quarterTurnClockwise + startAngleRadians), center.y + radius * sinf(quarterTurnClockwise + startAngleRadians) };
+		StrokeStyleProperties strokeStyleProperties;
+		strokeStyleProperties.lineCap = CapStyle::Round;
+		auto strokeStyle = g.getFactory().createStrokeStyle(strokeStyleProperties);
+
+		// Background gray arc.
+		{
+			float sweepAngle = (M_PI * 2.0f - startAngleRadians * 2.0f);
+
+			Point endPoint{ center.x + radius * cosf(quarterTurnClockwise + startAngleRadians + sweepAngle), center.y + radius * sinf(quarterTurnClockwise + startAngleRadians + sweepAngle) };
+
+			auto arcGeometry = g.getFactory().createPathGeometry();
+			auto sink = arcGeometry.open();
+			sink.beginFigure(startPoint);
+			sink.addArc(ArcSegment{ endPoint, Size{ radius, radius }, 0.0f, SweepDirection::Clockwise, sweepAngle > M_PI ? ArcSize::Large : ArcSize::Small });
+			sink.endFigure(FigureEnd::Open);
+			sink.close();
+
+			g.drawGeometry(arcGeometry, dimBrush, thickness, strokeStyle);
+		}
+
+		// foreground colored arc
+		{
+			float nomalised = pinGain;
+			float sweepAngle = nomalised * (static_cast<float>(M_PI) * 2.0f - startAngleRadians * 2.0f);
+
+			Point endPoint{ center.x + radius * cosf(quarterTurnClockwise + startAngleRadians + sweepAngle), center.y + radius * sinf(quarterTurnClockwise + startAngleRadians + sweepAngle) };
+
+			auto arcGeometry = g.getFactory().createPathGeometry();
+			auto sink = arcGeometry.open();
+			sink.beginFigure(startPoint);
+			sink.addArc(ArcSegment{ endPoint, Size{radius, radius}, 0.0f, SweepDirection::Clockwise, sweepAngle > M_PI ? ArcSize::Large : ArcSize::Small });
+			sink.endFigure(FigureEnd::Open);
+			sink.close();
+
+			g.drawGeometry(arcGeometry, brush, thickness, strokeStyle);
+		}
+
+#if 0
+
+
 		auto brush = g.createSolidColorBrush(Colors::Red);
 
 		auto factory = g.getFactory();
@@ -91,6 +160,7 @@ public:
 		{
 			g.drawLine({ 0.0f, 0.0f }, {100.f, 100.f}, brush, 1.0f);
 		}
+#endif
 		return ReturnCode::Ok;
 	}
 
@@ -108,32 +178,9 @@ public:
 		return ReturnCode::NoSupport;
 	}
 	GMPI_REFCOUNT;
-
-#if 0
-	ReturnCode OnRender(GmpiDrawing_API::IMpDeviceContext* drawingContext ) override // perhaps: ReturnCode OnRender(Graphics& g)
-	{
-		Graphics g(drawingContext);
-
-		auto textFormat = GetGraphicsFactory().CreateTextFormat();
-		auto brush = g.CreateSolidColorBrush(Color::Red);
-
-		g.DrawTextU("Hello World!", textFormat, 0.0f, 0.0f, brush);
-
-		return ReturnCode::Ok;
-	}
-#endif
-
 };
 
 namespace
 {
-auto r = Register<AGraphicsGui>::withXml(R"XML(
-<?xml version="1.0" encoding="utf-8" ?>
-
-<PluginList>
-  <Plugin id="JM Graphics" name="Graphics" category="GMPI/SDK Examples">
-    <GUI graphicsApi="GmpiGui"/>
-  </Plugin>
-</PluginList>
-)XML");
+	auto r = Register<AGraphicsGui>::withId("GMPI: GainGui");
 }
