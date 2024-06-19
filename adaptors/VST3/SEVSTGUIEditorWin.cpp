@@ -1,16 +1,33 @@
 #include "SEVSTGUIEditorWin.h"
 #include "adelaycontroller.h"
-//#include "JsonDocPresenter.h"
 
 ParameterHelper::ParameterHelper(class SEVSTGUIEditorWin* editor)
 {
 	editor_ = editor;
 }
 
-int32_t ParameterHelper::setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size)
+gmpi::ReturnCode ParameterHelper::setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, int32_t size, const void* data)
 {
 	editor_->onParameterUpdate(parameterHandle, fieldId, voice, data, size);
-	return 0;
+    return gmpi::ReturnCode::Ok;
+}
+
+gmpi::ReturnCode ParameterHelper::queryInterface(const gmpi::api::Guid* iid, void** returnInterface)
+{
+    GMPI_QUERYINTERFACE(gmpi::api::IEditorHost);
+    GMPI_QUERYINTERFACE(gmpi::api::IParameterObserver);
+
+    return editor_->drawingframe.queryInterface(iid, returnInterface);
+}
+
+gmpi::ReturnCode ParameterHelper::setPin(int32_t pinId, int32_t voice, int32_t size, const void* data)
+{
+    return gmpi::ReturnCode::Ok;
+}
+
+int32_t ParameterHelper::getHandle()
+{
+    return 0;
 }
 
 //GuiHelper::GuiHelper(class SEVSTGUIEditorWin* editor)
@@ -24,7 +41,7 @@ int32_t ParameterHelper::setParameter(int32_t parameterHandle, int32_t fieldId, 
 //}
 
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
-SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* pcontroller, int pwidth, int pheight) :
+SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, MpController* pcontroller, int pwidth, int pheight) :
 controller(pcontroller)
 , width(pwidth)
 , height(pheight)
@@ -37,7 +54,7 @@ controller(pcontroller)
     controller->RegisterGui2(&helper);
 
     if(peditor)
-        peditor->setHost(static_cast<gmpi::api::IDrawingHost*>(&drawingframe));
+        peditor->setHost(static_cast<gmpi::api::IEditorHost*>(&helper));
 }
 
 SEVSTGUIEditorWin::~SEVSTGUIEditorWin()

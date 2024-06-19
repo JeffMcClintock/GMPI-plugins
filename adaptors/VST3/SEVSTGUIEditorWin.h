@@ -9,44 +9,29 @@
 
 #include "mp_sdk_common.h" // TODO remove dependency (on legacy IMpParameterObserver)
 
-class ParameterHelper : public gmpi::IMpParameterObserver
+class ParameterHelper : public gmpi::api::IParameterObserver, public gmpi::api::IEditorHost
 {
 	class SEVSTGUIEditorWin* editor_ = {};
 
 public:
 	ParameterHelper(class SEVSTGUIEditorWin* editor);
 
-	//---IMpParameterObserver------
-	int32_t setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size) override;
+	//---IParameterObserver------
+	gmpi::ReturnCode setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, int32_t size, const void* data) override;
 
-	GMPI_QUERYINTERFACE1(gmpi::MP_IID_PARAMETER_OBSERVER, gmpi::IMpParameterObserver);
+	//---IEditorHost------
+	gmpi::ReturnCode setPin(int32_t pinId, int32_t voice, int32_t size, const void* data) override;
+	int32_t getHandle() override;
+
+	gmpi::ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override;
 	GMPI_REFCOUNT;
 };
 
-//class GuiHelper : public gmpi::api::IDrawingHost
-//{
-//	class SEVSTGUIEditorWin* editor_ = {};
-//
-//public:
-//	GuiHelper(class SEVSTGUIEditorWin* editor);
-//
-//	// IDrawingHost
-//	gmpi::ReturnCode getDrawingFactory(gmpi::api::IUnknown** returnFactory) override
-//	{
-//		return gmpi::ReturnCode::NoSupport;
-//	}
-//
-//	void invalidateRect(const gmpi::drawing::Rect* invalidRect) override;
-//
-//	GMPI_QUERYINTERFACE_METHOD(gmpi::api::IDrawingHost);
-//	GMPI_REFCOUNT;
-//};
-
 class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 {
-	friend class GuiHelper;
+	friend class ParameterHelper;
 	GmpiGuiHosting::DrawingFrame drawingframe;
-	class IGuiHost2* controller = {};
+	class MpController* controller = {};
     int width, height;
     
 	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
@@ -55,7 +40,7 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 	//GuiHelper guiHelper;
 
 public:
-    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* controller, int width, int height);
+    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, MpController* controller, int width, int height);
 	~SEVSTGUIEditorWin();
 
 	void onParameterUpdate(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size);

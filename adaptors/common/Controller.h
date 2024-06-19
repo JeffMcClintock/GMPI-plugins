@@ -16,6 +16,7 @@
 #include "MpParameter.h"
 #include "ControllerHost.h"
 #include "ProcessorStateManager.h"
+#include "GmpiApiEditor.h"
 
 namespace SynthEdit2
 {
@@ -154,6 +155,8 @@ protected:
 	std::map< std::pair<int, int>, int > moduleParameterIndex;		// Module Handle/ParamID to Param Handle.
 	std::map< int, MpParameter* > ParameterHandleIndex;				// Param Handle to Parameter*.
 	std::vector<gmpi::IMpParameterObserver*> m_guis2;
+	std::vector<gmpi::api::IParameterObserver*> m_guis3;
+	
 	SE2::IPresenter* presenter_ = nullptr;
 
 	GmpiGui::FileDialog nativeFileDialog;
@@ -240,6 +243,22 @@ public:
 	virtual int32_t sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t size, const void* messageData) override;
 	void OnSetHostControl(int hostControl, int32_t paramField, int32_t size, const void * data, int32_t voice);
 
+	int32_t RegisterGui2(gmpi::api::IParameterObserver* gui)
+	{
+		m_guis3.push_back(gui);
+		return gmpi::MP_OK;
+	}
+	int32_t UnRegisterGui2(gmpi::api::IParameterObserver* gui)
+	{
+#if _HAS_CXX20
+		std::erase(m_guis3, gui);
+#else
+		if (auto it = find(m_guis3.begin(), m_guis3.end(), gui); it != m_guis3.end())
+			m_guis3.erase(it);
+#endif
+		return gmpi::MP_OK;
+	}
+
 	// IGuiHost2
 	int32_t RegisterGui2(gmpi::IMpParameterObserver* gui) override
 	{
@@ -256,7 +275,8 @@ public:
 #endif
 		return gmpi::MP_OK;
 	}
-	void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId) override;
+void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId) override;
+	void initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId);
 	int32_t getParameterHandle(int32_t moduleHandle, int32_t moduleParameterId) override;
 	int32_t getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId) override;
 	RawView getParameterValue(int32_t parameterHandle, int32_t fieldId, int32_t voice = 0) override;
@@ -287,6 +307,15 @@ public:
 			// Update normalized.
 			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_NORMALIZED, voice, &normalized, (int32_t)sizeof(normalized));
 		}
+
+		for (auto pa : m_guis3)
+		{
+			// Update value.
+			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_VALUE, voice, (int32_t)rawValue.size(), rawValue.data());
+
+			// Update normalized.
+			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_NORMALIZED, voice, (int32_t)sizeof(normalized), &normalized);
+		}
 	}
 
 	void updateGuis(MpParameter* parameter, gmpi::FieldType fieldType, int voice = 0 )
@@ -296,6 +325,10 @@ public:
 		for (auto pa : m_guis2)
 		{
 			pa->setParameter(parameter->parameterHandle_, fieldType, voice, rawValue.data(), (int32_t)rawValue.size());
+		}
+		for (auto pa : m_guis3)
+		{
+			pa->setParameter(parameter->parameterHandle_, fieldType, voice, (int32_t)rawValue.size(), rawValue.data());
 		}
 	}
 

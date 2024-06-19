@@ -1314,6 +1314,22 @@ void MpController::initializeGui(gmpi::IMpParameterObserver* gui, int32_t parame
 	}
 }
 
+void MpController::initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId)
+{
+	auto it = ParameterHandleIndex.find(parameterHandle);
+
+	if (it != ParameterHandleIndex.end())
+	{
+		auto p = (*it).second;
+
+		for (int voice = 0; voice < p->getVoiceCount(); ++voice)
+		{
+			auto raw = p->getValueRaw(FieldId, voice);
+			gui->setParameter(parameterHandle, FieldId, voice, (int32_t)raw.size(), raw.data());
+		}
+	}
+}
+
 bool MpController::onQueMessageReady(int recievingHandle, int recievingMessageId, class my_input_stream& p_stream)
 {
 	auto it = ParameterHandleIndex.find(recievingHandle);
