@@ -60,6 +60,7 @@ add_definitions(-D_UNICODE)
 add_definitions(-DSE_TARGET_PLUGIN)
 add_definitions(-DSE_TARGET_VST3)
 add_definitions(-DGMPI_VST3_WRAPPER)
+#add_definitions(-DGMPI_HOST_POINTER_SUPPORT)
 
 if (MSVC)
     # Floating Point Model: Fast (/fp:fast)

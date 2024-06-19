@@ -23,24 +23,24 @@ public:
 	GMPI_REFCOUNT;
 };
 
-class GuiHelper : public gmpi::api::IDrawingHost
-{
-	class SEVSTGUIEditorWin* editor_ = {};
-
-public:
-	GuiHelper(class SEVSTGUIEditorWin* editor);
-
-	// IDrawingHost
-	gmpi::ReturnCode getDrawingFactory(gmpi::api::IUnknown** returnFactory) override
-	{
-		return gmpi::ReturnCode::NoSupport;
-	}
-
-	void invalidateRect(const gmpi::drawing::Rect* invalidRect) override;
-
-	GMPI_QUERYINTERFACE_METHOD(gmpi::api::IDrawingHost);
-	GMPI_REFCOUNT;
-};
+//class GuiHelper : public gmpi::api::IDrawingHost
+//{
+//	class SEVSTGUIEditorWin* editor_ = {};
+//
+//public:
+//	GuiHelper(class SEVSTGUIEditorWin* editor);
+//
+//	// IDrawingHost
+//	gmpi::ReturnCode getDrawingFactory(gmpi::api::IUnknown** returnFactory) override
+//	{
+//		return gmpi::ReturnCode::NoSupport;
+//	}
+//
+//	void invalidateRect(const gmpi::drawing::Rect* invalidRect) override;
+//
+//	GMPI_QUERYINTERFACE_METHOD(gmpi::api::IDrawingHost);
+//	GMPI_REFCOUNT;
+//};
 
 class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 {
@@ -52,7 +52,7 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
 	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
 	ParameterHelper helper;
-	GuiHelper guiHelper;
+	//GuiHelper guiHelper;
 
 public:
     SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* controller, int width, int height);

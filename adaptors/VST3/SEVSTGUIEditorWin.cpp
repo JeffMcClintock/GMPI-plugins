@@ -13,15 +13,15 @@ int32_t ParameterHelper::setParameter(int32_t parameterHandle, int32_t fieldId, 
 	return 0;
 }
 
-GuiHelper::GuiHelper(class SEVSTGUIEditorWin* editor)
-{
-    editor_ = editor;
-}
-
-void GuiHelper::invalidateRect(const gmpi::drawing::Rect* invalidRect)
-{
-    editor_->drawingframe.invalidateRect(invalidRect);
-}
+//GuiHelper::GuiHelper(class SEVSTGUIEditorWin* editor)
+//{
+//    editor_ = editor;
+//}
+//
+//void GuiHelper::invalidateRect(const gmpi::drawing::Rect* invalidRect)
+//{
+//    editor_->drawingframe.invalidateRect(invalidRect);
+//}
 
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
 SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, IGuiHost2* pcontroller, int pwidth, int pheight) :
@@ -30,14 +30,14 @@ controller(pcontroller)
 , height(pheight)
 , pluginParameters_GMPI(peditor)
 , helper(this)
-, guiHelper(this)
+//, guiHelper(this)
 {
     pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
 
     controller->RegisterGui2(&helper);
 
     if(peditor)
-        peditor->setHost((gmpi::api::IUnknown*) &guiHelper);
+        peditor->setHost(static_cast<gmpi::api::IDrawingHost*>(&drawingframe));
 }
 
 SEVSTGUIEditorWin::~SEVSTGUIEditorWin()

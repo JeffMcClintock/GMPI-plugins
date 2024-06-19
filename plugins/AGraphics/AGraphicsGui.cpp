@@ -13,12 +13,14 @@ using namespace gmpi;
 using namespace gmpi::drawing;
 
 // TODO IDrawingClient and IGraphicsClient are essentially the same thing, merge them. Currently gimpi_ui expects IDrawingClient
-class AGraphicsGui final : public gmpi::api::IEditor, public gmpi::api::IDrawingClient
+class AGraphicsGui final : public gmpi::api::IEditor, public gmpi::api::IDrawingClient, public gmpi::api::IInputClient
 {
 	Rect bounds;
 	float pinGain = 0.0f;
 	gmpi::shared_ptr<gmpi::api::IDrawingHost> host;
-
+	gmpi::shared_ptr<gmpi::api::IInputHost> inputhost;
+	gmpi::shared_ptr<gmpi::api::IEditorHost> editorhost;
+	
 public:
 	AGraphicsGui()
 	{
@@ -31,8 +33,12 @@ public:
 	// IEditor
 	ReturnCode setHost(gmpi::api::IUnknown* phost) override
 	{
+		gmpi::shared_ptr<gmpi::api::IUnknown> unknown(phost);
+
 		phost->queryInterface(&gmpi::api::IDrawingHost::guid, host.asIMpUnknownPtr());
-		 
+		inputhost = unknown.As<gmpi::api::IInputHost>();
+		editorhost = unknown.As<gmpi::api::IEditorHost>();
+
 		return ReturnCode::Ok;
 	}
 
@@ -99,7 +105,7 @@ public:
 
 		auto brush = g.createSolidColorBrush(Colors::Chocolate);
 
-		// inner gray circle
+		// inner Gray circle
 		auto dimBrush = g.createSolidColorBrush(Colors::LightSlateGray);
 
 		const float startAngle = 35.0f; // angle between "straight-down" and start of arc. In degrees.
@@ -127,7 +133,7 @@ public:
 			g.drawGeometry(arcGeometry, dimBrush, thickness, strokeStyle);
 		}
 
-		// foreground colored arc
+		// foreground coloured arc
 		{
 			float nomalised = pinGain;
 			float sweepAngle = nomalised * (static_cast<float>(M_PI) * 2.0f - startAngleRadians * 2.0f);
@@ -170,10 +176,45 @@ public:
 		return ReturnCode::Ok;
 	}
 
+	// IInputClient
+	gmpi::ReturnCode onPointerDown(gmpi::drawing::Point point, int32_t flags) override
+	{
+		inputhost->setCapture();
+		return ReturnCode::Ok;
+	}
+	gmpi::ReturnCode onPointerMove(gmpi::drawing::Point point, int32_t flags) override
+	{
+		bool isCaptured = false;
+		inputhost->getCapture(isCaptured);
+
+		if (isCaptured)
+		{
+			pinGain = std::clamp((point.x - bounds.left) / (bounds.right - bounds.left), 0.0f, 1.0f);
+			editorhost->setPin(0, 0, sizeof(pinGain), &pinGain);
+
+			host->invalidateRect(nullptr);
+		}
+		return ReturnCode::Ok;
+	}
+	gmpi::ReturnCode onPointerUp(gmpi::drawing::Point point, int32_t flags) override
+	{
+		inputhost->releaseCapture();
+		return ReturnCode::Ok;
+	}
+	gmpi::ReturnCode onMouseWheel(gmpi::drawing::Point point, int32_t flags, int32_t delta) override
+	{
+		return ReturnCode::Ok;
+	}
+	gmpi::ReturnCode setHover(bool isMouseOverMe) override
+	{
+		return ReturnCode::Ok;
+	}
+
 	// IUnknown
 	ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override
 	{
 		GMPI_QUERYINTERFACE(gmpi::api::IEditor);
+		GMPI_QUERYINTERFACE(gmpi::api::IInputClient);
 		GMPI_QUERYINTERFACE(gmpi::api::IDrawingClient);
 		return ReturnCode::NoSupport;
 	}
