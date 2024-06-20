@@ -20,8 +20,10 @@ gmpi::ReturnCode ParameterHelper::queryInterface(const gmpi::api::Guid* iid, voi
     return editor_->drawingframe.queryInterface(iid, returnInterface);
 }
 
+// GMPI Editor sending a parameter update back to the wrapper.
 gmpi::ReturnCode ParameterHelper::setPin(int32_t pinId, int32_t voice, int32_t size, const void* data)
 {
+	editor_->controller->setPinFromUi(pinId, voice, size, data);
     return gmpi::ReturnCode::Ok;
 }
 
@@ -30,24 +32,13 @@ int32_t ParameterHelper::getHandle()
     return 0;
 }
 
-//GuiHelper::GuiHelper(class SEVSTGUIEditorWin* editor)
-//{
-//    editor_ = editor;
-//}
-//
-//void GuiHelper::invalidateRect(const gmpi::drawing::Rect* invalidRect)
-//{
-//    editor_->drawingframe.invalidateRect(invalidRect);
-//}
-
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
-SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, MpController* pcontroller, int pwidth, int pheight) :
+SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
 controller(pcontroller)
 , width(pwidth)
 , height(pheight)
 , pluginParameters_GMPI(peditor)
 , helper(this)
-//, guiHelper(this)
 {
     pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
 

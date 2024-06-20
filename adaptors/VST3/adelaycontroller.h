@@ -325,6 +325,7 @@ public:
 		return &queueToDsp_;
 	}
 
+	void setPinFromUi(int32_t pinId, int32_t voice, int32_t size, const void* data);
 };
 
 }} // namespaces

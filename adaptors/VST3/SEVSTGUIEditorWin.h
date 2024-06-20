@@ -9,6 +9,14 @@
 
 #include "mp_sdk_common.h" // TODO remove dependency (on legacy IMpParameterObserver)
 
+namespace Steinberg
+{
+	namespace Vst
+	{
+		class VST3Controller;
+	}
+}
+
 class ParameterHelper : public gmpi::api::IParameterObserver, public gmpi::api::IEditorHost
 {
 	class SEVSTGUIEditorWin* editor_ = {};
@@ -31,7 +39,7 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 {
 	friend class ParameterHelper;
 	GmpiGuiHosting::DrawingFrame drawingframe;
-	class MpController* controller = {};
+	Steinberg::Vst::VST3Controller* controller = {};
     int width, height;
     
 	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
@@ -40,7 +48,7 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 	//GuiHelper guiHelper;
 
 public:
-    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, MpController* controller, int width, int height);
+    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
 	~SEVSTGUIEditorWin();
 
 	void onParameterUpdate(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size);

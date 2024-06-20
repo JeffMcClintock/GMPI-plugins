@@ -220,6 +220,29 @@ struct pluginInformation
 	std::vector<std::string> outputNames;
 };
 
+void VST3Controller::setPinFromUi(int32_t pinId, int32_t voice, int32_t size, const void* data)
+{
+	auto factory = MyVstPluginFactory::GetInstance();
+	auto& semInfo = factory->plugins[0];
+
+	for (auto& pin : semInfo.guiPins)
+	{
+		if (pin.id == pinId && /*pin.direction == gmpi::PinDirection::In && pin.datatype == gmpi::PinDatatype::Float32 &&*/ pin.parameterId != -1)
+		{
+			for (auto& param : semInfo.parameters)
+			{
+				if (param.id == pin.parameterId)
+				{
+					auto param = tagToParameter[pin.parameterId];
+					setParameterValue({ data, static_cast<size_t>(size)}, param->parameterHandle_, gmpi::MP_FT_VALUE, voice); // TODO figure out correct fieldtype
+					break;
+				}
+			}
+			break;
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 {
