@@ -119,7 +119,7 @@ tresult PLUGIN_API VST3Controller::connect(IConnectionPoint* other)
 	// Can only init controllers after both VST controller initialised AND controller is connected to processor.
 	// So VST2 wrapper aeffect pointer makes it to Processor.
 	if(isConnected && isInitialised)
-	initSemControllers();
+		initSemControllers();
 
 	return r;
 }
@@ -240,6 +240,15 @@ void VST3Controller::setPinFromUi(int32_t pinId, int32_t voice, int32_t size, co
 			}
 			break;
 		}
+	}
+}
+
+// send initial value of all parameters to GUI
+void VST3Controller::initUi(gmpi::api::IParameterObserver* gui)
+{
+	for (auto& it : tagToParameter)
+	{
+		initializeGui(gui, it.second->parameterHandle_, gmpi::FieldType::MP_FT_VALUE);
 	}
 }
 

@@ -89,7 +89,7 @@ public:
 		return ReturnCode::Ok;
 	}
 
-	ReturnCode onRender(gmpi::drawing::api::IDeviceContext* drawingContext) override
+	ReturnCode render(gmpi::drawing::api::IDeviceContext* drawingContext) override
 	{
 		Graphics g(drawingContext);
 

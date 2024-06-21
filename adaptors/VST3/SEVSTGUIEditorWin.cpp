@@ -1,7 +1,7 @@
 #include "SEVSTGUIEditorWin.h"
 #include "adelaycontroller.h"
 
-ParameterHelper::ParameterHelper(class SEVSTGUIEditorWin* editor)
+ParameterHelper::ParameterHelper(SEVSTGUIEditorWin* editor)
 {
 	editor_ = editor;
 }
@@ -74,19 +74,10 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinbe
         const gmpi::drawing::SizeL overrideSize{ width, height };
         drawingframe.open(parent, &overrideSize);
     }
-#if 0
-    auto presenter = new JsonDocPresenter(controller);
-    presenter->RefreshView();
 
-    // Ableton opens at the wrong size, then resizes to correct size. Which we handle in onSize()
-    // Voltage Modular never sets the size. Have to just force it.
-    const GmpiDrawing_API::MP1_SIZE_L overrideSize{ width, height };
-
-    drawingframe.open(parent, &overrideSize);
-#endif
-
-    // TODO !!! LOOKUP PARAM HANDLE
-    controller->initializeGui(&helper, 3, gmpi::FieldType::MP_FT_VALUE);
+    // TO DO !!! LOOKUP PARAM HANDLE
+    //controller->initializeGui(&helper, 3, gmpi::FieldType::MP_FT_VALUE);
+    controller->initUi(&helper);
 
 	return Steinberg::kResultTrue;
 }
@@ -108,4 +99,39 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::onSize(Steinberg::ViewRect* new
 {
     drawingframe.reSize(newSize->left, newSize->top, newSize->right, newSize->bottom);
     return Steinberg::kResultTrue;
+}
+
+Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::canResize()
+{
+    if (pluginGraphics_GMPI)
+    {
+        const gmpi::drawing::Size availableSize1{ 0.0f, 0.0f };
+        const gmpi::drawing::Size availableSize2{ 10000.0f, 10000.0f };
+        gmpi::drawing::Size desiredSize1{ availableSize1 };
+        gmpi::drawing::Size desiredSize2{ availableSize1 };
+        pluginGraphics_GMPI->measure(&availableSize1, &desiredSize1);
+        pluginGraphics_GMPI->measure(&availableSize2, &desiredSize2);
+
+        if (desiredSize1 != desiredSize2)
+        {
+            return Steinberg::kResultTrue;
+        }
+    }
+    return Steinberg::kResultFalse;
+}
+
+Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::checkSizeConstraint(Steinberg::ViewRect* rect)
+{
+    if (pluginGraphics_GMPI)
+    {
+		const gmpi::drawing::Size availableSize{ static_cast<float>(rect->right - rect->left), static_cast<float>(rect->bottom - rect->top) };
+        gmpi::drawing::Size desiredSize{ availableSize };
+		pluginGraphics_GMPI->measure(&availableSize, &desiredSize);
+
+        if (availableSize == desiredSize)
+        {
+            return Steinberg::kResultTrue;
+        }
+    }
+    return Steinberg::kResultFalse;
 }
