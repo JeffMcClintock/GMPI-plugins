@@ -5,7 +5,6 @@
 #include "backends/DrawingFrameWin.h"
 #include "GmpiSdkCommon.h"
 #include "GmpiApiEditor.h"
-#include "GmpiApiDrawingClient.h"
 
 #include "mp_sdk_common.h" // TODO remove dependency (on legacy IMpParameterObserver)
 
