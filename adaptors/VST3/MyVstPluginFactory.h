@@ -157,7 +157,7 @@ public:
 private:
 	void initialize();
 	void RegisterXml(const platform_string& pluginPath, const char* xml);
-	void RegisterPin(tinyxml2::XMLElement* pin, std::vector<pinInfoSem>* pinlist, int32_t plugin_sub_type,
+	void RegisterPin(tinyxml2::XMLElement* pin, std::vector<pinInfoSem>* pinlist, gmpi::api::PluginSubtype plugin_sub_type,
 		int nextPinId);
 	bool initializeFactory();
 

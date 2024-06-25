@@ -6,8 +6,6 @@
 #include "GmpiSdkCommon.h"
 #include "GmpiApiEditor.h"
 
-#include "mp_sdk_common.h" // TODO remove dependency (on legacy IMpParameterObserver)
-
 namespace Steinberg
 {
 	namespace Vst
@@ -24,7 +22,7 @@ public:
 	ParameterHelper(class SEVSTGUIEditorWin* editor);
 
 	//---IParameterObserver------
-	gmpi::ReturnCode setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, int32_t size, const void* data) override;
+	gmpi::ReturnCode setParameter(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, int32_t size, const void* data) override;
 
 	//---IEditorHost------
 	gmpi::ReturnCode setPin(int32_t pinId, int32_t voice, int32_t size, const void* data) override;
@@ -44,13 +42,12 @@ class SEVSTGUIEditorWin : public Steinberg::FObject, public Steinberg::IPlugView
 	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
 	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
 	ParameterHelper helper;
-	//GuiHelper guiHelper;
 
 public:
     SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
 	~SEVSTGUIEditorWin();
 
-	void onParameterUpdate(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size);
+	void onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size);
 
 	//---from IPlugView-------
 	Steinberg::tresult PLUGIN_API isPlatformTypeSupported (Steinberg::FIDString type) SMTG_OVERRIDE { return Steinberg::kResultTrue; }

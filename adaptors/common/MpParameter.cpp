@@ -7,6 +7,7 @@
 #include "RawConversions.h"
 //#include "../../conversion.h"
 #include "HostControls.h"
+#include "it_enum_list.h"
 
 using namespace std;
 
@@ -16,13 +17,13 @@ using namespace std;
 bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size, const void* data, int32_t voice)
 {
 	// Handles real value and normalised only.
-	assert(paramField == gmpi::MP_FT_VALUE || paramField == gmpi::MP_FT_NORMALIZED || paramField == gmpi::MP_FT_GRAB);
+	assert(paramField == gmpi::FieldType::MP_FT_VALUE || paramField == gmpi::FieldType::MP_FT_NORMALIZED || paramField == gmpi::FieldType::MP_FT_GRAB);
 
 	bool changed = false;
 
 	switch (paramField)
 	{
-	case gmpi::MP_FT_VALUE:
+	case gmpi::FieldType::MP_FT_VALUE:
 		{
 			while (rawValues_.size() <= static_cast<size_t>(voice))
 			{
@@ -45,7 +46,7 @@ bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size,
 		break;
 */
 
-	case gmpi::MP_FT_NORMALIZED:
+	case gmpi::FieldType::MP_FT_NORMALIZED:
 	{
 		double normalized = (double)*(float*)data;
 
@@ -99,11 +100,11 @@ bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size,
 			break;
 		}
 
-		return setParameterRaw(gmpi::MP_FT_VALUE, static_cast<int32_t>(newRawValue.size()), newRawValue.data(), voice);
+		return setParameterRaw(gmpi::FieldType::MP_FT_VALUE, static_cast<int32_t>(newRawValue.size()), newRawValue.data(), voice);
 	}
 	break;
 
-	case gmpi::MP_FT_GRAB:
+	case gmpi::FieldType::MP_FT_GRAB:
 		return MpParameter::setParameterRaw(paramField, size, data, voice);
 		break;
 
@@ -186,7 +187,7 @@ void MpParameter::updateFromDsp(int recievingMessageId, my_input_stream & strm)
 	case code_to_long('l', 'e', 'r', 'n'): // "lern" Controller ID change
 	{
 		strm >> MidiAutomation;
-		controller_->updateGuis(this, gmpi::MP_FT_AUTOMATION);
+		controller_->updateGuis(this, gmpi::FieldType::MP_FT_AUTOMATION);
 	}
 	break;
 	}
@@ -198,32 +199,32 @@ RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 
 	switch (paramField)
 	{
-	case gmpi::MP_FT_ENUM_LIST:
-	case gmpi::MP_FT_FILE_EXTENSION:
+	case gmpi::FieldType::MP_FT_ENUM_LIST:
+	case gmpi::FieldType::MP_FT_FILE_EXTENSION:
 	{
 		return RawView(enumList_);
 	}
 	break;
 
-	case gmpi::MP_FT_SHORT_NAME:
-	case gmpi::MP_FT_LONG_NAME:
+	case gmpi::FieldType::MP_FT_SHORT_NAME:
+	case gmpi::FieldType::MP_FT_LONG_NAME:
 	{
 		return RawView(name_);
 	}
 
-	case gmpi::MP_FT_MENU_SELECTION:
+	case gmpi::FieldType::MP_FT_MENU_SELECTION:
 		return RawView(zero);
 		break;
 
-	case gmpi::MP_FT_GRAB:
+	case gmpi::FieldType::MP_FT_GRAB:
 		return RawView(m_grabbed);
 		break;
 
-	case gmpi::MP_FT_MENU_ITEMS:
+	case gmpi::FieldType::MP_FT_MENU_ITEMS:
 	{
-		if (datatype_ == DT_BLOB || datatype_ == DT_TEXT)
+		if (datatype_ == gmpi::PinDatatype::Blob || datatype_ == gmpi::PinDatatype::String)
 		{
-			return RawView();
+			return {};
 		}
 		else
 		{
@@ -233,7 +234,7 @@ RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 	}
 	break;
 
-	case gmpi::MP_FT_NORMALIZED:
+	case gmpi::FieldType::MP_FT_NORMALIZED:
 	{
 		float normalized = getNormalized();
 		tempReturnValue = ToRaw4(normalized);
@@ -241,13 +242,13 @@ RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 	}
 	break;
 
-	case gmpi::MP_FT_AUTOMATION:
+	case gmpi::FieldType::MP_FT_AUTOMATION:
 	{
 		return RawView(MidiAutomation);
 	}
 	break;
 
-	case gmpi::MP_FT_AUTOMATION_SYSEX:
+	case gmpi::FieldType::MP_FT_AUTOMATION_SYSEX:
 	{
 		return RawView(MidiAutomationSysex);
 	}
@@ -267,7 +268,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 
 	switch (paramField)
 	{
-		case gmpi::MP_FT_VALUE:
+		case gmpi::FieldType::MP_FT_VALUE:
 		{
 			expected_size = getDataTypeSize(datatype_);
 
@@ -283,7 +284,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 			}
 			break;
 
-		case gmpi::MP_FT_RANGE_LO:
+		case gmpi::FieldType::MP_FT_RANGE_LO:
 		{
 			// compute normalised normalized.
 			switch (datatype_)
@@ -321,7 +322,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 		}
 		break;
 
-		case gmpi::MP_FT_RANGE_HI:
+		case gmpi::FieldType::MP_FT_RANGE_HI:
 		{
 			// compute normalised normalized.
 			switch (datatype_)
@@ -505,7 +506,7 @@ std::wstring SliderFloatToString(float val, int p_decimal_places = -1) // better
 
 std::wstring MpParameter_base::normalisedToString(double normalized) const
 {
-	if( (datatype_ == DT_INT || datatype_ == DT_INT64) && !enumList_.empty())
+	if( (datatype_ == gmpi::PinDatatype::Int32 || datatype_ == gmpi::PinDatatype::Int64) && !enumList_.empty())
 	{
 		it_enum_list it(enumList_);
 
@@ -702,7 +703,7 @@ bool MpParameter::setParameterRaw(gmpi::FieldType paramField, int32_t size, cons
 {
 	bool changed = false;
 
-	if (gmpi::MP_FT_GRAB == paramField)
+	if (gmpi::FieldType::MP_FT_GRAB == paramField)
 	{
 		const bool oldVal = m_grabbed;
 		m_grabbed = RawToValue<bool>(data, size);

@@ -2,6 +2,7 @@
 /*
 #include "../se_sdk3_hosting/ControllerHost.h"
 */
+#if 0 // TODO
 #include "../se_sdk3/mp_sdk_common.h"
 #include "IGuiHost2.h"
 
@@ -107,3 +108,5 @@ public:
 	GMPI_QUERYINTERFACE1(gmpi::MP_IID_CONTROLLER_HOST, gmpi::IMpControllerHost);
 	GMPI_REFCOUNT_NO_DELETE;
 };
+
+#endif

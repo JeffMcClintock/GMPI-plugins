@@ -4,7 +4,7 @@
 #include <regex> 
 #include "conversion.h"
 #include "BundleInfo.h"
-#include "ProtectedFile.h"
+// TODO #include "ProtectedFile.h"
 //#include "mfc_emulation.h"
 #include "unicode_conversion.h"
 
@@ -16,18 +16,18 @@ bool ResourceExists(const std::wstring& path)
 	return BundleInfo::instance()->ResourceExists(JmUnicodeConversions::WStringToUtf8(path).c_str());
 }
 
-int32_t GmpiResourceManager::FindResourceU(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::IString* returnString)
+gmpi::ReturnCode GmpiResourceManager::FindResourceU(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::api::IString* returnString)
 {
 	return RegisterResourceUri(moduleHandle, skinName, resourceName, resourceType, returnString, false);
 }
 
-int32_t GmpiResourceManager::RegisterResourceUri(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::IString* returnString, bool isIMbeddedResource)
+gmpi::ReturnCode GmpiResourceManager::RegisterResourceUri(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::api::IString* returnString, bool isIMbeddedResource)
 {
-	gmpi::IString* returnValue = 0;
+	gmpi::api::IString* returnValue{};
 
-	if (gmpi::MP_OK != returnString->queryInterface(gmpi::MP_IID_RETURNSTRING, reinterpret_cast<void**>(&returnValue)))
+	if (gmpi::ReturnCode::Ok != returnString->queryInterface(&gmpi::api::IString::guid, reinterpret_cast<void**>(&returnValue)))
 	{
-		return gmpi::MP_NOSUPPORT;
+		return gmpi::ReturnCode::NoSupport;
 	}
 
 	wstring uri;
@@ -263,7 +263,7 @@ int32_t GmpiResourceManager::RegisterResourceUri(int32_t moduleHandle, const std
 #ifdef _DEBUG
 		_RPT1(0, "GmpiResourceManager::RegisterResourceUri(%s) Not Found\n", resourceName);
 #endif
-		return gmpi::MP_FAIL;
+		return gmpi::ReturnCode::Fail;
 	}
 
 	if(isEditor() && isIMbeddedResource)
@@ -273,7 +273,7 @@ int32_t GmpiResourceManager::RegisterResourceUri(int32_t moduleHandle, const std
 		resourceUris_.insert({ moduleHandle, fullUri });
 	}
 
-	return gmpi::MP_OK;
+	return gmpi::ReturnCode::Ok;
 }
 
 void GmpiResourceManager::ClearResourceUris(int32_t moduleHandle)
@@ -286,6 +286,7 @@ void GmpiResourceManager::ClearAllResourceUris()
 	resourceUris_.clear();
 }
 
+#if 0 // TODO
 int32_t GmpiResourceManager::OpenUri(const char* fullUri, gmpi::IProtectedFile2** returnStream)
 {
 	std::string uriString(fullUri);
@@ -300,3 +301,4 @@ int32_t GmpiResourceManager::OpenUri(const char* fullUri, gmpi::IProtectedFile2*
 
 	return *returnStream != nullptr ? (gmpi::MP_OK) : (gmpi::MP_FAIL);
 }
+#endif

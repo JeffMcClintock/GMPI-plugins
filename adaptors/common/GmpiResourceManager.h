@@ -1,7 +1,11 @@
 #pragma once
 
-#include "mp_api.h"
-#include "mp_sdk_gui2.h"
+#include <map>
+#include <string>
+#include <unordered_map>
+//#include "mp_api.h"
+//#include "mp_sdk_gui2.h"
+#include "GmpiApiCommon.h"
 
 enum class GmpiResourceType
 {
@@ -22,8 +26,8 @@ public:
 
 	void ClearResourceUris(int32_t moduleHandle);
 	void ClearAllResourceUris();
-	int32_t RegisterResourceUri(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::IString* returnString, bool isIMbeddedResource = true);
-	int32_t FindResourceU(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::IString* returnString);
-	virtual int32_t OpenUri(const char* fullUri, gmpi::IProtectedFile2** returnStream);
+	gmpi::ReturnCode RegisterResourceUri(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::api::IString* returnString, bool isIMbeddedResource = true);
+	gmpi::ReturnCode FindResourceU(int32_t moduleHandle, const std::string skinName, const char* resourceName, const char* resourceType, gmpi::api::IString* returnString);
+//TODO	virtual int32_t OpenUri(const char* fullUri, gmpi::IProtectedFile2** returnStream);
 };
 

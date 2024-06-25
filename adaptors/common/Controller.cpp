@@ -8,13 +8,13 @@
 #include "RawConversions.h"
 #include "HostControls.h"
 #include "GmpiResourceManager.h"
-#include "./Presenter.h"
+//#include "./Presenter.h"
 #include "BundleInfo.h"
 #include "FileFinder.h"
 #include "midi_defs.h"
 #include "ListBuilder.h"
 #if !defined(SE_USE_JUCE_UI)
-#include "GuiPatchAutomator3.h"
+//#include "GuiPatchAutomator3.h"
 #endif
 #ifndef GMPI_VST3_WRAPPER
 #include "../../UgDatabase.h"
@@ -35,10 +35,10 @@ using namespace std;
 
 MpController::~MpController()
 {
-    if(presenter_)
-    {
-        presenter_->OnControllerDeleted();
-    }
+    //if(presenter_)
+    //{
+    //    presenter_->OnControllerDeleted();
+    //}
 }
 
 void MpController::ScanPresets()
@@ -230,7 +230,7 @@ void MpController::Initialize()
 		parameter_xml->QueryIntAttribute("Handle", &ParameterHandle);
 		parameter_xml->QueryIntAttribute("Private", &Private);
 
-		if (dataType == DT_TEXT || dataType == DT_BLOB)
+		if (dataType == gmpi::PinDatatype::String || dataType == gmpi::PinDatatype::Blob)
 		{
 			Private = 1; // VST and AU can't handle this type of parameter.
 		}
@@ -239,7 +239,7 @@ void MpController::Initialize()
 			if (Private != 0)
 			{
 				// Check parameter is numeric and a valid type.
-				assert(dataType == DT_ENUM || dataType == DT_DOUBLE || dataType == DT_BOOL || dataType == DT_FLOAT || dataType == DT_INT || dataType == DT_INT64);
+				assert(dataType == DT_ENUM || dataType == DT_DOUBLE || dataType == gmpi::PinDatatype::Bool || dataType == DT_FLOAT || dataType == gmpi::PinDatatype::Int32 || dataType == gmpi::PinDatatype::Int3264);
 			}
 		}
 
@@ -265,7 +265,7 @@ void MpController::Initialize()
 		parameter_xml->QueryIntAttribute("ModuleParamId", &(moduleParamId_));
 		parameter_xml->QueryBoolAttribute("isPolyphonic", &(isPolyphonic_));
 
-		if (dataType == DT_INT || dataType == DT_TEXT /*|| dataType == DT_ENUM */)
+		if (dataType == gmpi::PinDatatype::Int32 || dataType == gmpi::PinDatatype::String /*|| dataType == DT_ENUM */)
 		{
 			auto s = parameter_xml->Attribute("MetaData");
 			if (s)
@@ -368,7 +368,7 @@ void MpController::Initialize()
 			}
 
 			gmpi_sdk::mp_shared_ptr<gmpi::IMpUnknown> obj;
-			obj.Attach(mi->Build(gmpi::MP_SUB_TYPE_CONTROLLER, true));
+			obj.Attach(mi->Build(gmpi::api::PluginSubtype::Controller, true));
 
 			if (obj)
 			{
@@ -438,6 +438,7 @@ void MpController::Initialize()
 
 void MpController::initSemControllers()
 {
+#if 0 // TODO
 	if (!isSemControllersInitialised)
 	{
 		//		_RPT0(_CRT_WARN, "ADelayController::initSemControllers\n");
@@ -449,8 +450,10 @@ void MpController::initSemControllers()
 
 		isSemControllersInitialised = true;
 	}
+#endif
 }
 
+#if 0 // TODO
 int32_t MpController::getController(int32_t moduleHandle, gmpi::IMpController** returnController)
 {
 	for (auto& m : semControllers.childPluginControllers)
@@ -461,9 +464,9 @@ int32_t MpController::getController(int32_t moduleHandle, gmpi::IMpController** 
 			break;
 		}
 	}
-
 	return gmpi::MP_OK;
 }
+#endif
 
 std::vector< MpController::presetInfo > MpController::scanNativePresets()
 {
@@ -616,7 +619,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 	bool takeUndoSnapshot = false;
 
 	// Special case for MIDI Learn
-	if (paramField == gmpi::MP_FT_MENU_SELECTION)
+	if (paramField == gmpi::FieldType::MP_FT_MENU_SELECTION)
 	{
 		auto choice = (int32_t)value;// RawToValue<int32_t>(value.data(), value.size());
 
@@ -634,7 +637,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 
 				// set automation on GUI to 'none'
 				seParameter->MidiAutomation = cc;
-				updateGuis(seParameter, gmpi::MP_FT_AUTOMATION);
+				updateGuis(seParameter, gmpi::FieldType::MP_FT_AUTOMATION);
 			}
 		}
 		/*
@@ -661,7 +664,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 		{
 			seParameter->updateProcessor(paramField, voice);
 
-			if (seParameter->stateful_ && paramField == gmpi::MP_FT_VALUE)
+			if (seParameter->stateful_ && paramField == gmpi::FieldType::MP_FT_VALUE)
 			{
 				if (!seParameter->isGrabbed()) // e.g. momentary button
 				{
@@ -672,7 +675,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 	}
 
 	// take an undo snapshot anytime a knob is released
-	if (paramField == gmpi::MP_FT_GRAB)
+	if (paramField == gmpi::FieldType::MP_FT_GRAB)
 	{
 		const bool grabbed = (bool)value;
 		if (!grabbed && seParameter->stateful_)
@@ -685,7 +688,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 	{
 		setModified(true);
 
-		const auto paramName = WStringToUtf8((std::wstring)seParameter->getValueRaw(gmpi::MP_FT_SHORT_NAME, 0));
+		const auto paramName = WStringToUtf8((std::wstring)seParameter->getValueRaw(gmpi::FieldType::MP_FT_SHORT_NAME, 0));
 
 		const std::string desc = "Changed parameter: " + paramName;
 		undoManager.snapshot(this, desc);
@@ -879,6 +882,7 @@ void UndoManager::copyAB(MpController* controller)
 		setPreset(controller, &AB_storage);
 	}
 }
+#if 0 // TODO
 
 gmpi_gui::IMpGraphicsHost* MpController::getGraphicsHost()
 {
@@ -897,13 +901,14 @@ gmpi_gui::IMpGraphicsHost* MpController::getGraphicsHost()
 
 	return nullptr;
 }
+#endif
 
-void MpController::OnSetHostControl(int hostControl, int32_t paramField, int32_t size, const void* data, int32_t voice)
+void MpController::OnSetHostControl(int hostControl, gmpi::FieldType paramField, int32_t size, const void* data, int32_t voice)
 {
 	switch (hostControl)
 	{
 	case HC_PROGRAM:
-		if (!inhibitProgramChangeParameter && paramField == gmpi::MP_FT_VALUE)
+		if (!inhibitProgramChangeParameter && paramField == gmpi::FieldType::MP_FT_VALUE)
 		{
 			auto preset = RawToValue<int32_t>(data, size);
 
@@ -923,7 +928,7 @@ void MpController::OnSetHostControl(int hostControl, int32_t paramField, int32_t
 				{
 					const auto nameW = Utf8ToWstring(presets[preset].name);
 					const auto raw2 = ToRaw4(nameW);
-					const auto field = gmpi::MP_FT_VALUE;
+					const auto field = gmpi::FieldType::MP_FT_VALUE;
 					if(programNameParam->setParameterRaw(field, raw2.size(), raw2.data()))
 					{
 						programNameParam->updateProcessor(field, voice);
@@ -963,7 +968,7 @@ void MpController::OnSetHostControl(int hostControl, int32_t paramField, int32_t
 
 
 	case HC_PATCH_COMMANDS:
-		if (paramField == gmpi::MP_FT_VALUE)
+		if (paramField == gmpi::FieldType::MP_FT_VALUE)
 		{
 			const auto patchCommand = *(int32_t*)data;
 
@@ -997,8 +1002,9 @@ void MpController::OnSetHostControl(int hostControl, int32_t paramField, int32_t
 				break;
 			};
 
-#if !defined(SE_USE_JUCE_UI)
-            // L"Load Preset=2,Save Preset,Import Bank,Export Bank"
+//#if !defined(SE_USE_JUCE_UI)
+#if 0 // TODO
+			// L"Load Preset=2,Save Preset,Import Bank,Export Bank"
             if (patchCommand > 5)
                 break;
 
@@ -1061,6 +1067,7 @@ void MpController::OnSetHostControl(int hostControl, int32_t paramField, int32_t
 	}
 }
 
+#if 0 // TODO
 int32_t MpController::sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t size, const void* messageData)
 {
 	auto queue = getQueueToDsp();
@@ -1083,6 +1090,7 @@ int32_t MpController::sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t 
     
 	return gmpi::MP_OK;
 }
+#endif
 
 #if 0
 // these can't update processor with normal handle-based method becuase their handles are assigned at runtime, only in the controller.
@@ -1099,9 +1107,9 @@ void MpController::HostControlToDsp(MpParameter* param, int32_t voice)
 void MpController::SerialiseParameterValueToDsp(my_msg_que_output_stream& stream, MpParameter* param, int32_t voice)
 {
 	//---send a binary message
-	bool isVariableSize = param->datatype_ == DT_TEXT || param->datatype_ == DT_BLOB;
+	bool isVariableSize = param->datatype_ == gmpi::PinDatatype::String || param->datatype_ == gmpi::PinDatatype::Blob;
 
-	auto raw = param->getValueRaw(gmpi::MP_FT_VALUE, voice);
+	auto raw = param->getValueRaw(gmpi::FieldType::MP_FT_VALUE, voice);
 
 	bool due_to_program_change = false;
 	int32_t recievingMessageLength = (int)(sizeof(bool) + raw.size());
@@ -1184,11 +1192,11 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 	case HC_PROGRAM:
 	{
 		p = new SeParameter_vst3_hostControl(this, hostControl);
-		p->datatype_ = DT_INT;
+		p->datatype_ = gmpi::PinDatatype::Int32;
 		p->maximum = (std::max)(0.0, static_cast<double>(presets.size() - 1));
 		const int32_t initialVal = -1; // ensure patch-browser shows <NULL> at first.
 		RawView raw(initialVal);
-		p->setParameterRaw(gmpi::MP_FT_VALUE, (int32_t)raw.size(), raw.data());
+		p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, (int32_t)raw.size(), raw.data());
 	}
 	break;
 
@@ -1196,7 +1204,7 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 		p = new SeParameter_vst3_hostControl(this, hostControl);
 		{
 			auto raw2 = ToRaw4(L"Factory");
-			p->setParameterRaw(gmpi::MP_FT_VALUE, (int32_t)raw2.size(), raw2.data());
+			p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, (int32_t)raw2.size(), raw2.data());
 		}
 		break;
 
@@ -1204,7 +1212,7 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 	{
 		auto param = new SeParameter_vst3_hostControl(this, hostControl);
 		p = param;
-		p->datatype_ = DT_TEXT;
+		p->datatype_ = gmpi::PinDatatype::String;
 
 		UpdateProgramCategoriesHc(param);
 	}
@@ -1214,7 +1222,7 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 	{
 		auto param = new SeParameter_vst3_hostControl(this, hostControl);
 		p = param;
-		p->datatype_ = DT_TEXT;
+		p->datatype_ = gmpi::PinDatatype::String;
 
 		UpdateProgramCategoriesHc(param);
 	}
@@ -1224,7 +1232,7 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 	{
 		auto param = new SeParameter_vst3_hostControl(this, hostControl);
 		p = param;
-		p->datatype_ = DT_BOOL;
+		p->datatype_ = gmpi::PinDatatype::Bool;
 	}
 	break;
 
@@ -1266,6 +1274,8 @@ MpParameter* MpController::getHostParameter(int32_t hostControl)
 
 	return createHostParameter(hostControl);
 }
+
+#if 0 // TODO
 
 int32_t MpController::getParameterHandle(int32_t moduleHandle, int32_t moduleParameterId)
 {
@@ -1313,6 +1323,7 @@ void MpController::initializeGui(gmpi::IMpParameterObserver* gui, int32_t parame
 		}
 	}
 }
+#endif
 
 void MpController::initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId)
 {
@@ -1359,8 +1370,10 @@ bool MpController::onQueMessageReady(int recievingHandle, int recievingMessageId
 			p_stream.Read(nfo.data, nfo.size);
 			nfo.handle = recievingHandle;
 
+#if 0 // TODO
 			if (presenter_)
 				presenter_->OnChildDspMessage(&nfo);
+#endif
 
 			free(nfo.data);
 
@@ -1418,6 +1431,7 @@ void MpController::OnStartupTimerExpired()
 		s.Send();
 	}
 }
+#if 0 // TODO
 
 int32_t MpController::resolveFilename(const wchar_t* shortFilename, int32_t maxChars, wchar_t* returnFullFilename)
 {
@@ -1457,9 +1471,11 @@ int32_t MpController::resolveFilename(const wchar_t* shortFilename, int32_t maxC
 
 	return gmpi::MP_OK;
 }
+#endif
 
 void MpController::OnFileDialogComplete(int patchCommand, int32_t result)
 {
+#if 0 // TODO
 	if (result == gmpi::MP_OK)
 	{
 		auto fullpath = nativeFileDialog.GetSelectedFilename();
@@ -1545,6 +1561,7 @@ void MpController::OnFileDialogComplete(int patchCommand, int32_t result)
 	}
 
 	nativeFileDialog.setNull(); // release it.
+#endif
 }
 
 void MpController::ImportPresetXml(const char* filename, int presetIndex)
@@ -1581,7 +1598,7 @@ std::unique_ptr<const DawPreset> MpController::getPreset(std::string presetNameO
 			values.dataType = (gmpi::PinDatatype)p->datatype_;
 
 			const int voice = 0;
-			const auto raw = p->getValueRaw(gmpi::MP_FT_VALUE, voice);
+			const auto raw = p->getValueRaw(gmpi::FieldType::MP_FT_VALUE, voice);
 			values.rawValues_.push_back({ (char* const)raw.data(), raw.size() });
 
 #if 0
@@ -1614,6 +1631,7 @@ std::unique_ptr<const DawPreset> MpController::getPreset(std::string presetNameO
 
 	return preset; // dawStateManager.retainPreset(preset);
 }
+#if 0 // TODO
 
 int32_t MpController::getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId)
 {
@@ -1639,6 +1657,7 @@ RawView MpController::getParameterValue(int32_t parameterHandle, int32_t fieldId
 
 	return {};
 }
+#endif
 
 void MpController::OnEndPresetChange()
 {
@@ -1652,7 +1671,8 @@ void MpController::OnEndPresetChange()
 // new: set preset UI only. Processor is updated in parallel
 void MpController::setPreset(DawPreset const* preset)
 {
-//	_RPTN(0, "MpController::setPreset. IPC %d\n", (int)preset->ignoreProgramChangeActive);
+#if 0 // TODO
+	//	_RPTN(0, "MpController::setPreset. IPC %d\n", (int)preset->ignoreProgramChangeActive);
 
 	constexpr int patch = 0;
 	constexpr bool updateProcessor = false;
@@ -1667,7 +1687,7 @@ void MpController::setPreset(DawPreset const* preset)
 /*
 		if (updateProcessor)
 		{
-			p->updateProcessor(gmpi::MP_FT_VALUE, voiceId);
+			p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, voiceId);
 		}
 */
 	}
@@ -1682,7 +1702,7 @@ void MpController::setPreset(DawPreset const* preset)
 /*
 			if (updateProcessor)
 			{
-				p->updateProcessor(gmpi::MP_FT_VALUE, voiceId);
+				p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, voiceId);
 			}
 */
 		}
@@ -1714,14 +1734,14 @@ void MpController::setPreset(DawPreset const* preset)
 			// (would need to pass 'updateProcessor')
 			{
 				// calls controller_->updateGuis(this, voice)
-				parameter->setParameterRaw(gmpi::MP_FT_VALUE, (int32_t)raw.size(), raw.data(), voice);
+				parameter->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, (int32_t)raw.size(), raw.data(), voice);
 
 				// updated cached value.
 				parameter->upDateImmediateValue();
 
 				if (updateProcessor) // For non-private parameters, update DAW.
 				{
-					parameter->updateProcessor(gmpi::MP_FT_VALUE, voice);
+					parameter->updateProcessor(gmpi::FieldType::MP_FT_VALUE, voice);
 				}
 			}
 #if 0
@@ -1758,6 +1778,7 @@ void MpController::setPreset(DawPreset const* preset)
 		auto copyofpreset = std::make_unique<DawPreset>(*preset);
 		undoManager.initial(this, std::move(copyofpreset));
 	}
+#endif
 
 	syncPresetControls(preset);
 }
@@ -1787,6 +1808,7 @@ void MpController::syncPresetControls(DawPreset const* preset)
 	// When DAW loads preset XML, try to determine if it's a factory preset, and update browser to suit.
 	int32_t presetIndex = -1; // exact match
 	int32_t presetSameNameIndex = -1; // name matches, but not settings.
+#if 0 // TODO
 
 	/*
 	XML will not match if any parameter was set outside the normalized range, because it will get clamped in the plugin.
@@ -1920,6 +1942,7 @@ void MpController::syncPresetControls(DawPreset const* preset)
 			}
 		}
 	}
+#endif
 }
 
 bool MpController::isPresetModified()
@@ -1964,6 +1987,7 @@ void MpController::SavePresetAs(const std::string& presetName)
 
 	// Add new preset to combo
 	UpdatePresetBrowser();
+#if 0 // TODO
 
 	// find the new preset and select it.
 	for (int32_t presetIndex = 0; presetIndex < presets.size(); ++presetIndex)
@@ -1980,10 +2004,12 @@ void MpController::SavePresetAs(const std::string& presetName)
 			break;
 		}
 	}
+#endif
 }
 
 void MpController::DeletePreset(int presetIndex)
 {
+#if 0 // TODO
 	assert(presetIndex >= 0 && presetIndex < presets.size());
 
 	auto parameterHandle = getParameterHandle(-1, -1 - HC_PROGRAM);
@@ -2009,6 +2035,7 @@ void MpController::DeletePreset(int presetIndex)
 
 	ScanPresets();
 	UpdatePresetBrowser();
+#endif
 }
 
 // Note: Don't handle polyphonic stateful parameters.
@@ -2073,6 +2100,7 @@ void MpController::ExportBankXml(const char* filename)
 
 void MpController::ImportBankXml(const char* xmlfilename)
 {
+#if 0 // TODO
 	auto presetFolder = BundleInfo::instance()->getPresetFolder();
 
 	CreateFolderRecursive(presetFolder);
@@ -2181,6 +2209,7 @@ void MpController::ImportBankXml(const char* xmlfilename)
 
 	ScanPresets();
 	UpdatePresetBrowser();
+#endif
 }
 
 void MpController::setModified(bool presetIsModified)

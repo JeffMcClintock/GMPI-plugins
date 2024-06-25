@@ -1,8 +1,12 @@
-#include "xp_dynamic_linking.h"
+#include "dynamic_linking.h"
 
 // Provide a cross-platform loading of dlls.
 
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include "windows.h"
 #else
 #include <dlfcn.h>
@@ -16,7 +20,6 @@ namespace gmpi_dynamic_linking
 #if defined(_WIN32)
 	typedef HINSTANCE MP_DllHandle;
 #else
-//	typedef CFBundleRef MP_DllHandle;
 	typedef void* MP_DllHandle;
 #endif
 
@@ -44,14 +47,16 @@ namespace gmpi_dynamic_linking
 		return r == 0;
 	}
 
-	int32_t MP_DllSymbol(DLL_HANDLE dll_handle, const char* symbol_name, void** returnFunction)
+	bool MP_DllSymbol(DLL_HANDLE dll_handle, const char* symbol_name, void** returnFunction)
 	{
+		*returnFunction = nullptr;
+
 #if defined( _WIN32)
 		*returnFunction = (void*) GetProcAddress((HMODULE)dll_handle, symbol_name);
 #else
 		*returnFunction = dlsym((MP_DllHandle) dll_handle, symbol_name);
 #endif
-		return *returnFunction == 0;
+		return *returnFunction == nullptr;
 	}
 
     // Provide a static function to allow GetModuleHandleExA() to find dll name.
@@ -74,7 +79,7 @@ namespace gmpi_dynamic_linking
 		MP_GetDllHandle(&hmodule);
 
 		wchar_t full_path[MAX_PATH] = L"";
-		GetModuleFileNameW((HMODULE)hmodule, full_path, sizeof(full_path));
+		GetModuleFileNameW((HMODULE)hmodule, full_path, std::size(full_path));
 		return std::wstring(full_path);
 	}
     

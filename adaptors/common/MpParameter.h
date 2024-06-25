@@ -4,8 +4,15 @@
 #include <iostream>
 #include "TimerManager.h"
 #include "RawView.h"
-#include "../shared/xplatform.h"
-#include "../se_sdk3/mp_sdk_common.h"
+#include "GmpiApiCommon.h"
+#include "GmpiApiEditor.h"
+//#include "../shared/xplatform.h"
+//#include "../se_sdk3/mp_sdk_common.h"
+
+namespace gmpi
+{
+
+}
 
 class MpParameter : public TimerClient
 {
@@ -17,7 +24,7 @@ public:
 	class MpController* controller_ = nullptr;
 
 	int parameterHandle_ = -1;
-	int datatype_ = -1;
+	gmpi::PinDatatype datatype_ = gmpi::PinDatatype::Float32;
 	int moduleHandle_ = -1;
 	int moduleParamId_ = -1;
 	int stateful_ = false;
@@ -54,11 +61,11 @@ public:
 	const T& operator=(const T& value)
 	{
 		RawView temp{ value };
-		setParameterRaw(gmpi::MP_FT_VALUE, temp.size(), temp.data());
+		setParameterRaw(gmpi::FieldType::MP_FT_VALUE, temp.size(), temp.data());
 
 		return value;
 	}
-	bool setParameterRaw(gmpi::FieldType paramField, size_t size, const void * data, int32_t voice = 0) // convinience overload for size_t
+	bool setParameterRaw(gmpi::FieldType paramField, size_t size, const void * data, int32_t voice = 0) // convenience overload for size_t
 	{
 		return setParameterRaw(paramField, static_cast<int32_t>(size), data, voice);
 	}
@@ -92,7 +99,7 @@ public:
     
     const bool isEnum() const
     {
-        return (datatype_ == gmpi::MP_INT32 || datatype_ == gmpi::MP_INT64) && !enumList_.empty();
+        return (datatype_ == gmpi::PinDatatype::Int32 || datatype_ == gmpi::PinDatatype::Int64) && !enumList_.empty();
     }
 
 	virtual int getVoiceCount() = 0;

@@ -1,6 +1,8 @@
 #ifndef __adelaycontroller__
 #define __adelaycontroller__
 
+#include <locale>
+#include <codecvt>
 #include "public.sdk/source/vst/vsteditcontroller.h"
 #include "pluginterfaces/vst/ivstmidicontrollers.h"
 #include <pluginterfaces/vst/ivstunits.h>
@@ -8,7 +10,6 @@
 #include <pluginterfaces/vst/ivstphysicalui.h>
 #include <map>
 #include "interThreadQue.h"
-//#include "mp_gui.h"
 #include "Controller.h"
 #include "StagingMemoryBuffer.h"
 #include "MpParameter.h"

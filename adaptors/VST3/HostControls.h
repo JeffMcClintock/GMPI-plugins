@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "GmpiApiCommon.h"
 
 /*
 #include "HostControls.h"
@@ -82,7 +83,7 @@ enum class EPatchCommands
 };
 
 HostControls StringToHostControl( const std::wstring& txt );
-int GetHostControlDatatype( HostControls hc );
+gmpi::PinDatatype GetHostControlDatatype( HostControls hc );
 const wchar_t* GetHostControlName( HostControls hc );
 const wchar_t* GetHostControlNameByAutomation(int automation);
 int GetHostControlAutomation(HostControls hostControlId);

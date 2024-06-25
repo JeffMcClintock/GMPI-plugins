@@ -3,8 +3,6 @@
 
 using namespace gmpi;
 
-//extern Steinberg::IPluginFactory* GetPluginFactory();
-
 struct Gain final : public AudioPlugin
 {
 	AudioInPin pinInput;

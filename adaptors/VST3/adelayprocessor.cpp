@@ -21,6 +21,8 @@ extern HINSTANCE ghInst;
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
+typedef gmpi::ReturnCode(*MP_DllEntry)(void**);
+
 //namespace Steinberg {
 //namespace Vst {
 
@@ -300,11 +302,9 @@ void SeProcessor::reInitialise()
 #endif
 
 		// Factory
-		int32_t r{};
-
-		gmpi::MP_DllEntry dll_entry_point = {};
+		MP_DllEntry dll_entry_point{};
 #ifdef _WIN32
-		r = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
+		const auto fail = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
 #else
 		dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
 #endif        
@@ -315,19 +315,19 @@ void SeProcessor::reInitialise()
 		}
 
 		gmpi::shared_ptr<gmpi::api::IUnknown> factoryBase;
-		r = dll_entry_point(factoryBase.asIMpUnknownPtr());
+		auto r = dll_entry_point(factoryBase.asIMpUnknownPtr());
 
 		gmpi::shared_ptr<gmpi::api::IPluginFactory> factory;
 		auto r2 = factoryBase->queryInterface(&gmpi::api::IPluginFactory::guid, factory.asIMpUnknownPtr());
 
-		if (!factory || r != gmpi::MP_OK)
+		if (!factory || r != gmpi::ReturnCode::Ok)
 		{
 			return;
 		}
 
 		gmpi::shared_ptr<gmpi::api::IUnknown> pluginUnknown;
 		r2 = factory->createInstance(semInfo.id.c_str(), gmpi::api::PluginSubtype::Audio, pluginUnknown.asIMpUnknownPtr());
-		if (!pluginUnknown || r != gmpi::MP_OK)
+		if (!pluginUnknown || r != gmpi::ReturnCode::Ok)
 		{
 			return;
 		}

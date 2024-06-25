@@ -14,7 +14,7 @@
 #include "se_types.h"
 #include "lock_free_fifo.h"
 #include "interThreadQue.h"
-#include "xp_dynamic_linking.h"
+#include "dynamic_linking.h"
 //#include "RefCountMacros.h"
 
 static const int MidiControllersParameterId = 10000;

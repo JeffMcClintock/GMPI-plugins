@@ -4,10 +4,10 @@
 #include "./MyTypeTraits.h"
 #include <assert.h>
 // Fix for <sstream> on Mac (sstream uses undefined int_64t)
-#include "mp_api.h"
+//#include "mp_api.h"
 #include <sstream>
 #include <vector>
-#include "se_datatypes.h" // kill this
+//#include "se_datatypes.h" // kill this
 
 // Return actual address of a value's data.
 // Advantage: Does NO memory allocation.
@@ -126,7 +126,7 @@ template<>
 void RawData2<MpBlob>( const MpBlob& value, void* *p_data, int* size);
 
 // Raw data to string given datatype.
-std::string RawToUtf8B(int datatype, const void* data, size_t size);
+std::string RawToUtf8B(gmpi::PinDatatype datatype, const void* data, size_t size);
 
 // Raw to Wide-string.
 template <typename T>
@@ -164,8 +164,8 @@ std::string RawToUtf8<MpBlob>(const void* data, int size);
 template<>
 std::string RawToUtf8<std::wstring>(const void* data, int size);
 
-std::string ParseToRaw( int datatype, const std::wstring& s );
-std::string ParseToRaw( int datatype, const std::string& s );
+std::string ParseToRaw( gmpi::PinDatatype datatype, const std::wstring& s );
+std::string ParseToRaw(gmpi::PinDatatype datatype, const std::string& s );
 
 template<typename T>
 std::string ToRaw4( const T& value )
@@ -188,36 +188,36 @@ inline std::string literalToRaw(const wchar_t* value)
 	return ToRaw4(temp);
 }
 
-inline int getDataTypeSize(int datatype)
+inline int getDataTypeSize(gmpi::PinDatatype datatype)
 {
 	switch (datatype)
 	{
-	case DT_CLASS:
-	case DT_BLOB:
-	case DT_TEXT:
-	case DT_STRING_UTF8:
+//TODO	case gmpi::PinDatatype::Class:
+	case gmpi::PinDatatype::Blob:
+	case gmpi::PinDatatype::String:
+//todo	case DT_STRING_UTF8:
 	{
 		return 0; // valiable size.
 	}
 	break;
 
-	case DT_BOOL:
+	case gmpi::PinDatatype::Bool:
 	{
 		return sizeof(bool);
 	}
 	break;
 
-	case DT_INT:
-	case DT_ENUM:
-	case DT_FLOAT:
+	case gmpi::PinDatatype::Int32:
+	case gmpi::PinDatatype::Enum:
+	case gmpi::PinDatatype::Float32:
 	{
 		assert(sizeof(float) == sizeof(int32_t));
 		return sizeof(int32_t);
 	}
 	break;
 
-	case DT_DOUBLE:
-	case DT_INT64:
+	case gmpi::PinDatatype::Float64:
+	case gmpi::PinDatatype::Int64:
 	{
 		assert(sizeof(double) == sizeof(int64_t));
 		return sizeof(int64_t);

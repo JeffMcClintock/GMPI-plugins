@@ -8,10 +8,11 @@
 #include "MyVstPluginFactory.h"
 #include "adelayprocessor.h"
 #include "se_datatypes.h" // kill this
-#include "RawConversions.h"
+#include "../Shared/RawConversions.h"
+#include "../Shared/BundleInfo.h"
 #include "unicode_conversion.h"
-#include "BundleInfo.h"
 #include "GmpiApiEditor.h"
+#include "it_enum_list.h"
 
 #ifdef _WIN32
 #include "SEVSTGUIEditorWin.h"
@@ -51,6 +52,9 @@
 using namespace std;
 using namespace tinyxml2;
 */
+
+typedef gmpi::ReturnCode(*MP_DllEntry)(void**);
+
 using namespace JmUnicodeConversions;
 
 #if 0
@@ -78,13 +82,13 @@ void MpParameterVst3::updateProcessor(gmpi::FieldType fieldId, int32_t voice)
 	switch (fieldId)
 	{
 		/* double up
-	case gmpi::MP_FT_GRAB:
+	case gmpi::FieldType::MP_FT_GRAB:
 		controller_->ParamGrabbed(this, voice);
 		break;
 		*/
 
-	case gmpi::MP_FT_VALUE:
-	case gmpi::MP_FT_NORMALIZED:
+	case gmpi::FieldType::MP_FT_VALUE:
+	case gmpi::FieldType::MP_FT_NORMALIZED:
 		vst3Controller->ParamToProcessorViaHost(this, voice);
 		break;
 	}
@@ -234,7 +238,7 @@ void VST3Controller::setPinFromUi(int32_t pinId, int32_t voice, int32_t size, co
 				if (param.id == pin.parameterId)
 				{
 					auto param = tagToParameter[pin.parameterId];
-					setParameterValue({ data, static_cast<size_t>(size)}, param->parameterHandle_, gmpi::MP_FT_VALUE, voice); // TODO figure out correct fieldtype
+					setParameterValue({ data, static_cast<size_t>(size)}, param->parameterHandle_, gmpi::FieldType::MP_FT_VALUE, voice); // TODO figure out correct fieldtype
 					break;
 				}
 			}
@@ -319,7 +323,7 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 				seParameter->minimum = pminimum;
 				seParameter->maximum = pmaximum;
 				seParameter->parameterHandle_ = ParameterHandle;
-				seParameter->datatype_ = (int) param.datatype;
+				seParameter->datatype_ = param.datatype;
 				seParameter->moduleHandle_ = 0;
 				seParameter->moduleParamId_ = param.id;
 				seParameter->stateful_ = true; // stateful_;
@@ -358,7 +362,7 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 					swprintf(ccName + 9, std::size(ccName), L"%3d", cc);
 
 					auto param = makeNativeParameter(ParameterId, false);
-					param->datatype_ = DT_FLOAT;
+					param->datatype_ = gmpi::PinDatatype::Float32;
 					param->name_ = ccName;
 					param->minimum = 0;
 					param->maximum = 1;
@@ -489,11 +493,9 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 #endif
 
 			// Factory
-			int32_t r{};
-
-			gmpi::MP_DllEntry dll_entry_point = {};
+			MP_DllEntry dll_entry_point = {};
 #ifdef _WIN32
-			r = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
+			const auto fail = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
 #else
 			dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
 #endif        
@@ -504,19 +506,19 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 			}
 
 			gmpi::shared_ptr<gmpi::api::IUnknown> factoryBase;
-			r = dll_entry_point(factoryBase.asIMpUnknownPtr());
+			auto r = dll_entry_point(factoryBase.asIMpUnknownPtr());
 
 			gmpi::shared_ptr<gmpi::api::IPluginFactory> factory;
 			auto r2 = factoryBase->queryInterface(&gmpi::api::IPluginFactory::guid, factory.asIMpUnknownPtr());
 
-			if (!factory || r != gmpi::MP_OK)
+			if (!factory || r != gmpi::ReturnCode::Ok)
 			{
 				return {};
 			}
 
 			gmpi::shared_ptr<gmpi::api::IUnknown> pluginUnknown;
 			r2 = factory->createInstance(semInfo.id.c_str(), gmpi::api::PluginSubtype::Editor, pluginUnknown.asIMpUnknownPtr());
-			if (!pluginUnknown || r != gmpi::MP_OK)
+			if (!pluginUnknown || r != gmpi::ReturnCode::Ok)
 			{
 				return {};
 			}
@@ -601,7 +603,7 @@ tresult VST3Controller::setParamNormalized( ParamID tag, ParamValue value )
 	if (auto p = getDawParameter(tag); p)
 	{
 		const auto n = p->convertNormalized(value);
-		p->MpParameter_base::setParameterRaw(gmpi::MP_FT_NORMALIZED, sizeof(n), &n);
+		p->MpParameter_base::setParameterRaw(gmpi::FieldType::MP_FT_NORMALIZED, sizeof(n), &n);
 	}
 
 	return kResultTrue;
@@ -633,7 +635,7 @@ tresult VST3Controller::getParameterInfo(int32 paramIndex, ParameterInfo& info)
     info.stepCount = 0;
 	info.units[0] = 0;
 
-	if ((p->datatype_ == DT_INT || p->datatype_ == DT_INT64) && !p->enumList_.empty())
+	if ((p->datatype_ == gmpi::PinDatatype::Int32 || p->datatype_ == gmpi::PinDatatype::Int64) && !p->enumList_.empty())
 	{
 		info.flags |= Steinberg::Vst::ParameterInfo::kIsList;
 		it_enum_list it(p->enumList_);
@@ -641,7 +643,7 @@ tresult VST3Controller::getParameterInfo(int32 paramIndex, ParameterInfo& info)
 	}
 
 	// Support for VSTs special bypass parameter. Make a bool param called "BYPASS" 
-	if (p->datatype_ == DT_BOOL && p->name_ == L"BYPASS")
+	if (p->datatype_ == gmpi::PinDatatype::Bool && p->name_ == L"BYPASS")
 	{
 		info.flags |= Steinberg::Vst::ParameterInfo::kIsBypass;
 	}

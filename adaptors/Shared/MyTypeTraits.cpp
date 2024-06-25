@@ -2,6 +2,7 @@
 #include <string>
 #include "Base64.h"
 #include "MyTypeTraits.h"
+#include "conversion.h"
 
 using namespace std;
 
@@ -12,7 +13,7 @@ void MyTypeTraits<std::wstring>::parse(const wchar_t *stringValue, std::wstring 
 }
 
 template<>
-void MyTypeTraits<MpBlob>::parse(const wchar_t *stringValue, MpBlob &returnValue)
+void MyTypeTraits<gmpi::Blob>::parse(const wchar_t *stringValue, gmpi::Blob &returnValue)
 {
 
 	// returnValue = (stringValue);
@@ -60,57 +61,48 @@ void MyTypeTraits<std::wstring>::parse(const char *stringValue, std::wstring &re
 }
 
 template<>
-void MyTypeTraits<MpBlob>::parse(const char *stringValue, MpBlob &returnValue)
+void MyTypeTraits<gmpi::Blob>::parse(const char *stringValue, gmpi::Blob& returnValue)
 {
 	string binaryData = Base64::decode(string(stringValue));
-	returnValue.setValueRaw((int) binaryData.size(), binaryData.data());
+	returnValue.assign(reinterpret_cast<const uint8_t*>(binaryData.data()), reinterpret_cast<const uint8_t*>(binaryData.data()) + binaryData.size());
+
+//	returnValue.setValueRaw((int) binaryData.size(), binaryData.data());
 }
 
 template<>
 void MyTypeTraits<float>::parse(const char *stringValue, float &returnValue)
 {
-
-	// returnValue = (float) stod( stringValue );
-	// // VS2010
 	returnValue = (float) atof(stringValue);	// VS2005
 }
 
 template<>
 void MyTypeTraits<int>::parse(const char *stringValue, int &returnValue)
 {
-
-	// returnValue = stol( stringValue );
 	returnValue = atoi(stringValue);
 }
 
 template<>
 void MyTypeTraits<short>::parse(const char *stringValue, short &returnValue)
 {
-
-	// returnValue = (short) stol( stringValue );
 	returnValue = (short) atoi(stringValue);
 }
 
 template<>
 void MyTypeTraits<bool>::parse(const char *stringValue, bool &returnValue)
 {
-
-	// returnValue = ( 0 != stol( stringValue ) );
 	returnValue = (0 != atoi(stringValue));
 }
 
 template<>
 void MyTypeTraits<double>::parse(const char *stringValue, double &returnValue)
 {
-
-	// returnValue = stod( stringValue );
 	returnValue = atof(stringValue);
 }
 
 template<>
-std::string MyTypeTraits<MpBlob>::toXML( const MpBlob& value )
+std::string MyTypeTraits<gmpi::Blob>::toXML( const gmpi::Blob& value )
 {
-	std::string binaryData((const char*)value.getData(), value.getSize() );
+	std::string binaryData((const char*)value.data(), value.size() );
 	return Base64::encode(binaryData);
 }
 
@@ -129,7 +121,15 @@ std::string MyTypeTraits<float>::toXML(const  float& value )
 }
 
 template<>
-std::string MyTypeTraits<int>::toXML( const int& value )
+std::string MyTypeTraits<int>::toXML(const int& value)
+{
+	std::ostringstream oss;
+	oss << value;
+	return oss.str();
+}
+
+template<>
+std::string MyTypeTraits<int64_t>::toXML(const int64_t& value)
 {
 	std::ostringstream oss;
 	oss << value;

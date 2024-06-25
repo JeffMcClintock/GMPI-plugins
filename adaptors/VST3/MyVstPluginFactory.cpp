@@ -7,10 +7,10 @@
 #include "adelaycontroller.h"
 #include "adelayprocessor.h"
 #include "tinyxml2/tinyxml2.h"
+#include "dynamic_linking.h"
 
 #if 0
 #include "it_enum_list.h"
-#include "xp_dynamic_linking.h"
 #include "BundleInfo.h"
 #include "FileFinder.h"
 #include "FileFinder.h"
@@ -425,14 +425,14 @@ void MyVstPluginFactory::initialize()
 void MyVstPluginFactory::RegisterPin(
 	tinyxml2::XMLElement* pin,
 	std::vector<pinInfoSem>* pinlist,
-	int32_t plugin_sub_type,
+	gmpi::api::PluginSubtype plugin_sub_type,
 	int nextPinId
 )
 {
 	assert(pin);
 	int type_specific_flags = 0;
 
-	if (plugin_sub_type != gmpi::MP_SUB_TYPE_AUDIO)
+	if (plugin_sub_type != gmpi::api::PluginSubtype::Audio)
 	{
 //?		type_specific_flags = IO_UI_COMMUNICATION;
 	}
@@ -836,7 +836,7 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 			}
 		}
 
-		int scanTypes[] = { gmpi::MP_SUB_TYPE_AUDIO, gmpi::MP_SUB_TYPE_GUI, gmpi::MP_SUB_TYPE_CONTROLLER };
+		gmpi::api::PluginSubtype scanTypes[] = { gmpi::api::PluginSubtype::Audio, gmpi::api::PluginSubtype::Editor, gmpi::api::PluginSubtype::Controller };
 		std::vector<pinInfoSem>* pinList = {};
 		for (auto sub_type : scanTypes)
 		{
@@ -844,17 +844,17 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 
 			switch (sub_type)
 			{
-			case gmpi::MP_SUB_TYPE_AUDIO:
+			case gmpi::api::PluginSubtype::Audio:
 				sub_type_name = "Audio";
 				pinList = &info.dspPins;
 				break;
 
-			case gmpi::MP_SUB_TYPE_GUI:
+			case gmpi::api::PluginSubtype::Editor:
 				sub_type_name = "GUI";
 				pinList = &info.guiPins;
 				break;
 
-			case gmpi::MP_SUB_TYPE_CONTROLLER:
+			case gmpi::api::PluginSubtype::Controller:
 				sub_type_name = "Controller";
 				pinList = nullptr;
 				break;
@@ -864,7 +864,7 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 			if (!classE)
 				continue;
 
-			if (sub_type == gmpi::MP_SUB_TYPE_AUDIO)
+			if (sub_type == gmpi::api::PluginSubtype::Audio)
 			{
 				// plugin_class->ToElement()->QueryIntAttribute("latency", &latency);
 			}
@@ -881,6 +881,8 @@ void MyVstPluginFactory::RegisterXml(const platform_string& pluginPath, const ch
 		}
 	}
 }
+
+typedef gmpi::ReturnCode (*MP_DllEntry)(void**);
 
 bool MyVstPluginFactory::initializeFactory()
 {
@@ -955,11 +957,13 @@ bool MyVstPluginFactory::initializeFactory()
 
 	// Shell plugins
 	// GMPI & sem V3 export function
-	gmpi::MP_DllEntry dll_entry_point;
-	const char* gmpi_dll_entrypoint_name = "MP_GetFactory";
-	auto r = gmpi_dynamic_linking::MP_DllSymbol(hinstLib, gmpi_dll_entrypoint_name, (void**)&dll_entry_point);
+	// ReturnCode MP_GetFactory( void** returnInterface )
+	MP_DllEntry dll_entry_point;
 
-	if (r != gmpi::MP_OK) // GMPI/SDK3 Plugin
+	const char* gmpi_dll_entrypoint_name = "MP_GetFactory";
+	auto fail = gmpi_dynamic_linking::MP_DllSymbol(hinstLib, gmpi_dll_entrypoint_name, (void**)&dll_entry_point);
+
+	if (fail) // GMPI/SDK3 Plugin
 	{
 		gmpi_dynamic_linking::MP_DllUnload(hinstLib);
 		return false;
@@ -968,17 +972,17 @@ bool MyVstPluginFactory::initializeFactory()
 	{ // restrict scope of 'vst_factory' and 'gmpi_factory' so smart pointers RIAA before dll is unloaded
 
 		// Instantiate factory and query sub-plugins.
-		gmpi::shared_ptr<gmpi::IMpShellFactory> vst_factory;
+//		gmpi::shared_ptr<gmpi::IMpShellFactory> vst_factory;
 		gmpi::shared_ptr<gmpi::api::IPluginFactory> gmpi_factory;
 		{
-			gmpi::shared_ptr<gmpi::IMpUnknown> com_object;
-			r = dll_entry_point(com_object.asIMpUnknownPtr());
+			gmpi::shared_ptr<gmpi::api::IUnknown> com_object;
+			auto r = dll_entry_point(com_object.asIMpUnknownPtr());
 
-			r = com_object->queryInterface(gmpi::MP_IID_SHELLFACTORY, vst_factory.asIMpUnknownPtr());
-			r = com_object->queryInterface((const gmpi::MpGuid&)gmpi::api::IPluginFactory::guid, gmpi_factory.asIMpUnknownPtr());
+//			r = com_object->queryInterface(gmpi::MP_IID_SHELLFACTORY, vst_factory.asIMpUnknownPtr());
+			r = com_object->queryInterface(&gmpi::api::IPluginFactory::guid, gmpi_factory.asIMpUnknownPtr());
 		}
 
-		if (!vst_factory && !gmpi_factory)
+		if (/*!vst_factory &&*/ !gmpi_factory)
 		{
 			//std::wostringstream oss;
 			//oss << L"Module missing XML resource, and has no factory\n" << full_path;
@@ -988,27 +992,14 @@ bool MyVstPluginFactory::initializeFactory()
 			return false;
 		}
 
-		// if we found VST shell but we're only scanning SEMs, exit.
-//		if ((vst_factory && !scanVstsOnly) || (gmpi_factory && scanVstsOnly))
-		if (!vst_factory && !gmpi_factory)
-		{
-			vst_factory = nullptr;
-			gmpi_factory = nullptr;
-			gmpi_dynamic_linking::MP_DllUnload(hinstLib);
-			return false;
-		}
-
 		int index = 0;
-		while (true)
+		while (gmpi_factory)
 		{
 			gmpi::ReturnString s;
-			if (gmpi_factory)
-			{
-				// have to cast GMPI 2 types to GMPI 1 types
-				r = (int32_t)gmpi_factory->getPluginInformation(index++, &s); // FULL XML
-			}
+			// have to cast GMPI 2 types to GMPI 1 types
+			const auto r = gmpi_factory->getPluginInformation(index++, &s); // FULL XML
 
-			if (r != gmpi::MP_OK)
+			if (r != gmpi::ReturnCode::Ok)
 				break;
 
 			RegisterXml(pluginPath, s.c_str());

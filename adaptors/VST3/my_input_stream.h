@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Common.h"
 
 class my_input_stream
 {
@@ -36,7 +37,7 @@ public:
 		return *this;
 	}
 
-	my_input_stream& operator>>(struct MpBlob& val);
+	my_input_stream& operator>>(gmpi::Blob& val);
 };
 
 class my_output_stream
@@ -56,6 +57,6 @@ public:
 
     my_output_stream& operator<<(const std::string& val);
     my_output_stream& operator<<(const std::wstring& val);
-    my_output_stream& operator<<(const struct MpBlob& val);
+    my_output_stream& operator<<(const gmpi::Blob& val);
 };
 

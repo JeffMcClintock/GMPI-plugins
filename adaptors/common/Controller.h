@@ -9,9 +9,9 @@
 #include <mutex>
 #include <vector>
 #include "TimerManager.h"
-#include "../se_sdk3/mp_gui.h"
+//#include "../se_sdk3/mp_gui.h"
 #include "../shared/FileWatcher.h"
-#include "IGuiHost2.h"
+//#include "IGuiHost2.h"
 #include "interThreadQue.h"
 #include "MpParameter.h"
 #include "ControllerHost.h"
@@ -22,12 +22,12 @@ namespace SynthEdit2
 {
 	class IPresenter;
 }
-
+#if 0 // TODO
 // Manages SEM plugin's controllers.
-class ControllerManager : public gmpi::IMpParameterObserver
+class ControllerManager : public gmpi::api::IParameterObserver
 {
 public:
-	std::vector< std::pair<int32_t, std::unique_ptr<ControllerHost> > > childPluginControllers;
+// TODO: just one:	std::vector< std::pair<int32_t, std::unique_ptr<ControllerHost> > > childPluginControllers;
 	IGuiHost2* patchManager;
 
     virtual ~ControllerManager(){}
@@ -38,6 +38,7 @@ public:
 		int32_t moduleParameterId = -1;
 		patchManager->getParameterModuleAndParamId(parameterHandle, &moduleHandle, &moduleParameterId);
 
+#if 0 // TODO
 		for (auto& m : childPluginControllers)
 		{
 			if (m.first == moduleHandle)
@@ -45,12 +46,13 @@ public:
 				m.second->setPluginParameter(parameterHandle, fieldId, voice, data, size);
 			}
 		}
-
+#endif
 		return gmpi::MP_OK;
 	}
 
 	void addController(int32_t handle, gmpi_sdk::mp_shared_ptr<gmpi::IMpController> controller)
 	{
+#if 0 // TODO
 		childPluginControllers.push_back({ handle, std::make_unique<ControllerHost>() });
 		auto chost = childPluginControllers.back().second.get();
 
@@ -58,7 +60,7 @@ public:
 		chost->patchManager = patchManager;
 		chost->handle = handle;
 		controller->setHost(chost);
-
+#endif
 		/* TODO
 		int indx = 0;
 		auto p = GetParameter(this, indx);
@@ -74,6 +76,7 @@ public:
 	GMPI_QUERYINTERFACE1(gmpi::MP_IID_PARAMETER_OBSERVER, gmpi::IMpParameterObserver);
 	GMPI_REFCOUNT;
 };
+#endif
 
 class MpController;
 
@@ -112,7 +115,7 @@ public:
 	bool canRedo();
 };
 
-class MpController : public IGuiHost2, public interThreadQueUser, public TimerClient
+class MpController : /*public IGuiHost2,*/ public interThreadQueUser, public TimerClient
 {
 	friend class UndoManager;
 	static const int UI_MESSAGE_QUE_SIZE2 = 0x500000; // 5MB. see also AUDIO_MESSAGE_QUE_SIZE
@@ -134,7 +137,7 @@ protected:
 	static const int timerPeriodMs = 35;
 
 private:
-	ControllerManager semControllers;
+//	ControllerManager semControllers;
 	// When syncing Preset Browser to a preset from the DAW, inhibit normal preset loading behaviour. Else preset gets loaded twice.
 	bool inhibitProgramChangeParameter = {};
     file_watcher::FileWatcher fileWatcher;
@@ -154,12 +157,10 @@ protected:
 	std::vector< std::unique_ptr<MpParameter> > parameters_;
 	std::map< std::pair<int, int>, int > moduleParameterIndex;		// Module Handle/ParamID to Param Handle.
 	std::map< int, MpParameter* > ParameterHandleIndex;				// Param Handle to Parameter*.
-	std::vector<gmpi::IMpParameterObserver*> m_guis2;
+//	std::vector<gmpi::IMpParameterObserver*> m_guis2;
 	std::vector<gmpi::api::IParameterObserver*> m_guis3;
 	
-	SE2::IPresenter* presenter_ = nullptr;
-
-	GmpiGui::FileDialog nativeFileDialog;
+//	SE2::IPresenter* presenter_ = nullptr;
 
     interThreadQue message_que_dsp_to_ui;
 	bool isSemControllersInitialised = false;
@@ -168,7 +169,10 @@ protected:
 	std::vector< presetInfo > presets;
 	DawPreset session_preset;
 
+#if 0 // TODO
+	GmpiGui::FileDialog nativeFileDialog;
 	GmpiGui::OkCancelDialog okCancelDialog;
+#endif
 
 	void OnFileDialogComplete(int mode, int32_t result);
 	virtual void OnStartupTimerExpired();
@@ -178,8 +182,8 @@ public:
 	MpController() :
 		message_que_dsp_to_ui(UI_MESSAGE_QUE_SIZE2)
 	{
-		semControllers.patchManager = this;
-		RegisterGui2(&semControllers);
+//		semControllers.patchManager = this;
+//		RegisterGui2(&semControllers);
 	}
     
     ~MpController();
@@ -197,12 +201,12 @@ public:
 
 	void initSemControllers();
 
-	int32_t getController(int32_t moduleHandle, gmpi::IMpController ** returnController) override;
+	//int32_t getController(int32_t moduleHandle, gmpi::IMpController ** returnController) override;
 
-	void setMainPresenter(SE2::IPresenter* presenter) override
-	{
-		presenter_ = presenter;
-	}
+	//void setMainPresenter(SE2::IPresenter* presenter) override
+	//{
+	//	presenter_ = presenter;
+	//}
 
 	// Override these
 	virtual void ParamGrabbed(MpParameter_native* param) = 0;
@@ -240,15 +244,15 @@ public:
 	void SerialiseParameterValueToDsp(my_msg_que_output_stream& stream, MpParameter* param, int32_t voice = 0);
 	void UpdateProgramCategoriesHc(MpParameter * param);
 	MpParameter* createHostParameter(int32_t hostControl);
-	virtual int32_t sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t size, const void* messageData) override;
-	void OnSetHostControl(int hostControl, int32_t paramField, int32_t size, const void * data, int32_t voice);
+//	virtual int32_t sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t size, const void* messageData) override;
+	void OnSetHostControl(int hostControl, gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice);
 
-	int32_t RegisterGui2(gmpi::api::IParameterObserver* gui)
+	gmpi::ReturnCode RegisterGui2(gmpi::api::IParameterObserver* gui)
 	{
 		m_guis3.push_back(gui);
-		return gmpi::MP_OK;
+		return gmpi::ReturnCode::Ok;
 	}
-	int32_t UnRegisterGui2(gmpi::api::IParameterObserver* gui)
+	gmpi::ReturnCode UnRegisterGui2(gmpi::api::IParameterObserver* gui)
 	{
 #if _HAS_CXX20
 		std::erase(m_guis3, gui);
@@ -256,9 +260,9 @@ public:
 		if (auto it = find(m_guis3.begin(), m_guis3.end(), gui); it != m_guis3.end())
 			m_guis3.erase(it);
 #endif
-		return gmpi::MP_OK;
+		return gmpi::ReturnCode::Ok;
 	}
-
+#if 0
 	// IGuiHost2
 	int32_t RegisterGui2(gmpi::IMpParameterObserver* gui) override
 	{
@@ -276,11 +280,19 @@ public:
 		return gmpi::MP_OK;
 	}
 void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId) override;
+#endif
 	void initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId);
+	void setParameterValue(RawView value, int32_t parameterHandle, gmpi::FieldType moduleFieldId = gmpi::FieldType::MP_FT_VALUE, int32_t voice = 0);// override;
+#if 0
 	int32_t getParameterHandle(int32_t moduleHandle, int32_t moduleParameterId) override;
 	int32_t getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId) override;
 	RawView getParameterValue(int32_t parameterHandle, int32_t fieldId, int32_t voice = 0) override;
-
+	virtual int32_t resolveFilename(const wchar_t* shortFilename, int32_t maxChars, wchar_t* returnFullFilename) override;
+	void serviceGuiQueue() override
+	{
+		message_que_dsp_to_ui.pollMessage(this);
+	}
+#endif
 	MpParameter* getHostParameter(int32_t hostControl);
 
 	void ImportPresetXml(const char* filename, int presetIndex = -1);
@@ -290,31 +302,33 @@ void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmp
 	void setModified(bool presetIsModified);
 	void ExportBankXml(const char * filename);
 
-	void setParameterValue(RawView value, int32_t parameterHandle, gmpi::FieldType moduleFieldId = gmpi::MP_FT_VALUE, int32_t voice = 0) override;
+#if 0 // TODO
 	gmpi_gui::IMpGraphicsHost * getGraphicsHost();
-	virtual int32_t resolveFilename(const wchar_t* shortFilename, int32_t maxChars, wchar_t* returnFullFilename) override;
+#endif
 
 	void updateGuis(MpParameter* parameter, int voice)
 	{
-		const auto rawValue = parameter->getValueRaw(gmpi::MP_FT_VALUE, voice);
+		const auto rawValue = parameter->getValueRaw(gmpi::FieldType::MP_FT_VALUE, voice);
 		const float normalized = parameter->getNormalized(); // voice !!!?
+#if 0 // TODO
 
 		for (auto pa : m_guis2)
 		{
 			// Update value.
-			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_VALUE, voice, rawValue.data(), (int32_t)rawValue.size());
+			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_VALUE, voice, rawValue.data(), (int32_t)rawValue.size());
 
 			// Update normalized.
-			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_NORMALIZED, voice, &normalized, (int32_t)sizeof(normalized));
+			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_NORMALIZED, voice, &normalized, (int32_t)sizeof(normalized));
 		}
+#endif
 
 		for (auto pa : m_guis3)
 		{
 			// Update value.
-			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_VALUE, voice, (int32_t)rawValue.size(), rawValue.data());
+			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_VALUE, voice, (int32_t)rawValue.size(), rawValue.data());
 
 			// Update normalized.
-			pa->setParameter(parameter->parameterHandle_, gmpi::MP_FT_NORMALIZED, voice, (int32_t)sizeof(normalized), &normalized);
+			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_NORMALIZED, voice, (int32_t)sizeof(normalized), &normalized);
 		}
 	}
 
@@ -322,10 +336,10 @@ void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmp
 	{
 		auto rawValue = parameter->getValueRaw(fieldType, voice);
 
-		for (auto pa : m_guis2)
-		{
-			pa->setParameter(parameter->parameterHandle_, fieldType, voice, rawValue.data(), (int32_t)rawValue.size());
-		}
+		//for (auto pa : m_guis2)
+		//{
+		//	pa->setParameter(parameter->parameterHandle_, fieldType, voice, rawValue.data(), (int32_t)rawValue.size());
+		//}
 		for (auto pa : m_guis3)
 		{
 			pa->setParameter(parameter->parameterHandle_, fieldType, voice, (int32_t)rawValue.size(), rawValue.data());
@@ -336,10 +350,6 @@ void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmp
 	bool OnTimer() override;
 	bool onQueMessageReady(int handle, int msg_id, class my_input_stream& p_stream) override;
 
-	void serviceGuiQueue() override
-	{
-		message_que_dsp_to_ui.pollMessage(this);
-	}
 
 	virtual IWriteableQue* getQueueToDsp() = 0;
 

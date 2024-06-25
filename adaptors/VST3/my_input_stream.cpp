@@ -1,18 +1,19 @@
 //#include "pch.h"
 
 #include "my_input_stream.h"
-#include "mp_sdk_common.h"
+//#include "mp_sdk_common.h"
 //#include "mfc_emulation.h"
 
 
-my_input_stream& my_input_stream::operator>>(struct MpBlob& val)
+my_input_stream& my_input_stream::operator>>(gmpi::Blob& val)
 {
     int size;
     Read(&size,sizeof(size));
-    char* dat = new char[size];
-    Read(dat,size);
-    val.setValueRaw(size,dat);
-    delete [] dat;
+	val.resize(size);
+//    char* dat = new char[size];
+    Read(val.data(), size);
+//    val.setValueRaw(size,dat);
+//    delete [] dat;
     return *this;
 }
 
@@ -40,11 +41,11 @@ my_output_stream& my_output_stream::operator<<( const std::wstring& val )
     return *this;
 }
 
-my_output_stream& my_output_stream::operator<<(const MpBlob& val)
+my_output_stream& my_output_stream::operator<<(const gmpi::Blob& val)
 {
-    int size = val.getSize();
+    int size = val.size();
     Write(&size,sizeof(size));
-    Write(val.getData(),size);
+    Write(val.data(),size);
     return *this;
 };
 

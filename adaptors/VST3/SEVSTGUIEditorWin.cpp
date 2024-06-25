@@ -6,7 +6,7 @@ ParameterHelper::ParameterHelper(SEVSTGUIEditorWin* editor)
 	editor_ = editor;
 }
 
-gmpi::ReturnCode ParameterHelper::setParameter(int32_t parameterHandle, int32_t fieldId, int32_t voice, int32_t size, const void* data)
+gmpi::ReturnCode ParameterHelper::setParameter(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, int32_t size, const void* data)
 {
 	editor_->onParameterUpdate(parameterHandle, fieldId, voice, data, size);
     return gmpi::ReturnCode::Ok;
@@ -53,12 +53,12 @@ SEVSTGUIEditorWin::~SEVSTGUIEditorWin()
 	controller->UnRegisterGui2(&helper);
 }
 
-void SEVSTGUIEditorWin::onParameterUpdate(int32_t parameterHandle, int32_t fieldId, int32_t voice, const void* data, int32_t size)
+void SEVSTGUIEditorWin::onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size)
 {
 	if (!pluginParameters_GMPI)
 		return;
 
-	if (fieldId == 0) // value TODO: lookup pinID from parameterHandle
+	if (fieldId == gmpi::FieldType::MP_FT_VALUE) // value TODO: lookup pinID from parameterHandle
     {
         int32_t pinId = 0;
 	    pluginParameters_GMPI->setPin(pinId, voice, size, data);
@@ -73,11 +73,9 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinbe
 
         const gmpi::drawing::SizeL overrideSize{ width, height };
         drawingframe.open(parent, &overrideSize);
-    }
 
-    // TO DO !!! LOOKUP PARAM HANDLE
-    //controller->initializeGui(&helper, 3, gmpi::FieldType::MP_FT_VALUE);
-    controller->initUi(&helper);
+        controller->initUi(&helper);
+    }
 
 	return Steinberg::kResultTrue;
 }

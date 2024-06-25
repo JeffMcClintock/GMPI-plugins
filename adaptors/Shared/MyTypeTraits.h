@@ -1,8 +1,11 @@
 #pragma once
 #include <string>
 #include <sstream>
-#include "conversion.h"
-#include "mp_sdk_common.h"
+//#include "conversion.h"
+//#include "mp_sdk_common.h"
+#include "Common.h"
+
+//typedef std::vector<uint8_t> MpBlob;
 
 // helpers to convert any parameter value to raw bytes
 template<class U> struct VariableLengthStorageTraits
@@ -17,7 +20,7 @@ struct VariableLengthStorageTraits<std::wstring>
 };
 
 template<>
-struct VariableLengthStorageTraits<struct MpBlob>
+struct VariableLengthStorageTraits<gmpi::Blob>
 {
 	enum { result = true };
 };
@@ -36,7 +39,7 @@ struct SynthEditDatatypeTrait<std::wstring>
 };
 
 template<>
-struct SynthEditDatatypeTrait<struct MpBlob>
+struct SynthEditDatatypeTrait<gmpi::Blob>
 {
 	static const int result = 10;
 };
@@ -88,7 +91,7 @@ public:
 template<>
 void MyTypeTraits<std::wstring>::parse(const wchar_t* stringValue, std::wstring& returnValue);
 template<>
-void MyTypeTraits<MpBlob>::parse(const wchar_t* stringValue, MpBlob& returnValue);
+void MyTypeTraits<gmpi::Blob>::parse(const wchar_t* stringValue, gmpi::Blob& returnValue);
 template<>
 void MyTypeTraits<float>::parse(const wchar_t* stringValue, float& returnValue);
 template<>
@@ -104,7 +107,7 @@ void MyTypeTraits<double>::parse(const wchar_t* stringValue, double& returnValue
 template<>
 void MyTypeTraits<std::wstring>::parse(const char* stringValue, std::wstring& returnValue);
 template<>
-void MyTypeTraits<MpBlob>::parse(const char* stringValue, MpBlob& returnValue);
+void MyTypeTraits<gmpi::Blob>::parse(const char* stringValue, gmpi::Blob& returnValue);
 template<>
 void MyTypeTraits<float>::parse(const char* stringValue, float& returnValue);
 template<>
@@ -117,13 +120,15 @@ template<>
 void MyTypeTraits<double>::parse(const char* stringValue, double& returnValue);
 
 template<>
-std::string MyTypeTraits<MpBlob>::toXML( const MpBlob& value );
+std::string MyTypeTraits<gmpi::Blob>::toXML( const gmpi::Blob& value );
 template<>
 std::string MyTypeTraits<std::wstring>::toXML( const std::wstring& value );
 template<>
 std::string MyTypeTraits<float>::toXML( const float& value );
 template<>
-std::string MyTypeTraits<int>::toXML( const int& value );
+std::string MyTypeTraits<int>::toXML(const int& value);
+template<>
+std::string MyTypeTraits<int64_t>::toXML(const int64_t& value);
 template<>
 std::string MyTypeTraits<short>::toXML( const short& value );
 template<>
@@ -135,14 +140,14 @@ std::string MyTypeTraits<double>::toXML( const double& value );
 #if defined( SE_SUPPORT_MFC )
 
 template<>
-void MyTypeTraits<MpBlob>::MfcArchiveWrite( class CArchive& ar, MpBlob& value )
+void MyTypeTraits<gmpi::Blob>::MfcArchiveWrite( class CArchive& ar, gmpi::Blob& value )
 {
 	ar << (int) value.getSize();
 	ar.Write( value.getData(), value.getSize() );
 }
 
 template<>
-void MyTypeTraits<MpBlob>::MfcArchiveRead( class CArchive& ar, MpBlob& value )
+void MyTypeTraits<gmpi::Blob>::MfcArchiveRead( class CArchive& ar, gmpi::Blob& value )
 {
 	int size;
 	ar >> size;

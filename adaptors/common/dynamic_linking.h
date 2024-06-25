@@ -8,6 +8,8 @@ using namespace gmpi_dynamic_linking;
 #include <stdint.h>
 #include <string>
 
+// TODO!!! do these return bool or int?
+
 // Provide a cross-platform loading of dlls.
 namespace gmpi_dynamic_linking
 {
@@ -15,7 +17,7 @@ namespace gmpi_dynamic_linking
 
 	int32_t MP_DllLoad(DLL_HANDLE* dll_handle, const wchar_t* dll_filename);
 	int32_t MP_DllUnload(DLL_HANDLE dll_handle);
-	int32_t MP_DllSymbol(DLL_HANDLE dll_handle, const char* symbol_name, void** returnFunction);
+	bool MP_DllSymbol(DLL_HANDLE dll_handle, const char* symbol_name, void** returnFunction);
 
     std::wstring MP_GetDllFilename();
 #if defined(_WIN32)

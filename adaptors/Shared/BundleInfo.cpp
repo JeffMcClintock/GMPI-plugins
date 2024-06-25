@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include "BundleInfo.h"
-#include "xp_dynamic_linking.h"
+#include "dynamic_linking.h"
 #include "unicode_conversion.h"
 #include "xplatform.h"
 //#include "tinyxml/tinyxml.h"
