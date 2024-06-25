@@ -1,9 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-//#include "se_datatypes.h"
 #include "string_utilities.h"
-#include "se_types.h"
 
 // collection of handy general purpose routines
 
@@ -120,8 +118,8 @@ inline std::string combine_path_and_file(const std::string& p_path, const std::s
 	return combine_path_and_file_imp<std::string>(p_path, p_file);
 }
 
-int SampleToMs( timestamp_t s, int sample_rate);
-timestamp_t msToSamples( int ms , int sample_rate);
+//int SampleToMs( timestamp_t s, int sample_rate);
+//timestamp_t msToSamples( int ms , int sample_rate);
 
 int get_enum_range_lo(const std::wstring& p_enum_list);
 int get_enum_range_hi(const std::wstring& p_enum_list);

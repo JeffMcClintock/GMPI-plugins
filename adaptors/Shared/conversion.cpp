@@ -550,21 +550,21 @@ std::string EscapeXmlSpecialCharacters(const std::string& s)
 	return escaped;
 }
 
-int SampleToMs( timestamp_t s, int sample_rate)   // being carefull to avoid numeric overflow
-{
-	timestamp_t total_seconds = s / (timestamp_t) sample_rate;
-	timestamp_t total_ms  = s % (timestamp_t) sample_rate;
-	total_ms = 1000 * total_seconds + ( 1000 * total_ms + sample_rate / 2) / sample_rate;
-	return (int) total_ms;
-}
-
-timestamp_t msToSamples( int ms , int sample_rate)
-{
-	timestamp_t total_seconds = ms / 1000;
-	timestamp_t total_sp  = ms % 1000;
-	total_sp = sample_rate * total_seconds + ( sample_rate * total_sp ) / 1000;
-	return total_sp;
-}
+//int SampleToMs( timestamp_t s, int sample_rate)   // being carefull to avoid numeric overflow
+//{
+//	timestamp_t total_seconds = s / (timestamp_t) sample_rate;
+//	timestamp_t total_ms  = s % (timestamp_t) sample_rate;
+//	total_ms = 1000 * total_seconds + ( 1000 * total_ms + sample_rate / 2) / sample_rate;
+//	return (int) total_ms;
+//}
+//
+//timestamp_t msToSamples( int ms , int sample_rate)
+//{
+//	timestamp_t total_seconds = ms / 1000;
+//	timestamp_t total_sp  = ms % 1000;
+//	total_sp = sample_rate * total_seconds + ( sample_rate * total_sp ) / 1000;
+//	return total_sp;
+//}
 
 /*
 void get_enum_range( const std::wstring &enum_list, int &lo, int &hi )

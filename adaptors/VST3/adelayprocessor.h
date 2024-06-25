@@ -11,7 +11,7 @@
 #include <atomic>
 #include <array>
 #include "GmpiMidi.h"
-#include "se_types.h"
+//#include "se_types.h"
 #include "lock_free_fifo.h"
 #include "interThreadQue.h"
 #include "dynamic_linking.h"
@@ -24,7 +24,7 @@ enum class VoiceAllocationHint {Keyboard, MPE};
 //namespace Steinberg {
 //namespace Vst {
 
-// to work arround Steinberg Interfaces having incompatible addRef etc
+// to work around Steinberg Interfaces having incompatible addRef etc
 class GmpiBaseClass :public gmpi::api::IAudioPluginHost
 {
 public:
@@ -81,6 +81,8 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+typedef int64_t timestamp_t;
+
 class SeProcessor : public Steinberg::Vst::AudioEffect, public GmpiBaseClass //, public IShellServices, public IProcessorMessageQues
 {
 public:
