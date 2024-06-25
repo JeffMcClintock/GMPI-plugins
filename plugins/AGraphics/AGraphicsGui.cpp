@@ -4,8 +4,6 @@
 #include "RefCountMacros.h"
 #include "Common.h"
 #include "Drawing.h"
-// hack for now, to prevent linker from discarding plugin factory
-#include "public.sdk/source/main/pluginfactory.h"
 #include "helpers/GraphicsRedrawClient.h"
 
 
@@ -16,18 +14,15 @@ class PluginEditor : public gmpi::api::IEditor, public gmpi::api::IDrawingClient
 {
 protected:
 	gmpi::drawing::Rect bounds;
-	gmpi::shared_ptr<gmpi::api::IDrawingHost> host;
-	gmpi::shared_ptr<gmpi::api::IInputHost> inputhost;
-	gmpi::shared_ptr<gmpi::api::IEditorHost> editorhost;
+
+	gmpi::shared_ptr<gmpi::api::IInputHost> inputHost;
+	gmpi::shared_ptr<gmpi::api::IEditorHost> editorHost;
+	gmpi::shared_ptr<gmpi::api::IDrawingHost> drawingHost;
 
 public:
 
 	PluginEditor()
 	{
-		#if 1
-			// hack for now, to prevent linker from discarding plugin factory
-			auto test = GetPluginFactory();
-		#endif
 	}
 
 	// IEditor
@@ -35,9 +30,9 @@ public:
 	{
 		gmpi::shared_ptr<gmpi::api::IUnknown> unknown(phost);
 
-		phost->queryInterface(&gmpi::api::IDrawingHost::guid, host.asIMpUnknownPtr());
-		inputhost = unknown.As<gmpi::api::IInputHost>();
-		editorhost = unknown.As<gmpi::api::IEditorHost>();
+		phost->queryInterface(&gmpi::api::IDrawingHost::guid, drawingHost.asIMpUnknownPtr());
+		inputHost = unknown.As<gmpi::api::IInputHost>();
+		editorHost = unknown.As<gmpi::api::IEditorHost>();
 
 		return ReturnCode::Ok;
 	}
@@ -194,8 +189,8 @@ public:
 		{
 			pinGain = *(const float*) data;
 
-			if(host)
-				host->invalidateRect(nullptr);
+			if(drawingHost)
+				drawingHost->invalidateRect(nullptr);
 		}
 		return ReturnCode::Ok;
 	}
@@ -215,27 +210,27 @@ public:
 
 	gmpi::ReturnCode onPointerDown(gmpi::drawing::Point point, int32_t flags) override
 	{
-		return inputhost->setCapture();
+		return inputHost->setCapture();
 	}
 
 	gmpi::ReturnCode onPointerMove(gmpi::drawing::Point point, int32_t flags) override
 	{
 		bool isCaptured = false;
-		inputhost->getCapture(isCaptured);
+		inputHost->getCapture(isCaptured);
 
 		if (isCaptured)
 		{
 			pinGain = std::clamp((point.x - bounds.left) / (bounds.right - bounds.left), 0.0f, 1.0f);
-			editorhost->setPin(0, 0, sizeof(pinGain), &pinGain);
+			editorHost->setPin(0, 0, sizeof(pinGain), &pinGain);
 
-			host->invalidateRect(nullptr);
+			drawingHost->invalidateRect(nullptr);
 		}
 		return ReturnCode::Ok;
 	}
 
 	gmpi::ReturnCode onPointerUp(gmpi::drawing::Point point, int32_t flags) override
 	{
-		return inputhost->releaseCapture();
+		return inputHost->releaseCapture();
 	}
 };
 

@@ -1,5 +1,4 @@
 #include "AudioPlugin.h"
-#include "public.sdk/source/main/pluginfactory.h"
 
 using namespace gmpi;
 
@@ -16,14 +15,12 @@ struct Gain final : public AudioPlugin
 		initializePin(pinGain);
 	}
 
-	ReturnCode open(IUnknown* phost) override
+	ReturnCode open(IUnknown* host) override
 	{
-		auto test = GetPluginFactory();
-
 		// specify which member to process audio.
 		setSubProcess(&Gain::subProcess);
 
-		return AudioPlugin::open(phost);
+		return AudioPlugin::open(host);
 	}
 
 	void subProcess(int sampleFrames)
