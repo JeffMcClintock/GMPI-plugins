@@ -4,7 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include "Controller.h"
-#include "../tinyXml2/tinyxml2.h"
+#include "tinyXml2/tinyxml2.h"
 #include "RawConversions.h"
 #include "HostControls.h"
 #include "GmpiResourceManager.h"

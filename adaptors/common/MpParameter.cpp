@@ -3,7 +3,7 @@
 #include <iomanip>
 #include "xp_simd.h"
 #include "Controller.h"
-#include "../se_sdk2/se_datatypes.h"
+//#include "../se_sdk2/se_datatypes.h"
 #include "RawConversions.h"
 //#include "../../conversion.h"
 #include "HostControls.h"
@@ -67,29 +67,29 @@ bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size,
 
 		switch (datatype_)
 		{
-		case DT_FLOAT:
+		case gmpi::PinDatatype::Float32:
 		{
 			newRawValue = ToRaw4((float)realWorld);
 			break;
 		}
-		case DT_DOUBLE:
+		case gmpi::PinDatatype::Float64:
 		{
 			newRawValue = ToRaw4(realWorld);
 			break;
 		}
-		case DT_INT:
+		case gmpi::PinDatatype::Int32:
 		{
 // -ves fail			newRawValue = ToRaw4((int32_t)(0.5 + realWorld));
 			newRawValue = ToRaw4((int32_t) FastRealToIntFloor(0.5 + realWorld));
 			break;
 		}
-		case DT_INT64:
+		case gmpi::PinDatatype::Int64:
 		{
 			// -ves fail			newRawValue = ToRaw4((int64_t)(0.5 + realWorld));
 			newRawValue = ToRaw4((int64_t)FastRealToIntFloor(0.5 + realWorld));
 			break;
 		}
-		case DT_BOOL:
+		case gmpi::PinDatatype::Bool:
 		{
 			newRawValue = ToRaw4((bool)(normalized > 0.5));
 			break;
@@ -289,7 +289,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 			// compute normalised normalized.
 			switch (datatype_)
 			{
-			case DT_FLOAT:
+			case gmpi::PinDatatype::Float32:
 			{
 				float v = (float)minimum;
 				tempReturnValue = ToRaw4(v);
@@ -297,13 +297,13 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 			}
 			break;
 
-			case DT_DOUBLE:
+			case gmpi::PinDatatype::Float64:
 			{
 				return ToRaw4(minimum);
 			}
 			break;
 
-			case DT_BOOL:
+			case gmpi::PinDatatype::Bool:
 			{
 				tempReturnValue = ToRaw4(false);
 				return RawView(tempReturnValue);
@@ -327,7 +327,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 			// compute normalised normalized.
 			switch (datatype_)
 			{
-			case DT_FLOAT:
+			case gmpi::PinDatatype::Float32:
 			{
 				float v = (float)maximum;
 				tempReturnValue = ToRaw4(v);
@@ -335,13 +335,13 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 			}
 			break;
 
-			case DT_DOUBLE:
+			case gmpi::PinDatatype::Float64:
 			{
 				return ToRaw4(maximum);
 			}
 			break;
 
-			case DT_BOOL:
+			case gmpi::PinDatatype::Bool:
 			{
 				tempReturnValue = ToRaw4(true);
 				return RawView(tempReturnValue);
@@ -375,7 +375,7 @@ double MpParameter_base::getValueReal() const
 	const int voiceId = 0;
 	switch (datatype_)
 	{
-	case DT_FLOAT:
+	case gmpi::PinDatatype::Float32:
 	{
 		if (rawValues_[voiceId].size() == sizeof(float))
 		{
@@ -384,7 +384,7 @@ double MpParameter_base::getValueReal() const
 	}
 	break;
 
-	case DT_DOUBLE:
+	case gmpi::PinDatatype::Float64:
 	{
 		if (rawValues_[voiceId].size() == sizeof(double))
 		{
@@ -393,7 +393,7 @@ double MpParameter_base::getValueReal() const
 	}
 	break;
 
-	case DT_BOOL:
+	case gmpi::PinDatatype::Bool:
 	{
 		if (rawValues_[voiceId].size() == sizeof(bool))
 		{
@@ -402,7 +402,7 @@ double MpParameter_base::getValueReal() const
 	}
 	break;
 
-	case DT_INT:
+	case gmpi::PinDatatype::Int32:
 	{
 		if (rawValues_[voiceId].size() == sizeof(int32_t))
 		{
@@ -425,7 +425,7 @@ double MpParameter_base::getValueReal() const
 	}
 	break;
 
-	case DT_INT64:
+	case gmpi::PinDatatype::Int64:
 	{
 		if (rawValues_[voiceId].size() == sizeof(int64_t))
 		{
@@ -434,7 +434,7 @@ double MpParameter_base::getValueReal() const
 	}
 	break;
 
-	case DT_ENUM:
+	case gmpi::PinDatatype::Enum:
 	{
 		assert(false); // TODO?
 	}
@@ -545,21 +545,21 @@ double MpParameter_base::normalisedToReal(double normalized) const
 {
 	switch (datatype_)
 	{
-	case DT_FLOAT:
-	case DT_DOUBLE:
+	case gmpi::PinDatatype::Float32:
+	case gmpi::PinDatatype::Float64:
 	{
 		return minimum + normalized * (maximum - minimum);
 	}
 	break;
 
-	case DT_BOOL:
+	case gmpi::PinDatatype::Bool:
 	{
 		return floor(0.5 + normalized);
 	}
 	break;
 
-	case DT_INT:
-	case DT_INT64:
+	case gmpi::PinDatatype::Int32:
+	case gmpi::PinDatatype::Int64:
 	{
 		if (enumList_.empty())
 		{
@@ -584,7 +584,7 @@ double MpParameter_base::normalisedToReal(double normalized) const
 	}
 	break;
 
-	case DT_ENUM:
+	case gmpi::PinDatatype::Enum:
 	{
 		assert(false); // should never happen (enums use INT)
 	}
@@ -599,8 +599,8 @@ double MpParameter_base::RealToNormalized(double real) const
 {
     switch (datatype_)
     {
-		case DT_INT:
-		case DT_INT64:
+		case gmpi::PinDatatype::Int32:
+		case gmpi::PinDatatype::Int64:
 		{
 			if (!enumList_.empty())
 			{
@@ -628,8 +628,8 @@ double MpParameter_base::RealToNormalized(double real) const
 		}
 		// deliberate fall-thru.
 	
-		case DT_FLOAT:
-        case DT_DOUBLE:
+		case gmpi::PinDatatype::Float32:
+        case gmpi::PinDatatype::Float64:
         {
 			double normalised = (real - minimum) / (maximum - minimum);
 
@@ -647,13 +647,13 @@ double MpParameter_base::RealToNormalized(double real) const
         }
         break;
             
-        case DT_BOOL:
+        case gmpi::PinDatatype::Bool:
         {
             return real < 0.5 ? 0.0 : 1.0;
         }
         break;
             
-        case DT_ENUM:
+        case gmpi::PinDatatype::Enum:
         {
             assert(false); // should never happen (enums use INT)
         }

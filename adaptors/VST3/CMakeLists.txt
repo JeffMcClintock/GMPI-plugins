@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
 set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
-set(SE_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local SynthEdit SDK repo, or blank to fetch it automatically.")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 
@@ -24,34 +23,6 @@ message(STATUS "Using local VST3 folder")
 set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
 endif()
 
-# GET SYNTHEDIT SDK
-if("${SE_SDK_FOLDER_OVERRIDE}" STREQUAL "")
-FetchContent_Declare(
-  syntheditsdk
-  GIT_REPOSITORY https://github.com/JeffMcClintock/SynthEdit_SDK
-  GIT_TAG origin/master
-  SOURCE_SUBDIR se_sdk3
-)
-
-FetchContent_MakeAvailable(syntheditsdk)
-
-set(se_sdk_folder
-	${syntheditsdk_SOURCE_DIR}/se_sdk3
-    )
-set(se_shared_folder
-    ${syntheditsdk_SOURCE_DIR}/shared
-    )
-set(se_sdk_hosting_folder
-    ${syntheditsdk_SOURCE_DIR}/se_sdk3_hosting
-    )
-else()
-message(STATUS "Using local SynthEdit modules folder")
-set(se_sdk_folder ${SE_SDK_FOLDER_OVERRIDE}/se_sdk3)
-set(se_shared_folder ${SE_SDK_FOLDER_OVERRIDE}/shared)
-set(se_sdk_hosting_folder ${SE_SDK_FOLDER_OVERRIDE}/se_sdk3_hosting)
-# hosting classes rewritten for GMPI not SE_SDK3 anymore
-endif()
-
 project(SynthEdit_VST3)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -71,10 +42,6 @@ endif()
 #set(DSP_CORE ${CMAKE_CURRENT_SOURCE_DIR}/../SE_DSP_CORE)
 #set(VST3_SDK ${CMAKE_CURRENT_SOURCE_DIR}/../SDKs/VST3_SDK)
 
-
-#${se_sdk_folder}/mp_sdk_common.h
-#${se_sdk_folder}/mp_sdk_common.cpp
-
 set(srcs
 factory.cpp
 MyVstPluginFactory.h
@@ -87,10 +54,6 @@ adelaycontroller.h
 adelaycontroller.cpp
 interThreadQue.h
 interThreadQue.cpp
-${se_shared_folder}/FileFinder.h
-${se_shared_folder}/FileFinder.cpp
-${se_shared_folder}/FileWatcher.h
-${se_shared_folder}/FileWatcher.cpp
 HostControls.h
 HostControls.cpp
 my_input_stream.h
@@ -99,8 +62,6 @@ interThreadQue.cpp
 interThreadQue.h
 tinyxml2/tinyxml2.h
 tinyxml2/tinyxml2.cpp
-${se_sdk_folder}/it_enum_list.h
-${se_sdk_folder}/it_enum_list.cpp
 ${ADAPTORS_COMMON_FOLDER}/dynamic_linking.h
 ${ADAPTORS_COMMON_FOLDER}/dynamic_linking.cpp
 ${ADAPTORS_COMMON_FOLDER}/MpParameter.h
@@ -120,6 +81,12 @@ ${ADAPTORS_COMMON_FOLDER}/../Shared/ProcessorStateManager.h
 ${ADAPTORS_COMMON_FOLDER}/../Shared/ProcessorStateManager.cpp
 ${ADAPTORS_COMMON_FOLDER}/../Shared/conversion.h
 ${ADAPTORS_COMMON_FOLDER}/../Shared/conversion.cpp
+${ADAPTORS_COMMON_FOLDER}/../Shared/FileFinder.h
+${ADAPTORS_COMMON_FOLDER}/../Shared/FileFinder.cpp
+${ADAPTORS_COMMON_FOLDER}/../Shared/FileWatcher.h
+${ADAPTORS_COMMON_FOLDER}/../Shared/FileWatcher.cpp
+${ADAPTORS_COMMON_FOLDER}/../Shared/it_enum_list.h
+${ADAPTORS_COMMON_FOLDER}/../Shared/it_enum_list.cpp
 
 ${gmpi_ui_folder}/backends/DrawingFrameWin.h
 ${gmpi_ui_folder}/backends/DrawingFrameWin.cpp
@@ -128,9 +95,6 @@ ${gmpi_ui_folder}/backends/DirectXGfx.cpp
 ${gmpi_ui_folder}/helpers/TimerManager.h
 ${gmpi_ui_folder}/helpers/TimerManager.cpp
 )
-#${se_sdk_hosting_folder}/ElatencyContraintType.h
-#${se_sdk_hosting_folder}/gmpi_gui_hosting.h
-#${se_sdk_hosting_folder}/gmpi_gui_hosting.cpp
 
 #adelay.def
 IF(WIN32)
@@ -144,11 +108,11 @@ ELSE()
 set(srcs ${srcs}
 ../se_vst3/source/SEVSTGUIEditorMac.h
 ../se_vst3/source/SEVSTGUIEditorMac.cpp
-${se_sdk_hosting_folder}/EventHelper.h
-${se_sdk_hosting_folder}/CocoaGuiHost.h
-${se_sdk_hosting_folder}/CocoaGuiHost.mm
-${se_sdk_hosting_folder}/SynthEditCocoaView.h
-${se_sdk_hosting_folder}/SynthEditCocoaView.mm
+EventHelper.h
+CocoaGuiHost.h
+CocoaGuiHost.mm
+SynthEditCocoaView.h
+SynthEditCocoaView.mm
 ${VST3_SDK}/public.sdk/source/main/macmain.cpp
 )
 ENDIF()
@@ -184,9 +148,6 @@ ${DSP_CORE}
 ${gmpi_sdk_folder}/Core
 ${gmpi_ui_folder}
 ${gmpi_ui_folder}/helpers
-${se_sdk_hosting_folder}
-${se_sdk_folder}
-${se_shared_folder}
 )
 
 source_group(se_sdk FILES ${sdk_srcs})

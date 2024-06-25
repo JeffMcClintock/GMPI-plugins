@@ -10,7 +10,7 @@
 #include <vector>
 #include "TimerManager.h"
 //#include "../se_sdk3/mp_gui.h"
-#include "../shared/FileWatcher.h"
+#include "../Shared/FileWatcher.h"
 //#include "IGuiHost2.h"
 #include "interThreadQue.h"
 #include "MpParameter.h"

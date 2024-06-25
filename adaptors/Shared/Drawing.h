@@ -54,7 +54,7 @@ using namespace GmpiDrawing;
 #include <codecvt>
 #include <locale>
 #include "mp_interface_wrapper.h"
-#include "unicode_conversion2.h"
+#include "unicode_conversion.h"
 #include "fast_gamma.h"
 #include "MpString.h"
 

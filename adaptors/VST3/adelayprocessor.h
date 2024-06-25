@@ -10,7 +10,7 @@
 #include <mutex>
 #include <atomic>
 #include <array>
-#include "mp_midi.h"
+#include "GmpiMidi.h"
 #include "se_types.h"
 #include "lock_free_fifo.h"
 #include "interThreadQue.h"

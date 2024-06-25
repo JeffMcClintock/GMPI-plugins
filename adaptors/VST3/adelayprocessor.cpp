@@ -7,7 +7,7 @@
 #include <math.h>
 #include "MyVstPluginFactory.h"
 #include "unicode_conversion.h"
-#include "mp_midi.h"
+#include "GmpiMidi.h"
 #include "Controller.h"
 //#include "BundleInfo.h"
 //#include "UMidiBuffer2.h"
