@@ -924,9 +924,6 @@ bool MyVstPluginFactory::initializeFactory()
 	HRSRC hRsrc = ::FindResource(hInst,
 		MAKEINTRESOURCE(1), // ID
 		L"GMPXML");			// type GMPI XML
-#else
-#error implement this for mac
-#endif
 
 	if (hRsrc)
 	{
@@ -947,6 +944,9 @@ bool MyVstPluginFactory::initializeFactory()
 			return true;
 		}
 	}
+#else
+  // not needed for built-in XML  #error implement this for mac
+#endif
 
 	// set some fallbacks
 	vendorName_ = "SynthEdit";

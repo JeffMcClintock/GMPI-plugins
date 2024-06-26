@@ -170,12 +170,12 @@ void VST3Controller::ParamGrabbed(MpParameter_native* param)
 
 	if (param->isGrabbed())
 	{
-		_RPT0(0, "DAW GRAB\n");
+//		_RPT0(0, "DAW GRAB\n");
 		beginEdit(paramID);
 	}
 	else
 	{
-		_RPT0(0, "DAW UN-GRAB\n");
+//		_RPT0(0, "DAW UN-GRAB\n");
 		endEdit(paramID);
 	}
 }
@@ -188,7 +188,7 @@ void VST3Controller::ParamToProcessorViaHost(MpParameterVst3* param, int32_t voi
 	if (!param->isGrabbed())
 		beginEdit(paramID);
 
-    _RPT2(0, "param[%d] %f => DAW\n", paramID, param->getNormalized());
+ //   _RPT2(0, "param[%d] %f => DAW\n", paramID, param->getNormalized());
 	performEdit(paramID, param->convertNormalized(param->getNormalized())); // Send the value to DSP.
 
 	if (!param->isGrabbed())
@@ -259,7 +259,7 @@ void VST3Controller::initUi(gmpi::api::IParameterObserver* gui)
 //-----------------------------------------------------------------------------
 tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 {
-	_RPT0(_CRT_WARN, "ADelayController::initialize\n");
+//	_RPT0(_CRT_WARN, "ADelayController::initialize\n");
 
 	UpdateHandler::instance();
 
@@ -497,11 +497,11 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 
 			// Factory
 			MP_DllEntry dll_entry_point = {};
-#ifdef _WIN32
+//#ifdef _WIN32
 			const auto fail = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
-#else
-			dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
-#endif        
+//#else
+//			dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
+//#endif
 
 			if (!dll_entry_point)
 			{
@@ -615,7 +615,7 @@ tresult VST3Controller::setParamNormalized( ParamID tag, ParamValue value )
 void VST3Controller::OnLatencyChanged()
 {
 	getComponentHandler()->restartComponent(kLatencyChanged);
-	_RPT0(_CRT_WARN, "restartComponent(kLatencyChanged)\n");
+//	_RPT0(_CRT_WARN, "restartComponent(kLatencyChanged)\n");
 }
 
 tresult VST3Controller::getParameterInfo(int32 paramIndex, ParameterInfo& info)

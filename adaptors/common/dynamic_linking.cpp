@@ -10,6 +10,7 @@
 #include "windows.h"
 #else
 #include <dlfcn.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include "unicode_conversion.h"
 using namespace JmUnicodeConversions;
 #endif
@@ -85,6 +86,42 @@ namespace gmpi_dynamic_linking
     
 #else
     // Mac
+// TODO!!! ReleaseDllHandle(DLL_HANDLE* returnDllHandle)
+    int32_t MP_GetDllHandle(DLL_HANDLE* returnDllHandle)
+    {
+        *returnDllHandle = {};
+        
+        Dl_info info;
+        if (dladdr ((const void*)MP_GetDllHandle, &info))
+        {
+            if (info.dli_fname)
+            {
+                std::string name;
+                name.assign (info.dli_fname);
+                for (int i = 0; i < 3; i++)
+                {
+                    auto p = name.find_last_of ('/');
+                    if (p == std::string::npos)
+                    {
+                        fprintf (stdout, "Could not determine bundle location.\n");
+                        return 0; // unexpected
+                    }
+                    name = name.substr(0, p);
+                }
+                CFURLRef bundleUrl = CFURLCreateFromFileSystemRepresentation (0, (const UInt8*)name.c_str(), name.length (), true);
+                if (bundleUrl)
+                {
+                    const auto rBundleRef = CFBundleCreate (0, bundleUrl);
+                    CFRelease (bundleUrl);
+                    
+                    *returnDllHandle = (DLL_HANDLE) rBundleRef;
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+
     std::wstring MP_GetDllFilename()
     {
         Dl_info info;

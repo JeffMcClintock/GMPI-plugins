@@ -188,6 +188,20 @@ inline std::wstring Utf8ToWstring(const char* p_string)
         }
         return r;
     }
-    
+    inline utf16_string ToUtf16( const std::string& utf8 )
+    {
+        const auto s = Utf8ToWstring(utf8);
+
+        // On Mac. Wide-string is 32-bit.Lame conversion.
+        utf16_string r;
+        r.resize( s.size() );
+        
+        TChar* dest = (TChar*) r.data();
+        for( size_t i = 0 ; i < s.size() ; ++i )
+        {
+            *dest++ = (TChar) s[i];
+        }
+        return r;
+    }
 #endif
 }

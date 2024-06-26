@@ -697,7 +697,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 
 void UndoManager::debug()
 {
-#ifdef _DEBUG
+#ifdef _WIN32
 	_RPT0(0, "\n======UNDO=======\n");
 	for (int i = 0 ; i < size() ; ++i)
 	{
@@ -714,7 +714,7 @@ void UndoManager::setPreset(MpController* controller, DawPreset const* preset)
 //	controller->dawStateManager.setPreset(preset);
 	controller->setPresetFromSelf(preset);
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_WIN32)
 	_RPT0(0, "UndoManager::setPreset\n");
 	debug();
 #endif

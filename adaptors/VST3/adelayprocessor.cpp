@@ -11,6 +11,7 @@
 #include "Controller.h"
 //#include "BundleInfo.h"
 //#include "UMidiBuffer2.h"
+#include "dynamic_linking.h"
 
 using namespace JmUnicodeConversions;
 
@@ -254,16 +255,18 @@ void SeProcessor::reInitialise()
 
 	auto load_filename = semInfo.pluginPath;
 
-	if (!plugin_dllHandle)
+    gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
+//	if (!plugin_dllHandle)
 	{
+        if (load_filename.empty()) // plugin is statically linked.
+        {
+            // no need to load DLL, it's already linked.
+            gmpi_dynamic_linking::MP_GetDllHandle(&plugin_dllHandle);
+        }
+        else
+        {
 #if defined( _WIN32)
-		if (load_filename.empty()) // plugin is statically linked.
-		{
-			// no need to load DLL, it's already linked.
-			gmpi_dynamic_linking::MP_GetDllHandle(&plugin_dllHandle);
-		}
-		else
-		{
+
 			plugin_dllHandle_to_unload = {};
 
 			// Load the DLL.
@@ -276,8 +279,8 @@ void SeProcessor::reInitialise()
 				//const auto bundleFilepath = load_filename + L"/Contents/x86_64-win/" + filename;
 				//gmpi_dynamic_linking::MP_DllLoad(&dllHandle, bundleFilepath.c_str());
 			}
-		}
 #else
+#if 0
 		// int32_t r = MP_DllLoad( &dllHandle, load_filename.c_str() );
 
 		// Create a path to the bundle
@@ -300,14 +303,18 @@ void SeProcessor::reInitialise()
 			return;
 		}
 #endif
+#endif
+        }
 
 		// Factory
 		MP_DllEntry dll_entry_point{};
-#ifdef _WIN32
-		const auto fail = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
-#else
-		dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
-#endif        
+        const auto fail = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
+
+//#ifdef _WIN32
+//		const auto fail = gmpi_dynamic_linking::MP_DllSymbol(plugin_dllHandle, "MP_GetFactory", (void**)&dll_entry_point);
+//#else
+//		dll_entry_point = (gmpi::MP_DllEntry)CFBundleGetFunctionPointerForName((CFBundleRef)plugin_dllHandle, CFSTR("MP_GetFactory"));
+//#endif        
 
 		if (!dll_entry_point)
 		{
@@ -729,7 +736,7 @@ tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 
 									case 129: // Bender.
 									{
-										_RPTN(0, "C%2d BDR %f\n", channel, value);
+//										_RPTN(0, "C%2d BDR %f\n", channel, value);
 										msgout = gmpi::midi_2_0::makeBender(
 											value // use normalized bender
 											, channel

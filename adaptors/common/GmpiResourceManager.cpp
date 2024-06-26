@@ -260,7 +260,7 @@ gmpi::ReturnCode GmpiResourceManager::RegisterResourceUri(int32_t moduleHandle, 
 
 	if( returnUri.empty() )
 	{
-#ifdef _DEBUG
+#ifdef _WIN32
 		_RPT1(0, "GmpiResourceManager::RegisterResourceUri(%s) Not Found\n", resourceName);
 #endif
 		return gmpi::ReturnCode::Fail;
