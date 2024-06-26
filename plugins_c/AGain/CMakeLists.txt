@@ -26,7 +26,7 @@ TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${COREFOUNDATION_LIBRARY} )
 target_compile_definitions (${PROJECT_NAME} PRIVATE -D_UNICODE -DUNICODE)
 
 if(APPLE)
-  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX )
+#  set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX )
   set_target_properties(${PROJECT_NAME} PROPERTIES BUNDLE TRUE)
   set_target_properties(${PROJECT_NAME} PROPERTIES BUNDLE_EXTENSION sem)
 

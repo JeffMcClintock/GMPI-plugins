@@ -106,8 +106,8 @@ adelay.def
 )
 ELSE()
 set(srcs ${srcs}
-../se_vst3/source/SEVSTGUIEditorMac.h
-../se_vst3/source/SEVSTGUIEditorMac.cpp
+SEVSTGUIEditorMac.h
+SEVSTGUIEditorMac.cpp
 EventHelper.h
 CocoaGuiHost.h
 CocoaGuiHost.mm
