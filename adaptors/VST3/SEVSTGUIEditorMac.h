@@ -2,15 +2,19 @@
 
 #include "pluginterfaces/gui/iplugview.h"
 #include "base/source/fobject.h"
+#include "GmpiSdkCommon.h"
+#include "GmpiApiEditor.h"
 
 class SEVSTGUIEditorMac : public Steinberg::FObject, public Steinberg::IPlugView
 {
     void* nsView = {};
 	class IGuiHost2* controller = {};
-    int width, height;
+	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
+	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
+	int width, height;
     
 public:
-    SEVSTGUIEditorMac(IGuiHost2* controller, int width, int height);
+    SEVSTGUIEditorMac(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
 
 	//---from IPlugView-------
 	Steinberg::tresult PLUGIN_API isPlatformTypeSupported (Steinberg::FIDString type) SMTG_OVERRIDE { return Steinberg::kResultTrue; }
