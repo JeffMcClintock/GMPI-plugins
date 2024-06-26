@@ -728,7 +728,7 @@ void UndoManager::initial(MpController* controller, std::unique_ptr<const DawPre
 	UpdateGui(controller);
 
 #ifdef _DEBUG
-	_RPT0(0, "UndoManager::initial (2)\n");
+//	_RPT0(0, "UndoManager::initial (2)\n");
 	debug();
 #endif
 }
@@ -761,7 +761,7 @@ DawPreset const* UndoManager::push(std::string description, std::unique_ptr<cons
 	undoPosition = size();
 	history.push_back({ description, std::move(preset) });
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_WIN32)
 	_RPT0(0, "UndoManager::push\n");
 	debug();
 #endif
@@ -782,7 +782,7 @@ void UndoManager::snapshot(MpController* controller, std::string description)
 	if(!couldUndo || couldRedo) // enable undo button
 		UpdateGui(controller);
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_WIN32)
 	_RPT0(0, "UndoManager::snapshot\n");
 	debug();
 #endif
@@ -806,7 +806,7 @@ void UndoManager::undo(MpController* controller)
 
 	UpdateGui(controller);
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_WIN32)
 	_RPT0(0, "UndoManager::undo\n");
 	debug();
 #endif
@@ -830,7 +830,7 @@ void UndoManager::redo(MpController* controller)
 
 	UpdateGui(controller);
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_WIN32)
 	_RPT0(0, "UndoManager::redo\n");
 	debug();
 #endif

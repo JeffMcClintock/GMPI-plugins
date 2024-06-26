@@ -108,11 +108,10 @@ ELSE()
 set(srcs ${srcs}
 SEVSTGUIEditorMac.h
 SEVSTGUIEditorMac.cpp
-EventHelper.h
-CocoaGuiHost.h
-CocoaGuiHost.mm
-SynthEditCocoaView.h
-SynthEditCocoaView.mm
+${gmpi_ui_folder}/backends/DrawingFrameMac.mm
+${gmpi_ui_folder}/backends/CocoaGfx.h
+${gmpi_ui_folder}/backends/Gfx_base.h
+${gmpi_ui_folder}/backends/Bezier.h
 ${VST3_SDK}/public.sdk/source/main/macmain.cpp
 )
 ENDIF()

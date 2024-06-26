@@ -4,11 +4,20 @@
 #include "base/source/fobject.h"
 #include "GmpiSdkCommon.h"
 #include "GmpiApiEditor.h"
+#include "helpers/GraphicsRedrawClient.h"
+
+namespace Steinberg
+{
+namespace Vst
+{
+class VST3Controller;
+}
+}
 
 class SEVSTGUIEditorMac : public Steinberg::FObject, public Steinberg::IPlugView
 {
     void* nsView = {};
-	class IGuiHost2* controller = {};
+	Steinberg::Vst::VST3Controller* controller = {};
 	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
 	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
 	int width, height;
