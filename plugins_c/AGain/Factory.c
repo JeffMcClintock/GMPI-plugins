@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "gmpi.h"
 #include "AGain.h"
 

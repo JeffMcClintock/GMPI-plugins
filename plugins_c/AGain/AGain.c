@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "gmpi_audio.h"
 
 typedef struct
@@ -58,7 +59,7 @@ int32_t CGain_open(GMPI_IAudioPlugin* ths, GMPI_IUnknown* host)
 {
 	CGain* plugin = (CGain*)ths;
 
-	return host->methods->queryInterface(host, &GMPI_IID_AUDIO_PLUGIN_HOST, &(plugin->host));
+	return host->methods->queryInterface(host, &GMPI_IID_AUDIO_PLUGIN_HOST, (void**) &(plugin->host));
 }
 
 int32_t CGain_Setbuffer(GMPI_IAudioPlugin* ths, int32_t pin, float* buffer)
