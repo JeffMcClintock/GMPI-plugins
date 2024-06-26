@@ -445,7 +445,6 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 		gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
 //		if (!plugin_dllHandle)
 //		{
-#if defined( _WIN32)
 			if (load_filename.empty()) // plugin is statically linked.
 			{
 				// no need to load DLL, it's already linked.
@@ -453,6 +452,7 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 			}
 			else
 			{
+#if defined( _WIN32)
 				/* TODO
 				plugin_dllHandle_to_unload = {};
 
@@ -467,8 +467,9 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 					//gmpi_dynamic_linking::MP_DllLoad(&dllHandle, bundleFilepath.c_str());
 				}
 				*/
-			}
+
 #else
+#if 0
 			// int32_t r = MP_DllLoad( &dllHandle, load_filename.c_str() );
 
 			// Create a path to the bundle
@@ -491,6 +492,8 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 				return;
 			}
 #endif
+#endif
+            }
 
 			// Factory
 			MP_DllEntry dll_entry_point = {};

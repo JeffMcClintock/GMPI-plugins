@@ -32,5 +32,7 @@ void SafeMessagebox(
 	int uType = 0
 )
 {
+#ifdef _WIN32
 	_RPTW1(0, L"%s\n", lpText);
+#endif
 }

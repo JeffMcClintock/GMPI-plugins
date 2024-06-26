@@ -14,7 +14,7 @@
 #include "mfc_emulation.h"
 #endif
 
-std::string normalizedToRaw(int32_t datatype, float fnormalized, double maximum, double minimum, const std::wstring& enumList)
+std::string normalizedToRaw(gmpi::PinDatatype datatype, float fnormalized, double maximum, double minimum, const std::wstring& enumList)
 {
 	const double normalized = static_cast<double>(fnormalized);
 
@@ -107,8 +107,10 @@ DawPreset::DawPreset(const std::map<int32_t, paramInfo>& parametersInfo, std::st
 
 	if (doc.Error())
 	{
+#ifdef _WIN32
 		_RPT0(0, "warning: failed to parse preset. setting parameters to defaults.\n");
-		doc.Parse("");
+#endif
+        doc.Parse("");
 	}
 
 	initFromXML(parametersInfo, &doc, presetIdx);
