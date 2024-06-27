@@ -6,7 +6,7 @@
 #include "MyVstPluginFactory.h"
 #include "adelaycontroller.h"
 #include "adelayprocessor.h"
-#include "tinyxml2/tinyxml2.h"
+#include "tinyXml2/tinyxml2.h"
 #include "dynamic_linking.h"
 
 #if 0
@@ -94,7 +94,7 @@ using namespace Steinberg;
 using namespace Steinberg::Vst;
 
 
-/*EXPORT_FACTORY*/ IPluginFactory* PLUGIN_API GetPluginFactory ()
+SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory ()
 {
 	return MyVstPluginFactory::GetInstance();
 }
