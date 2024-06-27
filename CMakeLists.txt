@@ -73,6 +73,8 @@ set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
 endif()
 message(STATUS "VST3_SDK: ${VST3_SDK}")
 
+set(GMPI_ADAPTORS ${CMAKE_CURRENT_SOURCE_DIR}/adaptors)
+
 ##################################################################################
 
 project(GMPI_Samples)

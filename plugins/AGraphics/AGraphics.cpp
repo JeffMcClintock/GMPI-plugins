@@ -23,7 +23,7 @@ struct GainGui final : public AudioPlugin
 
 	ReturnCode open(IUnknown* phost) override
 	{
-		auto test = GetPluginFactory();
+//		auto test = GetPluginFactory();
 
 		// specify which member to process audio.
 		setSubProcess(&GainGui::subProcess);

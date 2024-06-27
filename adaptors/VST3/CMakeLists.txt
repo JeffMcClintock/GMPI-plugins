@@ -21,13 +21,8 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast /GS-")
 endif()
 
-#set(DSP_CORE ${CMAKE_CURRENT_SOURCE_DIR}/../SE_DSP_CORE)
-#set(VST3_SDK ${CMAKE_CURRENT_SOURCE_DIR}/../SDKs/VST3_SDK)
-
 set(srcs
 factory.cpp
-MyVstPluginFactory.h
-MyVstPluginFactory.cpp
 StagingMemoryBuffer.h
 StagingMemoryBuffer.h
 adelayprocessor.h
