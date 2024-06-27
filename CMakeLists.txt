@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 set(SE_LOCAL_BUILD FALSE CACHE BOOL "Execute extra build steps for developers machine")
 set(GMPI_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI repo, or blank to fetch it automatically.")
 set(GMPI_UI_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI UI repo, or blank to fetch it automatically.")
+set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
 
 include(FetchContent)
 
@@ -53,6 +54,25 @@ message(STATUS "Using local GMPI-UI folder")
 set(gmpi_ui_folder ${GMPI_UI_FOLDER_OVERRIDE})
 
 endif()
+
+# GET VST3 SDK
+if("${VST3_SDK_FOLDER_OVERRIDE}" STREQUAL "")
+message(STATUS "Fetching VST3 from github")
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
+FetchContent_Declare(
+  vst3
+  GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk
+  GIT_TAG origin/master
+  SOURCE_SUBDIR vst3_doc
+)
+FetchContent_MakeAvailable(vst3)
+set(VST3_SDK ${vst3_SOURCE_DIR})
+else()
+message(STATUS "Using local VST3 folder")
+set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
+endif()
+
+##################################################################################
 
 project(GMPI_Samples)
 

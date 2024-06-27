@@ -1,27 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 
 include(FetchContent)
-
-# GET VST3 SDK
-if("${VST3_SDK_FOLDER_OVERRIDE}" STREQUAL "")
-message(STATUS "Fetching VST3 from github")
-#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
-FetchContent_Declare(
-  vst3
-  GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk
-  GIT_TAG origin/master
-  SOURCE_SUBDIR vst3_doc
-)
-FetchContent_MakeAvailable(vst3)
-set(VST3_SDK ${vst3_SOURCE_DIR})
-else()
-message(STATUS "Using local VST3 folder")
-set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
-endif()
 
 project(SynthEdit_VST3)
 
