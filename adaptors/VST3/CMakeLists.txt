@@ -112,9 +112,10 @@ ${gmpi_ui_folder}/backends/DrawingFrameMac.mm
 ${gmpi_ui_folder}/backends/CocoaGfx.h
 ${gmpi_ui_folder}/backends/Gfx_base.h
 ${gmpi_ui_folder}/backends/Bezier.h
-${VST3_SDK}/public.sdk/source/main/macmain.cpp
 )
 ENDIF()
+
+# moved to GMPI plugin ${VST3_SDK}/public.sdk/source/main/macmain.cpp
 
 set(vst_gui_minimal_srcs
     ${VST3_SDK}/public.sdk/source/common/pluginview.h
