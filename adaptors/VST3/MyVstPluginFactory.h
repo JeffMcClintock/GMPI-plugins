@@ -5,7 +5,7 @@
 #include "pluginterfaces/base/ipluginbase.h"
 #include "pluginterfaces/base/funknown.h"
 #include "GmpiApiCommon.h"
-#include "platform_string.h"
+#include "../Shared/platform_string.h"
 
 namespace tinyxml2
 {

@@ -6,8 +6,6 @@
 #include "RawView.h"
 #include "GmpiApiCommon.h"
 #include "GmpiApiEditor.h"
-//#include "../shared/xplatform.h"
-//#include "../se_sdk3/mp_sdk_common.h"
 
 namespace gmpi
 {

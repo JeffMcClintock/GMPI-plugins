@@ -2,7 +2,7 @@
 
 #include "my_input_stream.h"
 #include "lock_free_fifo.h"
-#include "conversion.h"
+#include "../Shared/conversion.h"
 
 class my_msg_que_output_stream : public my_output_stream
 {

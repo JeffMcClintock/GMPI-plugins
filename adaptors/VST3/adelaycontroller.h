@@ -10,7 +10,7 @@
 #include <pluginterfaces/vst/ivstphysicalui.h>
 #include <map>
 #include "interThreadQue.h"
-#include "Controller.h"
+#include "../common/Controller.h"
 #include "StagingMemoryBuffer.h"
 #include "MpParameter.h"
 #include "conversion.h"
