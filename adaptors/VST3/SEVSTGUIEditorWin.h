@@ -8,10 +8,10 @@
 
 namespace Steinberg
 {
-	namespace Vst
-	{
-		class VST3Controller;
-	}
+namespace Vst
+{
+	class VST3Controller;
+}
 }
 
 class ParameterHelper : public gmpi::api::IParameterObserver, public gmpi::api::IEditorHost
