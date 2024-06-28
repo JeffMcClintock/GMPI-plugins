@@ -28,12 +28,16 @@ public:
 	// IEditor
 	ReturnCode setHost(gmpi::api::IUnknown* phost) override
 	{
+        // MOVED TO OPEN. TODO RESOLVE Duplication without messing up gmpi drawing
+        /*
+         
+         
 		gmpi::shared_ptr<gmpi::api::IUnknown> unknown(phost);
 
 		phost->queryInterface(&gmpi::api::IDrawingHost::guid, drawingHost.asIMpUnknownPtr());
 		inputHost = unknown.As<gmpi::api::IInputHost>();
 		editorHost = unknown.As<gmpi::api::IEditorHost>();
-
+*/
 		return ReturnCode::Ok;
 	}
 
@@ -67,6 +71,12 @@ public:
 	// IDrawingClient
 	ReturnCode open(gmpi::api::IUnknown* host) override
 	{
+        gmpi::shared_ptr<gmpi::api::IUnknown> unknown(host);
+
+        host->queryInterface(&gmpi::api::IDrawingHost::guid, drawingHost.asIMpUnknownPtr());
+        inputHost = unknown.As<gmpi::api::IInputHost>();
+        editorHost = unknown.As<gmpi::api::IEditorHost>();
+        
 		return ReturnCode::Ok;
 	}
 
