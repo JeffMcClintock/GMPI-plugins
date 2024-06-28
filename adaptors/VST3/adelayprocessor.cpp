@@ -13,6 +13,9 @@
 //#include "UMidiBuffer2.h"
 #include "dynamic_linking.h"
 
+extern "C"
+gmpi::ReturnCode MP_GetFactory( void** returnInterface );
+
 using namespace JmUnicodeConversions;
 
 #if defined( _WIN32)
@@ -250,9 +253,9 @@ void SeProcessor::reInitialise()
 	silence.assign(processSetup.maxSamplesPerBlock, 0.0f);
 
 	// Get a handle to the DLL module.
-	auto factory = MyVstPluginFactory::GetInstance();
-	auto& semInfo = factory->plugins[0];
-
+	auto vstfactory = MyVstPluginFactory::GetInstance();
+	auto& semInfo = vstfactory->plugins[0];
+#if 0
 	auto load_filename = semInfo.pluginPath;
 
     gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
@@ -320,10 +323,12 @@ void SeProcessor::reInitialise()
 		{
 			return;
 		}
-
+#endif
+        
 		gmpi::shared_ptr<gmpi::api::IUnknown> factoryBase;
-		auto r = dll_entry_point(factoryBase.asIMpUnknownPtr());
-
+//		auto r = dll_entry_point(factoryBase.asIMpUnknownPtr());
+        auto r = MP_GetFactory(factoryBase.asIMpUnknownPtr());
+        
 		gmpi::shared_ptr<gmpi::api::IPluginFactory> factory;
 		auto r2 = factoryBase->queryInterface(&gmpi::api::IPluginFactory::guid, factory.asIMpUnknownPtr());
 
@@ -415,7 +420,7 @@ void SeProcessor::reInitialise()
 		);
 #endif
 
-	}
+//	}
 }
 //-----------------------------------------------------------------------------
 tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
@@ -648,6 +653,8 @@ SeProcessor::vstNoteInfo& SeProcessor::allocateKey(const NoteOnEvent& note)
 //-----------------------------------------------------------------------------
 tresult PLUGIN_API SeProcessor::process (ProcessData& data)
 {
+    assert(!plugin_.isNull());
+    
 #if 0
 	if (synthEditProject.reinitializeFlag)
 	{

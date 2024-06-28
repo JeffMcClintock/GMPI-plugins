@@ -23,6 +23,9 @@
 #include "SEVSTGUIEditorMac.h"
 #endif
 
+extern "C"
+gmpi::ReturnCode MP_GetFactory( void** returnInterface );
+
 /*
 #include "midi_defs.h"
 #include "conversion.h"
@@ -441,7 +444,7 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 		auto vstfactory = MyVstPluginFactory::GetInstance();
 		auto& semInfo = vstfactory->plugins[0];
 		auto load_filename = semInfo.pluginPath;
-
+#if 0
 		gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
 //		if (!plugin_dllHandle)
 //		{
@@ -507,9 +510,10 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 			{
 				return {};
 			}
-
+#endif
 			gmpi::shared_ptr<gmpi::api::IUnknown> factoryBase;
-			auto r = dll_entry_point(factoryBase.asIMpUnknownPtr());
+			//auto r = dll_entry_point(factoryBase.asIMpUnknownPtr());
+            auto r = MP_GetFactory(factoryBase.asIMpUnknownPtr());
 
 			gmpi::shared_ptr<gmpi::api::IPluginFactory> factory;
 			auto r2 = factoryBase->queryInterface(&gmpi::api::IPluginFactory::guid, factory.asIMpUnknownPtr());

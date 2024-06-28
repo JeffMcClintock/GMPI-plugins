@@ -8,6 +8,7 @@
 #include "adelayprocessor.h"
 #include "tinyXml2/tinyxml2.h"
 #include "dynamic_linking.h"
+#include "Common.h"
 
 #if 0
 #include "it_enum_list.h"
@@ -93,6 +94,8 @@ void ReleaseVSTGUIBundleRef ()
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
+extern "C"
+gmpi::ReturnCode MP_GetFactory( void** returnInterface );
 
 SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory ()
 {
@@ -107,6 +110,11 @@ MyVstPluginFactory* MyVstPluginFactory::GetInstance()
 
 MyVstPluginFactory::MyVstPluginFactory()
 {
+    // ensure linker retains GMPI plugin
+//    void* returnInterface{};
+//    const auto r =  MP_GetFactory(&returnInterface);
+
+//    const auto r = gmpi::api::MpFactory::createInstance();
 }
 
 MyVstPluginFactory::~MyVstPluginFactory()
@@ -958,7 +966,8 @@ bool MyVstPluginFactory::initializeFactory()
 	// Shell plugins
 	// GMPI & sem V3 export function
 	// ReturnCode MP_GetFactory( void** returnInterface )
-	MP_DllEntry dll_entry_point;
+    /*
+     MP_DllEntry dll_entry_point;
 
 	const char* gmpi_dll_entrypoint_name = "MP_GetFactory";
 	auto fail = gmpi_dynamic_linking::MP_DllSymbol(hinstLib, gmpi_dll_entrypoint_name, (void**)&dll_entry_point);
@@ -968,7 +977,7 @@ bool MyVstPluginFactory::initializeFactory()
 		gmpi_dynamic_linking::MP_DllUnload(hinstLib);
 		return false;
 	}
-
+*/
 	{ // restrict scope of 'vst_factory' and 'gmpi_factory' so smart pointers RIAA before dll is unloaded
 
 		// Instantiate factory and query sub-plugins.
@@ -976,7 +985,8 @@ bool MyVstPluginFactory::initializeFactory()
 		gmpi::shared_ptr<gmpi::api::IPluginFactory> gmpi_factory;
 		{
 			gmpi::shared_ptr<gmpi::api::IUnknown> com_object;
-			auto r = dll_entry_point(com_object.asIMpUnknownPtr());
+ //           auto r = dll_entry_point(com_object.asIMpUnknownPtr());
+            auto r = MP_GetFactory(com_object.asIMpUnknownPtr());
 
 //			r = com_object->queryInterface(gmpi::MP_IID_SHELLFACTORY, vst_factory.asIMpUnknownPtr());
 			r = com_object->queryInterface(&gmpi::api::IPluginFactory::guid, gmpi_factory.asIMpUnknownPtr());
