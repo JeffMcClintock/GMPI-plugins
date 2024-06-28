@@ -43,9 +43,10 @@ VST3EditorBase::VST3EditorBase(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, St
 	pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
 
 	controller->RegisterGui2(&helper);
-
+#ifdef _WIN32
 	if (peditor)
 		peditor->setHost(static_cast<gmpi::api::IEditorHost*>(&helper));
+#endif
 }
 
 VST3EditorBase::~VST3EditorBase()
