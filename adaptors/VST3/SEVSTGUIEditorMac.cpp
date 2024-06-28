@@ -7,12 +7,13 @@ void* createNativeView(class IUnknown* controller, int width, int height);
 void onCloseNativeView(void* ptr);
 
 SEVSTGUIEditorMac::SEVSTGUIEditorMac(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
-controller(pcontroller)
-, width(pwidth)
-, height(pheight)
-, pluginParameters_GMPI(peditor)
+    VST3EditorBase(peditor, pcontroller, pwidth, pheight)
+//    controller(pcontroller)
+//, width(pwidth)
+//, height(pheight)
+//, pluginParameters_GMPI(peditor)
 {
-    pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
+    //pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
 }
 
 Steinberg::tresult PLUGIN_API SEVSTGUIEditorMac::attached (void* parent, Steinberg::FIDString type)

@@ -5,22 +5,15 @@
 #include "GmpiSdkCommon.h"
 #include "GmpiApiEditor.h"
 #include "helpers/GraphicsRedrawClient.h"
+#include "VST3EditorBase.h"
 
-namespace Steinberg
-{
-namespace Vst
-{
-class VST3Controller;
-}
-}
-
-class SEVSTGUIEditorMac : public Steinberg::FObject, public Steinberg::IPlugView
+class SEVSTGUIEditorMac : public VST3EditorBase //Steinberg::FObject, public Steinberg::IPlugView
 {
     void* nsView = {};
-	Steinberg::Vst::VST3Controller* controller = {};
-	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
-	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
-	int width, height;
+	//Steinberg::Vst::VST3Controller* controller = {};
+	//gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
+	//gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
+	//int width, height;
     
 public:
     SEVSTGUIEditorMac(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
@@ -43,10 +36,11 @@ public:
 	Steinberg::tresult PLUGIN_API canResize () SMTG_OVERRIDE { return Steinberg::kResultFalse; }
 	Steinberg::tresult PLUGIN_API checkSizeConstraint (Steinberg::ViewRect* /*rect*/) SMTG_OVERRIDE	{return Steinberg::kResultFalse;}
 
-	//---Interface------
-	OBJ_METHODS (SEVSTGUIEditorMac, Steinberg::FObject)
-	DEFINE_INTERFACES
-	DEF_INTERFACE (IPlugView)
-	END_DEFINE_INTERFACES (Steinberg::FObject)
-	REFCOUNT_METHODS (Steinberg::FObject)
+	////---Interface------
+	//OBJ_METHODS (SEVSTGUIEditorMac, Steinberg::FObject)
+	//DEFINE_INTERFACES
+	//DEF_INTERFACE (IPlugView)
+	//END_DEFINE_INTERFACES (Steinberg::FObject)
+	//REFCOUNT_METHODS (Steinberg::FObject)
+	gmpi::ReturnCode queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface) override;
 };

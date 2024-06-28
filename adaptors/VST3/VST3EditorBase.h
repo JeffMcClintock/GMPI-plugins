@@ -2,12 +2,10 @@
 
 #include "pluginterfaces/gui/iplugview.h"
 #include "base/source/fobject.h"
-#include "backends/DrawingFrameWin.h"
 #include "GmpiSdkCommon.h"
 #include "GmpiApiEditor.h"
-#include "VST3EditorBase.h"
+#include "helpers/GraphicsRedrawClient.h"
 
-#if 0
 namespace Steinberg
 {
 namespace Vst
@@ -18,10 +16,10 @@ namespace Vst
 
 class ParameterHelper : public gmpi::api::IParameterObserver, public gmpi::api::IEditorHost
 {
-	class SEVSTGUIEditorWin* editor_ = {};
+	class VST3EditorBase* editor_ = {};
 
 public:
-	ParameterHelper(class SEVSTGUIEditorWin* editor);
+	ParameterHelper(class VST3EditorBase* editor);
 
 	//---IParameterObserver------
 	gmpi::ReturnCode setParameter(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, int32_t size, const void* data) override;
@@ -33,25 +31,25 @@ public:
 	gmpi::ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override;
 	GMPI_REFCOUNT;
 };
-#endif
 
-class SEVSTGUIEditorWin : public VST3EditorBase //Steinberg::FObject, public Steinberg::IPlugView
+class VST3EditorBase : public Steinberg::FObject, public Steinberg::IPlugView
 {
-	//friend class ParameterHelper;
-	GmpiGuiHosting::DrawingFrame drawingframe;
-	//Steinberg::Vst::VST3Controller* controller = {};
- //   int width, height;
- //   
-	//gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
-	//gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
-	//ParameterHelper helper;
+	friend class ParameterHelper;
+
+protected:
+	Steinberg::Vst::VST3Controller* controller = {};
+    int width, height;
+    
+	gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
+	gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
+	ParameterHelper helper;
 
 public:
-    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
-	~SEVSTGUIEditorWin();
+	VST3EditorBase(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight);
+	~VST3EditorBase();
 
-//	void onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size);
-
+	void onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size);
+#if 0
 	//---from IPlugView-------
 	Steinberg::tresult PLUGIN_API isPlatformTypeSupported (Steinberg::FIDString type) SMTG_OVERRIDE { return Steinberg::kResultTrue; }
 	Steinberg::tresult PLUGIN_API attached (void* parent, Steinberg::FIDString type) SMTG_OVERRIDE;
@@ -69,14 +67,14 @@ public:
 
 	Steinberg::tresult PLUGIN_API canResize() SMTG_OVERRIDE;
 	Steinberg::tresult PLUGIN_API checkSizeConstraint(Steinberg::ViewRect* /*rect*/) SMTG_OVERRIDE;
+#endif
 
-#if 0
+	virtual gmpi::ReturnCode queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface) = 0;
+
 	//---Interface------
-	OBJ_METHODS (SEVSTGUIEditorWin, Steinberg::FObject)
+	OBJ_METHODS (VST3EditorBase, Steinberg::FObject)
 	DEFINE_INTERFACES
 	DEF_INTERFACE (IPlugView)
 	END_DEFINE_INTERFACES (Steinberg::FObject)
 	REFCOUNT_METHODS (Steinberg::FObject)
-#endif
-	gmpi::ReturnCode queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface) override;
 };
