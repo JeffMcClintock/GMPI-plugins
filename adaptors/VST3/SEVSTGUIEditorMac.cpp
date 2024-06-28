@@ -36,3 +36,9 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorMac::getSize (Steinberg::ViewRect* s
     *size = {0, 0, width, height};
 	return Steinberg::kResultTrue;
 }
+
+gmpi::ReturnCode SEVSTGUIEditorWin::queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface)
+{
+    // need to get to drawingframe in nsview?????
+ //   return drawingframe.queryInterface(iid, returnInterface);
+}
