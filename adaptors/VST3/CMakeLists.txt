@@ -73,7 +73,6 @@ ${gmpi_ui_folder}/helpers/TimerManager.h
 ${gmpi_ui_folder}/helpers/TimerManager.cpp
 )
 
-#adelay.def
 IF(WIN32)
 set(srcs ${srcs}
 SEVSTGUIEditorWin.h
@@ -89,10 +88,10 @@ ${gmpi_ui_folder}/backends/DrawingFrameMac.mm
 ${gmpi_ui_folder}/backends/CocoaGfx.h
 ${gmpi_ui_folder}/backends/Gfx_base.h
 ${gmpi_ui_folder}/backends/Bezier.h
+${VST3_SDK}/public.sdk/source/main/macmain.cpp
 )
 ENDIF()
 
-# moved to GMPI plugin ${VST3_SDK}/public.sdk/source/main/macmain.cpp
 
 set(vst_gui_minimal_srcs
     ${VST3_SDK}/public.sdk/source/common/pluginview.h
@@ -149,8 +148,8 @@ MARK_AS_ADVANCED (ACCELERATE_LIBRARY)
 endif()
 
 include (GenerateExportHeader)
-# dynamic lib: add_library(${PROJECT_NAME} MODULE ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
-add_library(${PROJECT_NAME} STATIC ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
+add_library(${PROJECT_NAME} MODULE ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
+#add_library(${PROJECT_NAME} STATIC ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
 
 # 'DEBUG' is a steinberg thing, ('_DEBUG' is standard C++)
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
@@ -169,9 +168,10 @@ TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${COREGRAPHICS_LIBRARY} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ACCELERATE_LIBRARY} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${QUARTZCORE_LIBRARY} )
 
-#TARGET_LINK_LIBRARIES( ${PROJECT_NAME} SynthEditLib )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} base )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} pluginterfaces )
+
+#TARGET_LINK_LIBRARIES( ${PROJECT_NAME} GMPIPluginlib )
 
 if(CMAKE_HOST_WIN32)
 target_link_libraries(${PROJECT_NAME} d3d11.lib d2d1 dwrite windowscodecs)
@@ -194,7 +194,6 @@ endif()
 # set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".vst3")
 
 ########################### VST3 SDK #######################################
-message(STATUS "VST3_SDK: ${VST3_SDK}")
 
 list(APPEND CMAKE_MODULE_PATH "${VST3_SDK}/cmake/modules")
 
