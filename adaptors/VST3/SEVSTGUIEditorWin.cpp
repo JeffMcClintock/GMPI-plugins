@@ -1,11 +1,6 @@
 #include "SEVSTGUIEditorWin.h"
 #include "adelaycontroller.h"
 
-gmpi::ReturnCode SEVSTGUIEditorWin::queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface)
-{
-    return drawingframe.queryInterface(iid, returnInterface);
-}
-
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
 SEVSTGUIEditorWin::SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
 	VST3EditorBase(peditor, pcontroller, pwidth, pheight)
@@ -26,7 +21,7 @@ Steinberg::tresult PLUGIN_API SEVSTGUIEditorWin::attached (void* parent, Steinbe
 {
     if (pluginGraphics_GMPI)
     {
-        drawingframe.AddView(pluginGraphics_GMPI.get());
+        drawingframe.AddView(static_cast<gmpi::api::IParameterObserver*>(&helper), pluginGraphics_GMPI.get());
 
         const gmpi::drawing::SizeL overrideSize{ width, height };
         drawingframe.open(parent, &overrideSize);

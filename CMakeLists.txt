@@ -98,13 +98,13 @@ include(${gmpi_sdk_folder}/gmpi_plugin.cmake)
 
 add_subdirectory(plugins)
 add_subdirectory(plugins_c)
-#add_subdirectory(adaptors)
+add_subdirectory(adaptors)
 
 
 # VST3 SDK base libraries
-list(APPEND CMAKE_MODULE_PATH "${VST3_SDK}/cmake/modules")
-include(SMTG_VST3_SDK)
-set(VST_SDK TRUE) # used for Base module which provides only a subset of Base for VST-SDK
-add_subdirectory(${VST3_SDK}/pluginterfaces ${CMAKE_CURRENT_BINARY_DIR}/pluginterfaces)
-add_subdirectory(${VST3_SDK}/base           ${CMAKE_CURRENT_BINARY_DIR}/base)
+#list(APPEND CMAKE_MODULE_PATH "${VST3_SDK}/cmake/modules")
+#include(SMTG_VST3_SDK)
+#set(VST_SDK TRUE) # used for Base module which provides only a subset of Base for VST-SDK
+#add_subdirectory(${VST3_SDK}/pluginterfaces ${CMAKE_CURRENT_BINARY_DIR}/pluginterfaces)
+#add_subdirectory(${VST3_SDK}/base           ${CMAKE_CURRENT_BINARY_DIR}/base)
 

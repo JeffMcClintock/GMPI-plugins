@@ -78,5 +78,4 @@ public:
 	END_DEFINE_INTERFACES (Steinberg::FObject)
 	REFCOUNT_METHODS (Steinberg::FObject)
 #endif
-	gmpi::ReturnCode queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface) override;
 };

@@ -16,8 +16,7 @@ gmpi::ReturnCode ParameterHelper::queryInterface(const gmpi::api::Guid* iid, voi
 {
     GMPI_QUERYINTERFACE(gmpi::api::IEditorHost);
     GMPI_QUERYINTERFACE(gmpi::api::IParameterObserver);
-
-	return editor_->queryInterfaceFromHelper(iid, returnInterface);
+	return gmpi::ReturnCode::NoSupport;
 }
 
 // GMPI Editor sending a parameter update back to the wrapper.

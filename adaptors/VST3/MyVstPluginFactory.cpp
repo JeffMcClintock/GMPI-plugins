@@ -97,10 +97,12 @@ using namespace Steinberg::Vst;
 extern "C"
 gmpi::ReturnCode MP_GetFactory( void** returnInterface );
 
+#if 0
 SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory ()
 {
 	return MyVstPluginFactory::GetInstance();
 }
+#endif
 
 MyVstPluginFactory* MyVstPluginFactory::GetInstance()
 {

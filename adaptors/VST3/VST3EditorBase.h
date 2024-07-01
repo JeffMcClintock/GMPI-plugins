@@ -69,8 +69,6 @@ public:
 	Steinberg::tresult PLUGIN_API checkSizeConstraint(Steinberg::ViewRect* /*rect*/) SMTG_OVERRIDE;
 #endif
 
-	virtual gmpi::ReturnCode queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface) = 0;
-
 	//---Interface------
 	OBJ_METHODS (VST3EditorBase, Steinberg::FObject)
 	DEFINE_INTERFACES

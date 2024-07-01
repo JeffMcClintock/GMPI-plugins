@@ -1,5 +1,4 @@
 #include "AudioPlugin.h"
-#include "public.sdk/source/main/pluginfactory.h"
 
 using namespace gmpi;
 
@@ -23,8 +22,6 @@ struct GainGui final : public AudioPlugin
 
 	ReturnCode open(IUnknown* phost) override
 	{
-//		auto test = GetPluginFactory();
-
 		// specify which member to process audio.
 		setSubProcess(&GainGui::subProcess);
 

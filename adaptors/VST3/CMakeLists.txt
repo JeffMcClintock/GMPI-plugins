@@ -21,10 +21,12 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast /GS-")
 endif()
 
+#factory.cpp
+
 set(srcs
-factory.cpp
 StagingMemoryBuffer.h
-StagingMemoryBuffer.h
+MyVstPluginFactory.h
+MyVstPluginFactory.cpp
 adelayprocessor.h
 adelayprocessor.cpp
 adelaycontroller.h
@@ -39,6 +41,8 @@ interThreadQue.cpp
 interThreadQue.h
 tinyxml2/tinyxml2.h
 tinyxml2/tinyxml2.cpp
+VST3EditorBase.h
+VST3EditorBase.cpp
 ${ADAPTORS_COMMON_FOLDER}/dynamic_linking.h
 ${ADAPTORS_COMMON_FOLDER}/dynamic_linking.cpp
 ${ADAPTORS_COMMON_FOLDER}/MpParameter.h
@@ -73,12 +77,13 @@ ${gmpi_ui_folder}/helpers/TimerManager.h
 ${gmpi_ui_folder}/helpers/TimerManager.cpp
 )
 
+# adelay.def
+
 IF(WIN32)
 set(srcs ${srcs}
 SEVSTGUIEditorWin.h
 SEVSTGUIEditorWin.cpp
 ${VST3_SDK}/public.sdk/source/main/dllmain.cpp
-adelay.def
 )
 ELSE()
 set(srcs ${srcs}
@@ -148,8 +153,8 @@ MARK_AS_ADVANCED (ACCELERATE_LIBRARY)
 endif()
 
 include (GenerateExportHeader)
-add_library(${PROJECT_NAME} MODULE ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
-#add_library(${PROJECT_NAME} STATIC ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
+#add_library(${PROJECT_NAME} MODULE ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
+add_library(${PROJECT_NAME} STATIC ${sdk_srcs} ${srcs} ${vst_gui_minimal_srcs})
 
 # 'DEBUG' is a steinberg thing, ('_DEBUG' is standard C++)
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
