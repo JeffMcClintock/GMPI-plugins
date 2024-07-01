@@ -104,6 +104,9 @@ SMTG_EXPORT_SYMBOL IPluginFactory* PLUGIN_API GetPluginFactory ()
 }
 #endif
 
+bool InitModule() { return true; }
+bool DeinitModule() { return true; }
+
 MyVstPluginFactory* MyVstPluginFactory::GetInstance()
 {
 	static MyVstPluginFactory singleton;
