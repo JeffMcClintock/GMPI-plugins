@@ -35,12 +35,4 @@ public:
 
 	Steinberg::tresult PLUGIN_API canResize () SMTG_OVERRIDE { return Steinberg::kResultFalse; }
 	Steinberg::tresult PLUGIN_API checkSizeConstraint (Steinberg::ViewRect* /*rect*/) SMTG_OVERRIDE	{return Steinberg::kResultFalse;}
-
-	////---Interface------
-	//OBJ_METHODS (SEVSTGUIEditorMac, Steinberg::FObject)
-	//DEFINE_INTERFACES
-	//DEF_INTERFACE (IPlugView)
-	//END_DEFINE_INTERFACES (Steinberg::FObject)
-	//REFCOUNT_METHODS (Steinberg::FObject)
-	gmpi::ReturnCode queryInterfaceFromHelper(const gmpi::api::Guid* iid, void** returnInterface) override;
 };
