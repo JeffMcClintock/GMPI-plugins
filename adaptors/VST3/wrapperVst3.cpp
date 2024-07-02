@@ -27,5 +27,3 @@ SMTG_EXPORT_SYMBOL Steinberg::IPluginFactory* PLUGIN_API GetPluginFactory()
 {
 	return MyVstPluginFactory::GetInstance();
 }
-
-
