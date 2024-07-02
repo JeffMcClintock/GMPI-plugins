@@ -13,11 +13,11 @@ struct GainGui final : public AudioPlugin
 
 	GainGui()
 	{
-		initializePin(pinInputs[0]);
-		initializePin(pinInputs[1]);
-		initializePin(pinOutputs[0]);
-		initializePin(pinOutputs[1]);
-		initializePin(pinGain);
+		init(pinInputs[0]);
+		init(pinInputs[1]);
+		init(pinOutputs[0]);
+		init(pinOutputs[1]);
+		init(pinGain);
 	}
 
 	ReturnCode open(IUnknown* phost) override

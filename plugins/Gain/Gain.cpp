@@ -10,9 +10,9 @@ struct Gain final : public AudioPlugin
 
 	Gain()
 	{
-		initializePin(pinInput);
-		initializePin(pinOutput);
-		initializePin(pinGain);
+		init(pinInput);
+		init(pinOutput);
+		init(pinGain);
 	}
 
 	ReturnCode open(IUnknown* host) override

@@ -22,21 +22,21 @@ struct Gain final : public AudioPlugin
 
 	Gain()
 	{
-		initializePin(pinAudioIn);
-		initializePin(pinMidiIn);
-		initializePin(pinFloatIn);
-		initializePin(pinIntIn);
-		initializePin(pinBoolIn);
-		initializePin(pinStringIn);
-		initializePin(pinBlobIn);
+		init(pinAudioIn);
+		init(pinMidiIn);
+		init(pinFloatIn);
+		init(pinIntIn);
+		init(pinBoolIn);
+		init(pinStringIn);
+		init(pinBlobIn);
 
-		initializePin(pinAudioOut);
-		initializePin(pinMidiOut);
-		initializePin(pinFloatOut);
-		initializePin(pinIntOut);
-		initializePin(pinBoolOut);
-		initializePin(pinStringOut);
-		initializePin(pinBlobOut);
+		init(pinAudioOut);
+		init(pinMidiOut);
+		init(pinFloatOut);
+		init(pinIntOut);
+		init(pinBoolOut);
+		init(pinStringOut);
+		init(pinBlobOut);
 	}
 
 	ReturnCode open(IUnknown* phost) override
