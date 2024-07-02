@@ -2,6 +2,7 @@
 #include "drawKnob.h"
 
 using namespace gmpi;
+using namespace gmpi::drawing;
 
 class AGraphicsGui final : public gmpi::PluginEditor
 {
@@ -31,12 +32,12 @@ public:
 		return ReturnCode::Ok;
 	}
 
-	gmpi::ReturnCode onPointerDown(gmpi::drawing::Point point, int32_t flags) override
+	ReturnCode onPointerDown(Point point, int32_t flags) override
 	{
 		return inputHost->setCapture();
 	}
 
-	gmpi::ReturnCode onPointerMove(gmpi::drawing::Point point, int32_t flags) override
+	ReturnCode onPointerMove(Point point, int32_t flags) override
 	{
 		bool isCaptured = false;
 		inputHost->getCapture(isCaptured);
@@ -49,7 +50,7 @@ public:
 		return ReturnCode::Ok;
 	}
 
-	gmpi::ReturnCode onPointerUp(gmpi::drawing::Point point, int32_t flags) override
+	ReturnCode onPointerUp(Point point, int32_t flags) override
 	{
 		return inputHost->releaseCapture();
 	}
