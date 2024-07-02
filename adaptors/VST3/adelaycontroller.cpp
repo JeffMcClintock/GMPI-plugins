@@ -13,6 +13,8 @@
 #include "unicode_conversion.h"
 #include "GmpiApiEditor.h"
 #include "it_enum_list.h"
+//#include "MyVstPluginFactory.h"
+
 
 #ifdef _WIN32
 #include "SEVSTGUIEditorWin.h"
@@ -101,9 +103,10 @@ void MpParameterVst3::updateProcessor(gmpi::FieldType fieldId, int32_t voice)
 namespace Steinberg {
 namespace Vst {
 
-VST3Controller::VST3Controller() :
+VST3Controller::VST3Controller(pluginInfoSem& pinfo) :
 	isInitialised(false)
 	, isConnected(false)
+	, info(pinfo)
 {
 // using tinxml 1?	TiXmlBase::SetCondenseWhiteSpace(false); // ensure text parameters preserve multiple spaces. e.g. "A     B" (else it collapses to "A B")
 
@@ -440,10 +443,7 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 {
 	if (ConstString (name) == ViewType::kEditor)
 	{
-		// Get a handle to the DLL module.
-		auto vstfactory = MyVstPluginFactory::GetInstance();
-		auto& semInfo = vstfactory->plugins[0];
-		auto load_filename = semInfo.pluginPath;
+		auto load_filename = info.pluginPath;
 #if 0
 		gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
 //		if (!plugin_dllHandle)
@@ -524,7 +524,7 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 			}
 
 			gmpi::shared_ptr<gmpi::api::IUnknown> pluginUnknown;
-			r2 = factory->createInstance(semInfo.id.c_str(), gmpi::api::PluginSubtype::Editor, pluginUnknown.asIMpUnknownPtr());
+			r2 = factory->createInstance(info.id.c_str(), gmpi::api::PluginSubtype::Editor, pluginUnknown.asIMpUnknownPtr());
 			if (!pluginUnknown || r != gmpi::ReturnCode::Ok)
 			{
 				return {};
@@ -536,9 +536,9 @@ IPlugView* PLUGIN_API VST3Controller::createView (FIDString name)
 				int width{ 200 };
 				int height{ 200 };
 #ifdef _WIN32
-				return new SEVSTGUIEditorWin(editor, this, width, height);
+				return new SEVSTGUIEditorWin(info, editor, this, width, height);
 #else
-				return new SEVSTGUIEditorMac(editor, this, width, height);
+				return new SEVSTGUIEditorMac(info, editor, this, width, height);
 #endif
 			}
 

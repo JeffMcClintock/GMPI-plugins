@@ -1,5 +1,6 @@
 #include "VST3EditorBase.h"
 #include "adelaycontroller.h"
+#include "MyVstPluginFactory.h"
 
 ParameterHelper::ParameterHelper(VST3EditorBase* editor)
 {
@@ -32,12 +33,13 @@ int32_t ParameterHelper::getHandle()
 }
 
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
-VST3EditorBase::VST3EditorBase(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
+VST3EditorBase::VST3EditorBase(pluginInfoSem& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
 	controller(pcontroller)
 	, width(pwidth)
 	, height(pheight)
 	, pluginParameters_GMPI(peditor)
 	, helper(this)
+	, info(info)
 {
 	pluginGraphics_GMPI = peditor.As<gmpi::api::IDrawingClient>();
 
@@ -58,10 +60,17 @@ void VST3EditorBase::onParameterUpdate(int32_t parameterHandle, gmpi::FieldType 
 	if (!pluginParameters_GMPI)
 		return;
 
-	if (fieldId == gmpi::FieldType::MP_FT_VALUE) // value TODO: lookup pinID from parameterHandle
-    {
-        int32_t pinId = 0;
-	    pluginParameters_GMPI->setPin(pinId, voice, size, data);
-    }
+	int32_t moduleHandle{-2};
+	int32_t moduleParameterId{-2};
+	controller->getParameterModuleAndParamId(parameterHandle, &moduleHandle, &moduleParameterId);
+
+	for (const auto& pin : info.guiPins)
+	{
+		if (pin.parameterId == moduleParameterId && pin.parameterFieldType == fieldId)
+		{
+			pluginParameters_GMPI->setPin(pin.id, voice, size, data);
+			break;
+		}
+	}
 }
 

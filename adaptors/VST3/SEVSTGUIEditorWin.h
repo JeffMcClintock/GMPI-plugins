@@ -47,7 +47,7 @@ class SEVSTGUIEditorWin : public VST3EditorBase //Steinberg::FObject, public Ste
 	//ParameterHelper helper;
 
 public:
-    SEVSTGUIEditorWin(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
+    SEVSTGUIEditorWin(pluginInfoSem& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
 	~SEVSTGUIEditorWin();
 
 //	void onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size);

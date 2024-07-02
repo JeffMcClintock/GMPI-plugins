@@ -1631,7 +1631,6 @@ std::unique_ptr<const DawPreset> MpController::getPreset(std::string presetNameO
 
 	return preset; // dawStateManager.retainPreset(preset);
 }
-#if 0 // TODO
 
 int32_t MpController::getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId)
 {
@@ -1641,10 +1640,11 @@ int32_t MpController::getParameterModuleAndParamId(int32_t parameterHandle, int3
 		auto seParameter = (*it).second;
 		*returnModuleHandle = seParameter->moduleHandle_;
 		*returnModuleParameterId = seParameter->moduleParamId_;
-		return gmpi::MP_OK;
+		return 0;// gmpi::MP_OK;
 	}
-	return gmpi::MP_FAIL;
+	return -1;// gmpi::MP_FAIL;
 }
+#if 0 // TODO
 
 RawView MpController::getParameterValue(int32_t parameterHandle, int32_t fieldId, int32_t voice)
 {

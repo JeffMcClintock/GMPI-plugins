@@ -6,6 +6,7 @@
 #include "pluginterfaces/base/funknown.h"
 #include "GmpiApiCommon.h"
 #include "../Shared/platform_string.h"
+#include "GmpiApiEditor.h"
 
 namespace tinyxml2
 {
@@ -34,6 +35,7 @@ struct pinInfoSem
 	gmpi::PinDatatype datatype;
 	std::string default_value;
 	int32_t parameterId;
+	gmpi::FieldType parameterFieldType;
 	int32_t flags;
 	std::string hostConnect;
 	std::string meta_data;

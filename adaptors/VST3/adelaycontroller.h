@@ -47,6 +47,8 @@ public:
 	bool isInverted_ = false;
 };
 
+struct pluginInfoSem;
+
 namespace Steinberg {
 namespace Vst {
 
@@ -70,9 +72,10 @@ class VST3Controller :
 	// Hold data until timer can put it in VST3 queue mechanism.
 	StagingMemoryBuffer queueToDsp_;
 	int supportedChannels = 1;
+	pluginInfoSem& info;
 
 public:
-	VST3Controller();
+	VST3Controller(pluginInfoSem& pinfo);
 	~VST3Controller();
 
 	tresult PLUGIN_API initialize (FUnknown* context) override;
@@ -113,7 +116,7 @@ public:
 	// MIDI Mapping.
 	tresult PLUGIN_API getMidiControllerAssignment (int32 busIndex, int16 channel, CtrlNumber midiControllerNumber, ParamID& tag/*out*/) override;
 
-	static FUnknown* createInstance (void*) { return (IEditController*)new VST3Controller (); }
+//	static FUnknown* createInstance (void*) { return (IEditController*)new VST3Controller (); }
 
 	//-----------------------------
 	DELEGATE_REFCOUNT (EditController)

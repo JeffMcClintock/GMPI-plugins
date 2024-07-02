@@ -7,7 +7,8 @@ using namespace gmpi::drawing;
 class AGraphicsGui final : public gmpi::PluginEditor
 {
 	Pin<float> pinGain;
-	
+	Point lastMouse{};
+
 public:
 	AGraphicsGui()
 	{
@@ -34,6 +35,7 @@ public:
 
 	ReturnCode onPointerDown(Point point, int32_t flags) override
 	{
+		lastMouse = point;
 		return inputHost->setCapture();
 	}
 
@@ -44,9 +46,10 @@ public:
 
 		if (isCaptured)
 		{
-			pinGain = std::clamp((point.x - bounds.left) / (bounds.right - bounds.left), 0.0f, 1.0f);
+			pinGain = std::clamp(pinGain.value + (lastMouse.y - point.y) * 0.02f, 0.0f, 1.0f);
 			drawingHost->invalidateRect(nullptr);
 		}
+		lastMouse = point;
 		return ReturnCode::Ok;
 	}
 

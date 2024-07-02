@@ -410,7 +410,7 @@ tresult MyVstPluginFactory::createInstance (FIDString cid, FIDString iid, void**
 		}
 		else if(classId == Steinberg::FUID(ctrlUUid))
 		{
-			instance = Steinberg::Vst::VST3Controller::createInstance(0);
+			instance = static_cast<Steinberg::Vst::IEditController*>(new VST3Controller(sem));
 			break;
 		}
 	}
@@ -574,13 +574,15 @@ void MyVstPluginFactory::RegisterPin(
 	pind.hostConnect = FixNullCharPtr(pin->Attribute("hostConnect"));
 
 	// parameterField.
-#if 0
-	auto parameterFieldId = FT_VALUE;
+//	auto parameterFieldId = gmpi::FieldType::MP_FT_VALUE;
 	if (!pind.hostConnect.empty() || parameterId != -1)
 	{
 #if defined( SE_TARGET_PLUGIN)
 		// In exported VST3s, just using int in XML. Faster, more compact.
-		pin->QueryIntAttribute("parameterField", &parameterFieldId);
+		int ft{ (int) gmpi::FieldType::MP_FT_VALUE };
+		pin->QueryIntAttribute("parameterField", &ft);
+
+		pind.parameterFieldType = (gmpi::FieldType)ft;
 #else
 
 		// see matching enum ParameterFieldType
@@ -596,6 +598,7 @@ void MyVstPluginFactory::RegisterPin(
 		}
 #endif
 	}
+#if 0
 
 	if (!pind.hostConnect.empty())
 	{

@@ -281,9 +281,9 @@ void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmp
 #endif
 	void initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId);
 	void setParameterValue(RawView value, int32_t parameterHandle, gmpi::FieldType moduleFieldId = gmpi::FieldType::MP_FT_VALUE, int32_t voice = 0);// override;
+	int32_t getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId);// override;
 #if 0
 	int32_t getParameterHandle(int32_t moduleHandle, int32_t moduleParameterId) override;
-	int32_t getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId) override;
 	RawView getParameterValue(int32_t parameterHandle, int32_t fieldId, int32_t voice = 0) override;
 	virtual int32_t resolveFilename(const wchar_t* shortFilename, int32_t maxChars, wchar_t* returnFullFilename) override;
 	void serviceGuiQueue() override
