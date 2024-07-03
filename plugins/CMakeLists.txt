@@ -7,4 +7,4 @@ include_directories(
 
 add_subdirectory(Gain)
 add_subdirectory(TestDatatypes)
-add_subdirectory(AGraphics)
+add_subdirectory(GainGui)
