@@ -35,7 +35,7 @@ struct pinInfoSem
 	gmpi::PinDatatype datatype;
 	std::string default_value;
 	int32_t parameterId;
-	gmpi::FieldType parameterFieldType;
+	gmpi::Field parameterFieldType;
 	int32_t flags;
 	std::string hostConnect;
 	std::string meta_data;

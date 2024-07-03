@@ -22,7 +22,7 @@ public:
 	ParameterHelper(class VST3EditorBase* editor);
 
 	//---IParameterObserver------
-	gmpi::ReturnCode setParameter(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, int32_t size, const void* data) override;
+	gmpi::ReturnCode setParameter(int32_t parameterHandle, gmpi::Field fieldId, int32_t voice, int32_t size, const void* data) override;
 
 	//---IEditorHost------
 	gmpi::ReturnCode setPin(int32_t pinId, int32_t voice, int32_t size, const void* data) override;
@@ -49,7 +49,7 @@ public:
 	VST3EditorBase(pluginInfoSem const& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight);
 	~VST3EditorBase();
 
-	void onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size);
+	void onParameterUpdate(int32_t parameterHandle, gmpi::Field fieldId, int32_t voice, const void* data, int32_t size);
 #if 0
 	//---from IPlugView-------
 	Steinberg::tresult PLUGIN_API isPlatformTypeSupported (Steinberg::FIDString type) SMTG_OVERRIDE { return Steinberg::kResultTrue; }

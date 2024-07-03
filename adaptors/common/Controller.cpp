@@ -170,7 +170,7 @@ void MpController::UpdatePresetBrowser()
 		if (p->getHostControl() == HC_PROGRAM_CATEGORIES_LIST || p->getHostControl() == HC_PROGRAM_NAMES_LIST)
 		{
 			UpdateProgramCategoriesHc(p.get());
-			updateGuis(p.get(), gmpi::FieldType::MP_FT_VALUE);
+			updateGuis(p.get(), gmpi::Field::MP_FT_VALUE);
 		}
 	}
 }
@@ -606,7 +606,7 @@ std::vector< MpController::presetInfo > MpController::scanPresetFolder(platform_
 	return returnValues;
 }
 
-void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmpi::FieldType paramField, int32_t voice)
+void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmpi::Field paramField, int32_t voice)
 {
 	auto it = ParameterHandleIndex.find(parameterHandle);
 	if (it == ParameterHandleIndex.end())
@@ -619,7 +619,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 	bool takeUndoSnapshot = false;
 
 	// Special case for MIDI Learn
-	if (paramField == gmpi::FieldType::MP_FT_MENU_SELECTION)
+	if (paramField == gmpi::Field::MP_FT_MENU_SELECTION)
 	{
 		auto choice = (int32_t)value;// RawToValue<int32_t>(value.data(), value.size());
 
@@ -637,7 +637,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 
 				// set automation on GUI to 'none'
 				seParameter->MidiAutomation = cc;
-				updateGuis(seParameter, gmpi::FieldType::MP_FT_AUTOMATION);
+				updateGuis(seParameter, gmpi::Field::MP_FT_AUTOMATION);
 			}
 		}
 		/*
@@ -664,7 +664,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 		{
 			seParameter->updateProcessor(paramField, voice);
 
-			if (seParameter->stateful_ && paramField == gmpi::FieldType::MP_FT_VALUE)
+			if (seParameter->stateful_ && paramField == gmpi::Field::MP_FT_VALUE)
 			{
 				if (!seParameter->isGrabbed()) // e.g. momentary button
 				{
@@ -675,7 +675,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 	}
 
 	// take an undo snapshot anytime a knob is released
-	if (paramField == gmpi::FieldType::MP_FT_GRAB)
+	if (paramField == gmpi::Field::MP_FT_GRAB)
 	{
 		const bool grabbed = (bool)value;
 		if (!grabbed && seParameter->stateful_)
@@ -688,7 +688,7 @@ void MpController::setParameterValue(RawView value, int32_t parameterHandle, gmp
 	{
 		setModified(true);
 
-		const auto paramName = WStringToUtf8((std::wstring)seParameter->getValueRaw(gmpi::FieldType::MP_FT_SHORT_NAME, 0));
+		const auto paramName = WStringToUtf8((std::wstring)seParameter->getValueRaw(gmpi::Field::MP_FT_SHORT_NAME, 0));
 
 		const std::string desc = "Changed parameter: " + paramName;
 		undoManager.snapshot(this, desc);
@@ -903,12 +903,12 @@ gmpi_gui::IMpGraphicsHost* MpController::getGraphicsHost()
 }
 #endif
 
-void MpController::OnSetHostControl(int hostControl, gmpi::FieldType paramField, int32_t size, const void* data, int32_t voice)
+void MpController::OnSetHostControl(int hostControl, gmpi::Field paramField, int32_t size, const void* data, int32_t voice)
 {
 	switch (hostControl)
 	{
 	case HC_PROGRAM:
-		if (!inhibitProgramChangeParameter && paramField == gmpi::FieldType::MP_FT_VALUE)
+		if (!inhibitProgramChangeParameter && paramField == gmpi::Field::MP_FT_VALUE)
 		{
 			auto preset = RawToValue<int32_t>(data, size);
 
@@ -928,7 +928,7 @@ void MpController::OnSetHostControl(int hostControl, gmpi::FieldType paramField,
 				{
 					const auto nameW = Utf8ToWstring(presets[preset].name);
 					const auto raw2 = ToRaw4(nameW);
-					const auto field = gmpi::FieldType::MP_FT_VALUE;
+					const auto field = gmpi::Field::MP_FT_VALUE;
 					if(programNameParam->setParameterRaw(field, raw2.size(), raw2.data()))
 					{
 						programNameParam->updateProcessor(field, voice);
@@ -968,7 +968,7 @@ void MpController::OnSetHostControl(int hostControl, gmpi::FieldType paramField,
 
 
 	case HC_PATCH_COMMANDS:
-		if (paramField == gmpi::FieldType::MP_FT_VALUE)
+		if (paramField == gmpi::Field::MP_FT_VALUE)
 		{
 			const auto patchCommand = *(int32_t*)data;
 
@@ -1109,7 +1109,7 @@ void MpController::SerialiseParameterValueToDsp(my_msg_que_output_stream& stream
 	//---send a binary message
 	bool isVariableSize = param->datatype_ == gmpi::PinDatatype::String || param->datatype_ == gmpi::PinDatatype::Blob;
 
-	auto raw = param->getValueRaw(gmpi::FieldType::MP_FT_VALUE, voice);
+	auto raw = param->getValueRaw(gmpi::Field::MP_FT_VALUE, voice);
 
 	bool due_to_program_change = false;
 	int32_t recievingMessageLength = (int)(sizeof(bool) + raw.size());
@@ -1166,7 +1166,7 @@ void MpController::UpdateProgramCategoriesHc(MpParameter* param)
 
 	auto enumList = convert.from_bytes(l.str());
 
-	param->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(enumList));
+	param->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(enumList));
 }
 
 MpParameter* MpController::createHostParameter(int32_t hostControl)
@@ -1196,7 +1196,7 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 		p->maximum = (std::max)(0.0, static_cast<double>(presets.size() - 1));
 		const int32_t initialVal = -1; // ensure patch-browser shows <NULL> at first.
 		RawView raw(initialVal);
-		p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, (int32_t)raw.size(), raw.data());
+		p->setParameterRaw(gmpi::Field::MP_FT_VALUE, (int32_t)raw.size(), raw.data());
 	}
 	break;
 
@@ -1204,7 +1204,7 @@ MpParameter* MpController::createHostParameter(int32_t hostControl)
 		p = new SeParameter_vst3_hostControl(this, hostControl);
 		{
 			auto raw2 = ToRaw4(L"Factory");
-			p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, (int32_t)raw2.size(), raw2.data());
+			p->setParameterRaw(gmpi::Field::MP_FT_VALUE, (int32_t)raw2.size(), raw2.data());
 		}
 		break;
 
@@ -1308,7 +1308,7 @@ int32_t MpController::getParameterHandle(int32_t moduleHandle, int32_t modulePar
 	return -1;
 }
 
-void MpController::initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId)
+void MpController::initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::Field FieldId)
 {
 	auto it = ParameterHandleIndex.find(parameterHandle);
 
@@ -1325,7 +1325,7 @@ void MpController::initializeGui(gmpi::IMpParameterObserver* gui, int32_t parame
 }
 #endif
 
-void MpController::initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId)
+void MpController::initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::Field FieldId)
 {
 	auto it = ParameterHandleIndex.find(parameterHandle);
 
@@ -1508,18 +1508,18 @@ void MpController::OnFileDialogComplete(int patchCommand, int32_t result)
 				{
 					if (p->getHostControl() == HC_PROGRAM_NAME)
 					{
-						p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(r_file));
-						p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, 0); // Important that processor has correct name when DAW saves the session.
-						updateGuis(p.get(), gmpi::FieldType::MP_FT_VALUE);
+						p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(r_file));
+						p->updateProcessor(gmpi::Field::MP_FT_VALUE, 0); // Important that processor has correct name when DAW saves the session.
+						updateGuis(p.get(), gmpi::Field::MP_FT_VALUE);
 					}
 
 					// Presets saved by user go into "User" category.
 					if (p->getHostControl() == HC_PROGRAM_CATEGORY)
 					{
 						std::wstring category{L"User"};
-						p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(category));
-						p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, 0);
-						updateGuis(p.get(), gmpi::FieldType::MP_FT_VALUE);
+						p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(category));
+						p->updateProcessor(gmpi::Field::MP_FT_VALUE, 0);
+						updateGuis(p.get(), gmpi::Field::MP_FT_VALUE);
 					}
 				}
 
@@ -1539,9 +1539,9 @@ void MpController::OnFileDialogComplete(int patchCommand, int32_t result)
 						{
 							if (presets[i].name == nameU && presets[i].category == "User")
 							{
-								p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(i));
+								p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(i));
 
-								updateGuis(p.get(), gmpi::FieldType::MP_FT_VALUE);
+								updateGuis(p.get(), gmpi::Field::MP_FT_VALUE);
 								break;
 							}
 						}
@@ -1581,12 +1581,12 @@ std::unique_ptr<const DawPreset> MpController::getPreset(std::string presetNameO
 	{
 		if (p->getHostControl() == HC_PROGRAM_NAME)
 		{
-			preset->name = WStringToUtf8((std::wstring)p->getValueRaw(gmpi::FieldType::MP_FT_VALUE, 0));
+			preset->name = WStringToUtf8((std::wstring)p->getValueRaw(gmpi::Field::MP_FT_VALUE, 0));
 			continue; // force non-save
 		}
 		if (p->getHostControl() == HC_PROGRAM_CATEGORY)
 		{
-			preset->category = WStringToUtf8((std::wstring)p->getValueRaw(gmpi::FieldType::MP_FT_VALUE, 0));
+			preset->category = WStringToUtf8((std::wstring)p->getValueRaw(gmpi::Field::MP_FT_VALUE, 0));
 			continue; // force non-save
 		}
 
@@ -1598,7 +1598,7 @@ std::unique_ptr<const DawPreset> MpController::getPreset(std::string presetNameO
 			values.dataType = (gmpi::PinDatatype)p->datatype_;
 
 			const int voice = 0;
-			const auto raw = p->getValueRaw(gmpi::FieldType::MP_FT_VALUE, voice);
+			const auto raw = p->getValueRaw(gmpi::Field::MP_FT_VALUE, voice);
 			values.rawValues_.push_back({ (char* const)raw.data(), raw.size() });
 
 #if 0
@@ -1652,7 +1652,7 @@ RawView MpController::getParameterValue(int32_t parameterHandle, int32_t fieldId
 	if (it != ParameterHandleIndex.end())
 	{
 		auto param = (*it).second;
-		return param->getValueRaw((gmpi::FieldType) fieldId, 0);
+		return param->getValueRaw((gmpi::Field) fieldId, 0);
 	}
 
 	return {};
@@ -1683,11 +1683,11 @@ void MpController::setPreset(DawPreset const* preset)
 	if (it != ParameterHandleIndex.end())
 	{
 		auto p = (*it).second;
-		p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(categoryNameW)); // don't check changed flag, if even originated from GUI, param is already changed. Still need top go to DSP.
+		p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(categoryNameW)); // don't check changed flag, if even originated from GUI, param is already changed. Still need top go to DSP.
 /*
 		if (updateProcessor)
 		{
-			p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, voiceId);
+			p->updateProcessor(gmpi::Field::MP_FT_VALUE, voiceId);
 		}
 */
 	}
@@ -1698,11 +1698,11 @@ void MpController::setPreset(DawPreset const* preset)
 		if (it != ParameterHandleIndex.end())
 		{
 			auto p = (*it).second;
-			p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(nameW)); // don't check changed flag, if even originated from GUI, param is already changed. Still need top go to DSP.
+			p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(nameW)); // don't check changed flag, if even originated from GUI, param is already changed. Still need top go to DSP.
 /*
 			if (updateProcessor)
 			{
-				p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, voiceId);
+				p->updateProcessor(gmpi::Field::MP_FT_VALUE, voiceId);
 			}
 */
 		}
@@ -1734,14 +1734,14 @@ void MpController::setPreset(DawPreset const* preset)
 			// (would need to pass 'updateProcessor')
 			{
 				// calls controller_->updateGuis(this, voice)
-				parameter->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, (int32_t)raw.size(), raw.data(), voice);
+				parameter->setParameterRaw(gmpi::Field::MP_FT_VALUE, (int32_t)raw.size(), raw.data(), voice);
 
 				// updated cached value.
 				parameter->upDateImmediateValue();
 
 				if (updateProcessor) // For non-private parameters, update DAW.
 				{
-					parameter->updateProcessor(gmpi::FieldType::MP_FT_VALUE, voice);
+					parameter->updateProcessor(gmpi::Field::MP_FT_VALUE, voice);
 				}
 			}
 #if 0
@@ -1799,7 +1799,7 @@ void MpController::syncPresetControls(DawPreset const* preset)
 	//	auto parameterHandle = getParameterHandle(-1, -1 - HC_PROGRAM_NAME);
 	//	if (auto it = ParameterHandleIndex.find(parameterHandle) ; it != ParameterHandleIndex.end())
 	//	{
-	//		const auto raw = (*it).second->getValueRaw(gmpi::FieldType::MP_FT_VALUE, 0);
+	//		const auto raw = (*it).second->getValueRaw(gmpi::Field::MP_FT_VALUE, 0);
 	//		auto presetNameW = RawToValue<std::wstring>(raw.data(), raw.size());
 	//		presetName = WStringToUtf8(presetNameW);
 	//	}
@@ -1910,10 +1910,10 @@ void MpController::syncPresetControls(DawPreset const* preset)
 			auto p = (*it).second;
 			inhibitProgramChangeParameter = true;
 //			_RPTN(0, "syncPresetControls Preset index: %d\n", presetIndex);
-			if(p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(presetIndex)))
+			if(p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(presetIndex)))
 			{
-				updateGuis(p, gmpi::FieldType::MP_FT_VALUE);
-// VST2 only I think				p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, 0); // Unusual. Informs VST2 DAW of program number.
+				updateGuis(p, gmpi::Field::MP_FT_VALUE);
+// VST2 only I think				p->updateProcessor(gmpi::Field::MP_FT_VALUE, 0); // Unusual. Informs VST2 DAW of program number.
 			}
 
 			inhibitProgramChangeParameter = false;
@@ -1927,7 +1927,7 @@ void MpController::syncPresetControls(DawPreset const* preset)
 			std::wstring name;
 			if(presetIndex == -1)
 			{
-				const auto raw = p->getValueRaw(gmpi::FieldType::MP_FT_VALUE, 0);
+				const auto raw = p->getValueRaw(gmpi::Field::MP_FT_VALUE, 0);
 				name = RawToValue<std::wstring>(raw.data(), raw.size());
 			}
 			else
@@ -1936,9 +1936,9 @@ void MpController::syncPresetControls(DawPreset const* preset)
 				name = Utf8ToWstring(presets[presetIndex].name);
 			}
 
-			if(p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(name)) && updateProcessor)
+			if(p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(name)) && updateProcessor)
 			{
-				p->updateProcessor(gmpi::FieldType::MP_FT_VALUE, 0);
+				p->updateProcessor(gmpi::Field::MP_FT_VALUE, 0);
 			}
 		}
 	}
@@ -1999,7 +1999,7 @@ void MpController::SavePresetAs(const std::string& presetName)
 			if (it != ParameterHandleIndex.end())
 			{
 				auto p = (*it).second;
-				p->setParameterRaw(gmpi::FieldType::MP_FT_VALUE, RawView(presetIndex));
+				p->setParameterRaw(gmpi::Field::MP_FT_VALUE, RawView(presetIndex));
 			}
 			break;
 		}
@@ -2018,7 +2018,7 @@ void MpController::DeletePreset(int presetIndex)
 	{
 		auto p = (*it).second;
 
-		auto currentPreset = (int32_t) p->getValueRaw(gmpi::FieldType::MP_FT_VALUE, 0);
+		auto currentPreset = (int32_t) p->getValueRaw(gmpi::Field::MP_FT_VALUE, 0);
 
 		// if we're deleting the current preset, switch back to preset 0
 		if (currentPreset == presetIndex)

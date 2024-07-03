@@ -38,7 +38,7 @@ public:
 		return isInverted_ ? 1.0f - normalised : normalised;
 	}
 
-	void updateProcessor(gmpi::FieldType fieldId, int32_t voice) override;
+	void updateProcessor(gmpi::Field fieldId, int32_t voice) override;
 
 	// not required for VST3.
 	void upDateImmediateValue() override {}

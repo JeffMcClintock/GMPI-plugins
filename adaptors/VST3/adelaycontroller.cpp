@@ -82,18 +82,18 @@ MpParameterVst3::MpParameterVst3(Steinberg::Vst::VST3Controller* controller, /*i
 {
 }
 
-void MpParameterVst3::updateProcessor(gmpi::FieldType fieldId, int32_t voice)
+void MpParameterVst3::updateProcessor(gmpi::Field fieldId, int32_t voice)
 {
 	switch (fieldId)
 	{
 		/* double up
-	case gmpi::FieldType::MP_FT_GRAB:
+	case gmpi::Field::MP_FT_GRAB:
 		controller_->ParamGrabbed(this, voice);
 		break;
 		*/
 
-	case gmpi::FieldType::MP_FT_VALUE:
-	case gmpi::FieldType::MP_FT_NORMALIZED:
+	case gmpi::Field::MP_FT_VALUE:
+	case gmpi::Field::MP_FT_NORMALIZED:
 		vst3Controller->ParamToProcessorViaHost(this, voice);
 		break;
 	}
@@ -241,7 +241,7 @@ void VST3Controller::setPinFromUi(int32_t pinId, int32_t voice, int32_t size, co
 				if (param.id == pin.parameterId)
 				{
 					auto param = tagToParameter[pin.parameterId];
-					setParameterValue({ data, static_cast<size_t>(size)}, param->parameterHandle_, gmpi::FieldType::MP_FT_VALUE, voice); // TODO figure out correct fieldtype
+					setParameterValue({ data, static_cast<size_t>(size)}, param->parameterHandle_, gmpi::Field::MP_FT_VALUE, voice); // TODO figure out correct fieldtype
 					break;
 				}
 			}
@@ -255,7 +255,7 @@ void VST3Controller::initUi(gmpi::api::IParameterObserver* gui)
 {
 	for (auto& it : tagToParameter)
 	{
-		initializeGui(gui, it.second->parameterHandle_, gmpi::FieldType::MP_FT_VALUE);
+		initializeGui(gui, it.second->parameterHandle_, gmpi::Field::MP_FT_VALUE);
 	}
 }
 
@@ -602,7 +602,7 @@ tresult VST3Controller::setParamNormalized( ParamID tag, ParamValue value )
 	if (auto p = getDawParameter(tag); p)
 	{
 		const auto n = p->convertNormalized(value);
-		p->MpParameter_base::setParameterRaw(gmpi::FieldType::MP_FT_NORMALIZED, sizeof(n), &n);
+		p->MpParameter_base::setParameterRaw(gmpi::Field::MP_FT_NORMALIZED, sizeof(n), &n);
 	}
 
 	return kResultTrue;

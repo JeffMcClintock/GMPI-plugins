@@ -578,10 +578,10 @@ void MyVstPluginFactory::RegisterPin(
 	{
 #if defined( SE_TARGET_PLUGIN)
 		// In exported VST3s, just using int in XML. Faster, more compact.
-		int ft{ (int) gmpi::FieldType::MP_FT_VALUE };
+		int ft{ (int) gmpi::Field::MP_FT_VALUE };
 		pin->QueryIntAttribute("parameterField", &ft);
 
-		pind.parameterFieldType = (gmpi::FieldType)ft;
+		pind.parameterFieldType = (gmpi::Field)ft;
 #else
 
 		// see matching enum ParameterFieldType

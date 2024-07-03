@@ -5,7 +5,7 @@ set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for
 
 include(FetchContent)
 
-project(SynthEdit_VST3)
+project(VST3_Wrapper)
 
 set(CMAKE_CXX_STANDARD 17)
 

@@ -14,16 +14,16 @@ using namespace std;
 #define MIDI_LEARN_MENU_ITEMS L"Learn=1, UnLearn"
 
 
-bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size, const void* data, int32_t voice)
+bool MpParameter_base::setParameterRaw(gmpi::Field paramField, int32_t size, const void* data, int32_t voice)
 {
 	// Handles real value and normalised only.
-	assert(paramField == gmpi::FieldType::MP_FT_VALUE || paramField == gmpi::FieldType::MP_FT_NORMALIZED || paramField == gmpi::FieldType::MP_FT_GRAB);
+	assert(paramField == gmpi::Field::MP_FT_VALUE || paramField == gmpi::Field::MP_FT_NORMALIZED || paramField == gmpi::Field::MP_FT_GRAB);
 
 	bool changed = false;
 
 	switch (paramField)
 	{
-	case gmpi::FieldType::MP_FT_VALUE:
+	case gmpi::Field::MP_FT_VALUE:
 		{
 			while (rawValues_.size() <= static_cast<size_t>(voice))
 			{
@@ -46,7 +46,7 @@ bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size,
 		break;
 */
 
-	case gmpi::FieldType::MP_FT_NORMALIZED:
+	case gmpi::Field::MP_FT_NORMALIZED:
 	{
 		double normalized = (double)*(float*)data;
 
@@ -100,11 +100,11 @@ bool MpParameter_base::setParameterRaw(gmpi::FieldType paramField, int32_t size,
 			break;
 		}
 
-		return setParameterRaw(gmpi::FieldType::MP_FT_VALUE, static_cast<int32_t>(newRawValue.size()), newRawValue.data(), voice);
+		return setParameterRaw(gmpi::Field::MP_FT_VALUE, static_cast<int32_t>(newRawValue.size()), newRawValue.data(), voice);
 	}
 	break;
 
-	case gmpi::FieldType::MP_FT_GRAB:
+	case gmpi::Field::MP_FT_GRAB:
 		return MpParameter::setParameterRaw(paramField, size, data, voice);
 		break;
 
@@ -187,40 +187,40 @@ void MpParameter::updateFromDsp(int recievingMessageId, my_input_stream & strm)
 	case code_to_long('l', 'e', 'r', 'n'): // "lern" Controller ID change
 	{
 		strm >> MidiAutomation;
-		controller_->updateGuis(this, gmpi::FieldType::MP_FT_AUTOMATION);
+		controller_->updateGuis(this, gmpi::Field::MP_FT_AUTOMATION);
 	}
 	break;
 	}
 }
 
-RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
+RawView MpParameter::getValueRaw(gmpi::Field paramField, int32_t voice)
 {
 	static const int32_t zero = 0;
 
 	switch (paramField)
 	{
-	case gmpi::FieldType::MP_FT_ENUM_LIST:
-	case gmpi::FieldType::MP_FT_FILE_EXTENSION:
+	case gmpi::Field::MP_FT_ENUM_LIST:
+	case gmpi::Field::MP_FT_FILE_EXTENSION:
 	{
 		return RawView(enumList_);
 	}
 	break;
 
-	case gmpi::FieldType::MP_FT_SHORT_NAME:
-	case gmpi::FieldType::MP_FT_LONG_NAME:
+	case gmpi::Field::MP_FT_SHORT_NAME:
+	case gmpi::Field::MP_FT_LONG_NAME:
 	{
 		return RawView(name_);
 	}
 
-	case gmpi::FieldType::MP_FT_MENU_SELECTION:
+	case gmpi::Field::MP_FT_MENU_SELECTION:
 		return RawView(zero);
 		break;
 
-	case gmpi::FieldType::MP_FT_GRAB:
+	case gmpi::Field::MP_FT_GRAB:
 		return RawView(m_grabbed);
 		break;
 
-	case gmpi::FieldType::MP_FT_MENU_ITEMS:
+	case gmpi::Field::MP_FT_MENU_ITEMS:
 	{
 		if (datatype_ == gmpi::PinDatatype::Blob || datatype_ == gmpi::PinDatatype::String)
 		{
@@ -234,7 +234,7 @@ RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 	}
 	break;
 
-	case gmpi::FieldType::MP_FT_NORMALIZED:
+	case gmpi::Field::MP_FT_NORMALIZED:
 	{
 		float normalized = getNormalized();
 		tempReturnValue = ToRaw4(normalized);
@@ -242,13 +242,13 @@ RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 	}
 	break;
 
-	case gmpi::FieldType::MP_FT_AUTOMATION:
+	case gmpi::Field::MP_FT_AUTOMATION:
 	{
 		return RawView(MidiAutomation);
 	}
 	break;
 
-	case gmpi::FieldType::MP_FT_AUTOMATION_SYSEX:
+	case gmpi::Field::MP_FT_AUTOMATION_SYSEX:
 	{
 		return RawView(MidiAutomationSysex);
 	}
@@ -262,13 +262,13 @@ RawView MpParameter::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 	return RawView();
 }
 
-RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
+RawView MpParameter_base::getValueRaw(gmpi::Field paramField, int32_t voice)
 {
 	int expected_size = -1;
 
 	switch (paramField)
 	{
-		case gmpi::FieldType::MP_FT_VALUE:
+		case gmpi::Field::MP_FT_VALUE:
 		{
 			expected_size = getDataTypeSize(datatype_);
 
@@ -284,7 +284,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 			}
 			break;
 
-		case gmpi::FieldType::MP_FT_RANGE_LO:
+		case gmpi::Field::MP_FT_RANGE_LO:
 		{
 			// compute normalised normalized.
 			switch (datatype_)
@@ -322,7 +322,7 @@ RawView MpParameter_base::getValueRaw(gmpi::FieldType paramField, int32_t voice)
 		}
 		break;
 
-		case gmpi::FieldType::MP_FT_RANGE_HI:
+		case gmpi::Field::MP_FT_RANGE_HI:
 		{
 			// compute normalised normalized.
 			switch (datatype_)
@@ -536,7 +536,7 @@ double MpParameter_base::stringToNormalised(const std::wstring& string) const
 	return RealToNormalized( wcstof(string.c_str(), &endPtr) );
 }
 
-void MpParameter_private::updateProcessor(gmpi::FieldType fieldId, int32_t voice)
+void MpParameter_private::updateProcessor(gmpi::Field fieldId, int32_t voice)
 {
 	controller_->ParamToDsp(this, voice);
 }
@@ -680,7 +680,7 @@ SeParameter_vst3_hostControl::SeParameter_vst3_hostControl(MpController* control
 	rawValues_.push_back({ nothing, static_cast<size_t>(getDataTypeSize(datatype_)) });
 }
 
-bool SeParameter_vst3_hostControl::setParameterRaw(gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice)
+bool SeParameter_vst3_hostControl::setParameterRaw(gmpi::Field paramField, int32_t size, const void * data, int32_t voice)
 {
 	const auto r = MpParameter_private::setParameterRaw(paramField, size, data, voice);
 
@@ -692,18 +692,18 @@ bool SeParameter_vst3_hostControl::setParameterRaw(gmpi::FieldType paramField, i
 	return r;
 }
 
-void SeParameter_vst3_hostControl::updateProcessor(gmpi::FieldType fieldId, int32_t voice)
+void SeParameter_vst3_hostControl::updateProcessor(gmpi::Field fieldId, int32_t voice)
 {
-	// These are never sent to DSP, and wouldn't work as thier handles are generated at runtime by the controller.
+	// These are never sent to DSP, and wouldn't work as their handles are generated at runtime by the controller.
 	// Exception is Program Name, which is built as a regular param (not SeParameter_vst3_hostControl)
 //	controller_->HostControlToDsp(this, voice);
 }
 
-bool MpParameter::setParameterRaw(gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice)
+bool MpParameter::setParameterRaw(gmpi::Field paramField, int32_t size, const void * data, int32_t voice)
 {
 	bool changed = false;
 
-	if (gmpi::FieldType::MP_FT_GRAB == paramField)
+	if (gmpi::Field::MP_FT_GRAB == paramField)
 	{
 		const bool oldVal = m_grabbed;
 		m_grabbed = RawToValue<bool>(data, size);

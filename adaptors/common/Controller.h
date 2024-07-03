@@ -243,7 +243,7 @@ public:
 	void UpdateProgramCategoriesHc(MpParameter * param);
 	MpParameter* createHostParameter(int32_t hostControl);
 //	virtual int32_t sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t size, const void* messageData) override;
-	void OnSetHostControl(int hostControl, gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice);
+	void OnSetHostControl(int hostControl, gmpi::Field paramField, int32_t size, const void * data, int32_t voice);
 
 	gmpi::ReturnCode RegisterGui2(gmpi::api::IParameterObserver* gui)
 	{
@@ -277,10 +277,10 @@ public:
 #endif
 		return gmpi::MP_OK;
 	}
-void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId) override;
+void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::Field FieldId) override;
 #endif
-	void initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId);
-	void setParameterValue(RawView value, int32_t parameterHandle, gmpi::FieldType moduleFieldId = gmpi::FieldType::MP_FT_VALUE, int32_t voice = 0);// override;
+	void initializeGui(gmpi::api::IParameterObserver* gui, int32_t parameterHandle, gmpi::Field FieldId);
+	void setParameterValue(RawView value, int32_t parameterHandle, gmpi::Field moduleFieldId = gmpi::Field::MP_FT_VALUE, int32_t voice = 0);// override;
 	int32_t getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId);// override;
 #if 0
 	int32_t getParameterHandle(int32_t moduleHandle, int32_t moduleParameterId) override;
@@ -306,31 +306,31 @@ void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmp
 
 	void updateGuis(MpParameter* parameter, int voice)
 	{
-		const auto rawValue = parameter->getValueRaw(gmpi::FieldType::MP_FT_VALUE, voice);
+		const auto rawValue = parameter->getValueRaw(gmpi::Field::MP_FT_VALUE, voice);
 		const float normalized = parameter->getNormalized(); // voice !!!?
 #if 0 // TODO
 
 		for (auto pa : m_guis2)
 		{
 			// Update value.
-			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_VALUE, voice, rawValue.data(), (int32_t)rawValue.size());
+			pa->setParameter(parameter->parameterHandle_, gmpi::Field::MP_FT_VALUE, voice, rawValue.data(), (int32_t)rawValue.size());
 
 			// Update normalized.
-			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_NORMALIZED, voice, &normalized, (int32_t)sizeof(normalized));
+			pa->setParameter(parameter->parameterHandle_, gmpi::Field::MP_FT_NORMALIZED, voice, &normalized, (int32_t)sizeof(normalized));
 		}
 #endif
 
 		for (auto pa : m_guis3)
 		{
 			// Update value.
-			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_VALUE, voice, (int32_t)rawValue.size(), rawValue.data());
+			pa->setParameter(parameter->parameterHandle_, gmpi::Field::MP_FT_VALUE, voice, (int32_t)rawValue.size(), rawValue.data());
 
 			// Update normalized.
-			pa->setParameter(parameter->parameterHandle_, gmpi::FieldType::MP_FT_NORMALIZED, voice, (int32_t)sizeof(normalized), &normalized);
+			pa->setParameter(parameter->parameterHandle_, gmpi::Field::MP_FT_NORMALIZED, voice, (int32_t)sizeof(normalized), &normalized);
 		}
 	}
 
-	void updateGuis(MpParameter* parameter, gmpi::FieldType fieldType, int voice = 0 )
+	void updateGuis(MpParameter* parameter, gmpi::Field fieldType, int voice = 0 )
 	{
 		auto rawValue = parameter->getValueRaw(fieldType, voice);
 

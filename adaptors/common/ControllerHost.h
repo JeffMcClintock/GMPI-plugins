@@ -43,13 +43,13 @@ public:
 	{
 		// apply filter/ lookup 
 		assert(voice == 0); // patchManager now updates ALL voices
-		return patchManager->initializeGui(controller_.get(), parameterHandle, (gmpi::FieldType)paramFieldType);
+		return patchManager->initializeGui(controller_.get(), parameterHandle, (gmpi::Field)paramFieldType);
 	}
 
 	// plugin -> Patch-Manager.
 	int32_t MP_STDCALL setParameter(int32_t parameterHandle, int32_t paramFieldType, int32_t voice, const void* data, int32_t size) override
 	{
-		patchManager->setParameterValue(RawView(data, size), parameterHandle, (gmpi::FieldType) paramFieldType, voice);
+		patchManager->setParameterValue(RawView(data, size), parameterHandle, (gmpi::Field) paramFieldType, voice);
 		return gmpi::MP_OK;
 	}
 

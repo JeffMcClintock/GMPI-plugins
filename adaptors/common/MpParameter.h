@@ -53,21 +53,21 @@ public:
 		return m_grabbed || m_grabbed_by_MIDI_timer > 0;
 	}
 
-	virtual RawView getValueRaw(gmpi::FieldType paramField, int32_t voice);
-	virtual bool setParameterRaw(gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice = 0);
+	virtual RawView getValueRaw(gmpi::Field paramField, int32_t voice);
+	virtual bool setParameterRaw(gmpi::Field paramField, int32_t size, const void * data, int32_t voice = 0);
 	template<typename T>
 	const T& operator=(const T& value)
 	{
 		RawView temp{ value };
-		setParameterRaw(gmpi::FieldType::MP_FT_VALUE, temp.size(), temp.data());
+		setParameterRaw(gmpi::Field::MP_FT_VALUE, temp.size(), temp.data());
 
 		return value;
 	}
-	bool setParameterRaw(gmpi::FieldType paramField, size_t size, const void * data, int32_t voice = 0) // convenience overload for size_t
+	bool setParameterRaw(gmpi::Field paramField, size_t size, const void * data, int32_t voice = 0) // convenience overload for size_t
 	{
 		return setParameterRaw(paramField, static_cast<int32_t>(size), data, voice);
 	}
-	bool setParameterRaw(gmpi::FieldType paramField, RawView raw, int32_t voice = 0) // convenience overload for size_t
+	bool setParameterRaw(gmpi::Field paramField, RawView raw, int32_t voice = 0) // convenience overload for size_t
 	{
 		return setParameterRaw(paramField, static_cast<int32_t>(raw.size()), raw.data(), voice);
 	}
@@ -83,7 +83,7 @@ public:
 	virtual double normalisedToReal(double normalized) const = 0;
     virtual double RealToNormalized(double normalized) const = 0;
 
-	virtual void updateProcessor(gmpi::FieldType fieldId, int32_t voice) = 0;
+	virtual void updateProcessor(gmpi::Field fieldId, int32_t voice) = 0;
 	virtual void updateDawUnsafe(const std::string& rawValue) = 0;
 
 	// VST2 requires an unsafe cache of most recent parameter value from DAW.
@@ -116,8 +116,8 @@ public:
 	{
 	}
 
-	virtual RawView getValueRaw(gmpi::FieldType paramField, int32_t voice) override;
-	bool setParameterRaw(gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice = 0) override;
+	virtual RawView getValueRaw(gmpi::Field paramField, int32_t voice) override;
+	bool setParameterRaw(gmpi::Field paramField, int32_t size, const void * data, int32_t voice = 0) override;
 	void updateFromDsp(int recievingMessageId, class my_input_stream& strm) override;
 	int getNativeTag() override;
 	virtual bool isPolyPhonic() override {
@@ -151,7 +151,7 @@ public:
 	{
 	}
 
-	void updateProcessor(gmpi::FieldType fieldId, int32_t voice) override;
+	void updateProcessor(gmpi::Field fieldId, int32_t voice) override;
 	void upDateImmediateValue() override {}
 	void updateDawUnsafe(const std::string& rawValue) override {}
 };
@@ -177,7 +177,7 @@ class SeParameter_vst3_hostControl : public MpParameter_private
 public:
 	SeParameter_vst3_hostControl(MpController* controller, int hostControl);
 
-	bool setParameterRaw(gmpi::FieldType paramField, int32_t size, const void * data, int32_t voice = 0) override;
+	bool setParameterRaw(gmpi::Field paramField, int32_t size, const void * data, int32_t voice = 0) override;
  
-	void updateProcessor(gmpi::FieldType fieldId, int32_t voice) override;
+	void updateProcessor(gmpi::Field fieldId, int32_t voice) override;
 };

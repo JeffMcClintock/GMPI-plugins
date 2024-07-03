@@ -15,8 +15,8 @@ public:
 	virtual int32_t RegisterGui2(gmpi::IMpParameterObserver* /*gui*/) { return 0; }
 	virtual int32_t UnRegisterGui2(gmpi::IMpParameterObserver* /*gui*/) { return 0; }
 	virtual RawView getParameterValue(int32_t parameterHandle, int32_t fieldId = gmpi::MP_FT_VALUE, int32_t voice = 0) = 0;
-	virtual void setParameterValue(RawView /*value*/, int32_t /*parameterHandle*/, gmpi::FieldType /*moduleFieldId*/ = gmpi::MP_FT_VALUE, int32_t /*voice*/ = 0) {}
-	virtual void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::FieldType FieldId) = 0;
+	virtual void setParameterValue(RawView /*value*/, int32_t /*parameterHandle*/, gmpi::Field /*moduleFieldId*/ = gmpi::MP_FT_VALUE, int32_t /*voice*/ = 0) {}
+	virtual void initializeGui(gmpi::IMpParameterObserver* gui, int32_t parameterHandle, gmpi::Field FieldId) = 0;
 	virtual int32_t sendSdkMessageToAudio(int32_t handle, int32_t id, int32_t size, const void* messageData) = 0;
 	virtual int32_t getParameterHandle(int32_t moduleHandle, int32_t moduleParameterId) = 0;
 	virtual int32_t getParameterModuleAndParamId(int32_t parameterHandle, int32_t* returnModuleHandle, int32_t* returnModuleParameterId) = 0;
