@@ -37,7 +37,7 @@ class VST3EditorBase : public Steinberg::FObject, public Steinberg::IPlugView
 	friend class ParameterHelper;
 
 protected:
-	struct pluginInfoSem& info;
+	struct pluginInfoSem const& info;
 	Steinberg::Vst::VST3Controller* controller = {};
     int width, height;
     
@@ -46,7 +46,7 @@ protected:
 	ParameterHelper helper;
 
 public:
-	VST3EditorBase(pluginInfoSem& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight);
+	VST3EditorBase(pluginInfoSem const& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight);
 	~VST3EditorBase();
 
 	void onParameterUpdate(int32_t parameterHandle, gmpi::FieldType fieldId, int32_t voice, const void* data, int32_t size);

@@ -397,7 +397,7 @@ tresult MyVstPluginFactory::createInstance (FIDString cid, FIDString iid, void**
 
 		if (/*interfaceId == IComponent::iid ||*/ classId == Steinberg::FUID(procUUid))
 		{
-			auto i = new SeProcessor();
+			auto i = new SeProcessor(sem);
 			/* Now done by detecting MIDI input
 					if( pluginInfo_.subCategories_.find( "Instrument" ) != std::string::npos )
 					{

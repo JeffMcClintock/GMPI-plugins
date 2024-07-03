@@ -31,8 +31,9 @@ typedef gmpi::ReturnCode(*MP_DllEntry)(void**);
 //namespace Vst {
 
 //-----------------------------------------------------------------------------
-SeProcessor::SeProcessor ()
+SeProcessor::SeProcessor (pluginInfoSem& pinfo)
 : active_(false)
+, info(pinfo)
 , outputsAsStereoPairs(true)
 ,m_message_que_dsp_to_ui(0x500000)//AUDIO_MESSAGE_QUE_SIZE) //TODO
 ,m_message_que_ui_to_dsp(0x500000)//AUDIO_MESSAGE_QUE_SIZE)
@@ -253,10 +254,8 @@ void SeProcessor::reInitialise()
 	silence.assign(processSetup.maxSamplesPerBlock, 0.0f);
 
 	// Get a handle to the DLL module.
-	auto vstfactory = MyVstPluginFactory::GetInstance();
-	auto& semInfo = vstfactory->plugins[0];
 #if 0
-	auto load_filename = semInfo.pluginPath;
+	auto load_filename = info.pluginPath;
 
     gmpi_dynamic_linking::DLL_HANDLE plugin_dllHandle = {};
 //	if (!plugin_dllHandle)
@@ -338,7 +337,7 @@ void SeProcessor::reInitialise()
 		}
 
 		gmpi::shared_ptr<gmpi::api::IUnknown> pluginUnknown;
-		r2 = factory->createInstance(semInfo.id.c_str(), gmpi::api::PluginSubtype::Audio, pluginUnknown.asIMpUnknownPtr());
+		r2 = factory->createInstance(info.id.c_str(), gmpi::api::PluginSubtype::Audio, pluginUnknown.asIMpUnknownPtr());
 		if (!pluginUnknown || r != gmpi::ReturnCode::Ok)
 		{
 			return;
@@ -351,12 +350,12 @@ void SeProcessor::reInitialise()
 
 		{
 			param2pin.clear();
-			for (auto& pin : semInfo.dspPins)
+			for (auto& pin : info.dspPins)
 			{
 				if (pin.direction == gmpi::PinDirection::In && pin.datatype == gmpi::PinDatatype::Float32 && pin.parameterId != -1)
 				{
 					int paramStrictIndex = 0;
-					for (auto& param : semInfo.parameters)
+					for (auto& param : info.parameters)
 					{
 						if (param.id == pin.parameterId)
 						{
@@ -441,10 +440,8 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 
 	reInitialise();
 
-	auto& semInfo = factory->plugins[0];
-
 	{
-		int numInputs = countPins(semInfo, gmpi::PinDirection::In, gmpi::PinDatatype::Audio);
+		int numInputs = countPins(info, gmpi::PinDirection::In, gmpi::PinDatatype::Audio);
 		inputBuffers.assign(numInputs, nullptr);
 
 		int pinIndex = 0;
@@ -452,7 +449,7 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 		{
 			while (numInputs > 1)
 			{
-				const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::In, pinIndex));
+				const auto name = ToUtf16(getPinName(info, gmpi::PinDirection::In, pinIndex));
 
 				addAudioInput((const TChar*) name.c_str(), SpeakerArr::kStereo);
 				numInputs -= 2;
@@ -462,7 +459,7 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 
 		while (numInputs > 0)
 		{
-			const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::In, pinIndex));
+			const auto name = ToUtf16(getPinName(info, gmpi::PinDirection::In, pinIndex));
 			addAudioInput((const TChar*) name.c_str(), SpeakerArr::kMono);
 			numInputs -= 1;
 			pinIndex += 1;
@@ -470,14 +467,14 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 	}
 
 	{
-		int numOutputs = countPins(semInfo, gmpi::PinDirection::Out, gmpi::PinDatatype::Audio);
+		int numOutputs = countPins(info, gmpi::PinDirection::Out, gmpi::PinDatatype::Audio);
 		outputBuffers.assign(numOutputs, nullptr);
 		int pinIndex = 0;
 		if (outputsAsStereoPairs)
 		{
 			while (numOutputs > 1)
 			{
-				const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::Out, pinIndex));
+				const auto name = ToUtf16(getPinName(info, gmpi::PinDirection::Out, pinIndex));
 				addAudioOutput((const TChar*) name.c_str(), SpeakerArr::kStereo);
 				numOutputs -= 2;
 				pinIndex += 2;
@@ -485,19 +482,19 @@ tresult PLUGIN_API SeProcessor::initialize (FUnknown* context)
 		}
 		while (numOutputs > 0)
 		{
-			const auto name = ToUtf16(getPinName(semInfo, gmpi::PinDirection::Out, pinIndex));
+			const auto name = ToUtf16(getPinName(info, gmpi::PinDirection::Out, pinIndex));
 			addAudioOutput((const TChar*) name.c_str(), SpeakerArr::kMono);
 			numOutputs -= 1;
 			pinIndex += 1;
 		}
 	}
 
-	for (int i = countPins(semInfo, gmpi::PinDirection::In, gmpi::PinDatatype::Midi) ; i > 0 ; --i)
+	for (int i = countPins(info, gmpi::PinDirection::In, gmpi::PinDatatype::Midi) ; i > 0 ; --i)
 	{
 		addEventInput(STR16 ("MIDI In"), 16);
 	}
 
-	for (int i = countPins(semInfo, gmpi::PinDirection::Out, gmpi::PinDatatype::Midi); i > 0; --i)
+	for (int i = countPins(info, gmpi::PinDirection::Out, gmpi::PinDatatype::Midi); i > 0; --i)
 	{
 		addEventOutput(STR16("MIDI Out"), 16);
 	}

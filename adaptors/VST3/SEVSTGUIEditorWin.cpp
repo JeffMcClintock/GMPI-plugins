@@ -2,13 +2,8 @@
 #include "adelaycontroller.h"
 
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
-SEVSTGUIEditorWin::SEVSTGUIEditorWin(pluginInfoSem& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
+SEVSTGUIEditorWin::SEVSTGUIEditorWin(pluginInfoSem const& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
 	VST3EditorBase(info, peditor, pcontroller, pwidth, pheight)
-//controller(pcontroller)
-//, width(pwidth)
-//, height(pheight)
-//, pluginParameters_GMPI(peditor)
-//, helper(this)
 {
 }
 

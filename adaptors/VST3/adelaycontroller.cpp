@@ -232,14 +232,11 @@ struct pluginInformation
 
 void VST3Controller::setPinFromUi(int32_t pinId, int32_t voice, int32_t size, const void* data)
 {
-	auto factory = MyVstPluginFactory::GetInstance();
-	auto& semInfo = factory->plugins[0];
-
-	for (auto& pin : semInfo.guiPins)
+	for (auto& pin : info.guiPins)
 	{
 		if (pin.id == pinId && /*pin.direction == gmpi::PinDirection::In && pin.datatype == gmpi::PinDatatype::Float32 &&*/ pin.parameterId != -1)
 		{
-			for (auto& param : semInfo.parameters)
+			for (auto& param : info.parameters)
 			{
 				if (param.id == pin.parameterId)
 				{
@@ -279,10 +276,7 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 
 		MpController::Initialize();
 
-		//const auto& info = BundleInfo::instance()->getPluginInfo();
-		auto factory = MyVstPluginFactory::GetInstance();
-		auto& semInfo = factory->plugins[0];
-		supportedChannels = countPins(semInfo, gmpi::PinDirection::In, gmpi::PinDatatype::Midi) == 0 ? 0 : 16;
+		supportedChannels = countPins(info, gmpi::PinDirection::In, gmpi::PinDatatype::Midi) == 0 ? 0 : 16;
 
 		// Parameters
 		{
@@ -294,7 +288,7 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 				ParameterHandle = (std::max)(ParameterHandle, i.first + 1);
 			}
 
-			for (auto& param : semInfo.parameters)
+			for (auto& param : info.parameters)
 			{
 				bool isPrivate =
 					param.is_private ||
@@ -350,8 +344,6 @@ tresult PLUGIN_API VST3Controller::initialize (FUnknown* context)
 				++ParameterHandle;
 			}
 		}
-
-		factory->release();
 
 //		const auto supportedChannels = info.midiInputCount ? 16 : 0;
 		const auto supportAllCC = true; // info.vst3Emulate16ChanCcs;

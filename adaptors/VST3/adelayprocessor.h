@@ -86,7 +86,7 @@ typedef int64_t timestamp_t;
 class SeProcessor : public Steinberg::Vst::AudioEffect, public GmpiBaseClass //, public IShellServices, public IProcessorMessageQues
 {
 public:
-	SeProcessor ();
+	SeProcessor (struct pluginInfoSem& pinfo);
 	~SeProcessor ();
 	
 	Steinberg::tresult PLUGIN_API initialize (FUnknown* context) override;
@@ -101,7 +101,7 @@ public:
 
 	Steinberg::tresult PLUGIN_API notify(Steinberg::Vst::IMessage* message) override;
 
-	static FUnknown* createInstance (void*) { return (IAudioProcessor*)new SeProcessor (); }
+//	static FUnknown* createInstance (void*) { return (IAudioProcessor*)new SeProcessor (); }
 
 	void reInitialise();
 #if 0 // TODO
@@ -196,8 +196,8 @@ protected:
 	Steinberg::Vst::ProcessData* dataptr = {};
 
 	std::unordered_map<int32_t, int32_t> param2pin;
-
 	std::vector<float> silence;
+	pluginInfoSem const& info;
 
 //	GMPI_QUERYINTERFACE_METHOD(gmpi::api::IAudioPluginHost);
 	gmpi::ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override

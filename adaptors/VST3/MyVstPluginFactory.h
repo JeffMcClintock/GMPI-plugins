@@ -66,7 +66,7 @@ struct pluginInfoSem
 	platform_string pluginPath;
 };
 
-inline int countPins(pluginInfoSem& plugin, gmpi::PinDirection direction, gmpi::PinDatatype datatype)
+inline int countPins(pluginInfoSem const& plugin, gmpi::PinDirection direction, gmpi::PinDatatype datatype)
 {
 	return std::count_if(
 		plugin.dspPins.begin()
@@ -78,7 +78,7 @@ inline int countPins(pluginInfoSem& plugin, gmpi::PinDirection direction, gmpi::
 	);
 }
 
-inline auto getPinName(pluginInfoSem& plugin, gmpi::PinDirection direction, int index) -> std::string
+inline auto getPinName(pluginInfoSem const& plugin, gmpi::PinDirection direction, int index) -> std::string
 {
 	int i = 0;
 	for (auto& p : plugin.dspPins)

@@ -10,13 +10,9 @@
 class SEVSTGUIEditorMac : public VST3EditorBase //Steinberg::FObject, public Steinberg::IPlugView
 {
     void* nsView = {};
-	//Steinberg::Vst::VST3Controller* controller = {};
-	//gmpi::shared_ptr<gmpi::api::IEditor> pluginParameters_GMPI;
-	//gmpi::shared_ptr<gmpi::api::IDrawingClient> pluginGraphics_GMPI;
-	//int width, height;
     
 public:
-    SEVSTGUIEditorMac(gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
+    SEVSTGUIEditorMac(pluginInfoSem const& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* controller, int width, int height);
 
 	//---from IPlugView-------
 	Steinberg::tresult PLUGIN_API isPlatformTypeSupported (Steinberg::FIDString type) SMTG_OVERRIDE { return Steinberg::kResultTrue; }

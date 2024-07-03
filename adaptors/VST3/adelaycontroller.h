@@ -72,7 +72,7 @@ class VST3Controller :
 	// Hold data until timer can put it in VST3 queue mechanism.
 	StagingMemoryBuffer queueToDsp_;
 	int supportedChannels = 1;
-	pluginInfoSem& info;
+	pluginInfoSem const& info;
 
 public:
 	VST3Controller(pluginInfoSem& pinfo);

@@ -33,7 +33,7 @@ int32_t ParameterHelper::getHandle()
 }
 
 // TODO !!! pass IUnknown to constructor, then QueryInterface for IDrawingClient
-VST3EditorBase::VST3EditorBase(pluginInfoSem& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
+VST3EditorBase::VST3EditorBase(pluginInfoSem const& info, gmpi::shared_ptr<gmpi::api::IEditor>& peditor, Steinberg::Vst::VST3Controller* pcontroller, int pwidth, int pheight) :
 	controller(pcontroller)
 	, width(pwidth)
 	, height(pheight)
