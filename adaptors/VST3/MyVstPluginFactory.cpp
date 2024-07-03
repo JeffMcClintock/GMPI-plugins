@@ -574,7 +574,6 @@ void MyVstPluginFactory::RegisterPin(
 	pind.hostConnect = FixNullCharPtr(pin->Attribute("hostConnect"));
 
 	// parameterField.
-//	auto parameterFieldId = gmpi::FieldType::MP_FT_VALUE;
 	if (!pind.hostConnect.empty() || parameterId != -1)
 	{
 #if defined( SE_TARGET_PLUGIN)

@@ -2,7 +2,7 @@
 
 using namespace gmpi;
 
-struct Gain final : public AudioPlugin
+struct DatatypesTest final : public AudioPlugin
 {
 	AudioInPin pinAudioIn;
 	MidiInPin pinMidiIn;
@@ -20,7 +20,7 @@ struct Gain final : public AudioPlugin
 	StringOutPin pinStringOut;
 	BlobOutPin pinBlobOut;
 
-	Gain()
+	DatatypesTest()
 	{
 		init(pinAudioIn);
 		init(pinMidiIn);
@@ -42,7 +42,7 @@ struct Gain final : public AudioPlugin
 	ReturnCode open(IUnknown* phost) override
 	{
 		// specify which member to process audio.
-		setSubProcess(&Gain::subProcess);
+		setSubProcess(&DatatypesTest::subProcess);
 
 		return AudioPlugin::open(phost);
 	}
@@ -88,11 +88,11 @@ struct Gain final : public AudioPlugin
 
 namespace
 {
-auto r = Register<Gain>::withXml(R"XML(
+auto r = Register<DatatypesTest>::withXml(R"XML(
 <?xml version="1.0" encoding="utf-8" ?>
 
 <PluginList>
-  <Plugin id="GMPI Datatypes" name="Test Datatypes" category="GMPI/SDK Examples" vendor="Jeff McClintock" helpUrl="Gain.htm">
+  <Plugin id="GMPI Datatypes" name="Test Datatypes" category="GMPI/SDK Examples" vendor="Jeff McClintock">
     <Audio>
       <Pin name="Audio"  datatype="float" rate="audio" />
       <Pin name="MIDI"   datatype="midi"   />
