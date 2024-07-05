@@ -12,12 +12,12 @@ class AGraphicsGui final : public gmpi::PluginEditor
 public:
 	AGraphicsGui()
 	{
-		init(pinGain);
-
-		pinGain.onUpdate = [this](PinBase*)
+		pinGain.onUpdate = [this](gmpi::PinBase*)
 		{
 			drawingHost->invalidateRect(nullptr);
 		};
+
+		init(pinGain);
 	}
 
 	ReturnCode render(gmpi::drawing::api::IDeviceContext* drawingContext) override
@@ -56,6 +56,12 @@ public:
 	ReturnCode onPointerUp(Point point, int32_t flags) override
 	{
 		return inputHost->releaseCapture();
+	}
+
+	gmpi::ReturnCode OnKeyPress(wchar_t c) override
+	{
+		_RPTWN(0, L"key %c\n", c);
+		return ReturnCode::Unhandled;
 	}
 };
 
