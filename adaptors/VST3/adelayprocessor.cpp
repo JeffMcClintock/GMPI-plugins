@@ -343,7 +343,7 @@ void SeProcessor::reInitialise()
 			return;
 		}
 
-		plugin_ = pluginUnknown.As<gmpi::api::IAudioPlugin>();
+		plugin_ = pluginUnknown.As<gmpi::api::IProcessor>();
 
 		if (!plugin_)
 			return;

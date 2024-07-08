@@ -25,7 +25,7 @@ enum class VoiceAllocationHint {Keyboard, MPE};
 //namespace Vst {
 
 // to work around Steinberg Interfaces having incompatible addRef etc
-class GmpiBaseClass :public gmpi::api::IAudioPluginHost
+class GmpiBaseClass :public gmpi::api::IProcessorHost
 {
 public:
 	GMPI_REFCOUNT_NO_DELETE;
@@ -155,7 +155,7 @@ protected:
 	SeProcessor::vstNoteInfo& allocateKey(const Steinberg::Vst::NoteOnEvent& note);
 
 //TODO	SynthRuntime synthEditProject;
-	gmpi::shared_ptr<gmpi::api::IAudioPlugin> plugin_;
+	gmpi::shared_ptr<gmpi::api::IProcessor> plugin_;
 
 	EventQue<1000> events;
 
@@ -203,9 +203,9 @@ protected:
 	gmpi::ReturnCode queryInterface(const gmpi::api::Guid* iid, void** returnInterface) override
 	{
 		*returnInterface = 0;
-		if ((*iid) == gmpi::api::IAudioPluginHost::guid || (*iid) == gmpi::api::IUnknown::guid)
+		if ((*iid) == gmpi::api::IProcessorHost::guid || (*iid) == gmpi::api::IUnknown::guid)
 		{
-			*returnInterface = static_cast<gmpi::api::IAudioPluginHost*>(this); GmpiBaseClass::addRef();
+			*returnInterface = static_cast<gmpi::api::IProcessorHost*>(this); GmpiBaseClass::addRef();
 			return gmpi::ReturnCode::Ok;
 		}
 		return gmpi::ReturnCode::NoSupport;

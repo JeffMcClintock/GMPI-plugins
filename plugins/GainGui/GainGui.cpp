@@ -2,9 +2,10 @@
 #include "drawKnob.h"
 
 using namespace gmpi;
+using namespace gmpi::editor;
 using namespace gmpi::drawing;
 
-class AGraphicsGui final : public gmpi::PluginEditor
+class AGraphicsGui final : public PluginEditor
 {
 	Pin<float> pinGain;
 	Point lastMouse{};
@@ -12,7 +13,7 @@ class AGraphicsGui final : public gmpi::PluginEditor
 public:
 	AGraphicsGui()
 	{
-		pinGain.onUpdate = [this](gmpi::PinBase*)
+		pinGain.onUpdate = [this](PinBase*)
 		{
 			drawingHost->invalidateRect(nullptr);
 		};

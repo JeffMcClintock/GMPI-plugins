@@ -1,8 +1,8 @@
-#include "AudioPlugin.h"
+#include "Processor.h"
 
 using namespace gmpi;
 
-struct DatatypesTest final : public AudioPlugin
+struct DatatypesTest final : public Processor
 {
 	AudioInPin pinAudioIn;
 	MidiInPin pinMidiIn;
@@ -44,7 +44,7 @@ struct DatatypesTest final : public AudioPlugin
 		// specify which member to process audio.
 		setSubProcess(&DatatypesTest::subProcess);
 
-		return AudioPlugin::open(phost);
+		return Processor::open(phost);
 	}
 
 	void subProcess(int sampleFrames)

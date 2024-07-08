@@ -1,8 +1,8 @@
-#include "AudioPlugin.h"
+#include "Processor.h"
 
 using namespace gmpi;
 
-struct Gain final : public AudioPlugin
+struct Gain final : public Processor
 {
 	AudioInPin pinInput;
 	AudioOutPin pinOutput;
@@ -20,7 +20,7 @@ struct Gain final : public AudioPlugin
 		// specify which member to process audio.
 		setSubProcess(&Gain::subProcess);
 
-		return AudioPlugin::open(host);
+		return Processor::open(host);
 	}
 
 	void subProcess(int sampleFrames)

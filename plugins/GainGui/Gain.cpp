@@ -1,8 +1,8 @@
-#include "AudioPlugin.h"
+#include "Processor.h"
 
 using namespace gmpi;
 
-struct GainGui final : public AudioPlugin
+struct GainGui final : public Processor
 {
 	static constexpr size_t numChannels = 2;
 
@@ -25,7 +25,7 @@ struct GainGui final : public AudioPlugin
 		// specify which member to process audio.
 		setSubProcess(&GainGui::subProcess);
 
-		return AudioPlugin::open(phost);
+		return Processor::open(phost);
 	}
 
 	void subProcess(int sampleFrames)
