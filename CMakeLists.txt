@@ -3,15 +3,14 @@ cmake_minimum_required(VERSION 3.15)
 set(SE_LOCAL_BUILD FALSE CACHE BOOL "Execute extra build steps for developers machine")
 set(GMPI_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI repo, or blank to fetch it automatically.")
 set(GMPI_UI_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI UI repo, or blank to fetch it automatically.")
+set(GMPI_WRAPPER_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI WRAPPERs repo, or blank to fetch it automatically.")
 set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
 
 include(FetchContent)
 
 # GMPI SDK
 if("${GMPI_SDK_FOLDER_OVERRIDE}" STREQUAL "")
-
 message(STATUS "Fetching GMPI from github")
-
 #note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
 FetchContent_Declare(
   gmpi
@@ -19,23 +18,16 @@ FetchContent_Declare(
   GIT_TAG origin/main
   SOURCE_SUBDIR Core
 )
-
 FetchContent_MakeAvailable(gmpi)
-
 set(gmpi_sdk_folder ${gmpi_SOURCE_DIR})
-
 else()
-
 message(STATUS "Using local GMPI folder")
 set(gmpi_sdk_folder ${GMPI_SDK_FOLDER_OVERRIDE})
-
 endif()
 
 # GMPI-UI SDK
 if("${GMPI_UI_FOLDER_OVERRIDE}" STREQUAL "")
-
 message(STATUS "Fetching GMPI-UI from github")
-
 #note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
 FetchContent_Declare(
   gmpi_ui
@@ -43,16 +35,28 @@ FetchContent_Declare(
   GIT_TAG origin/main
   SOURCE_SUBDIR helpers
 )
-
 FetchContent_MakeAvailable(gmpi_ui)
-
 set(gmpi_ui_folder ${gmpi_ui_SOURCE_DIR})
-
 else()
-
 message(STATUS "Using local GMPI-UI folder")
 set(gmpi_ui_folder ${GMPI_UI_FOLDER_OVERRIDE})
+endif()
 
+# GMPI WRAPPERS
+if("${GMPI_WRAPPER_FOLDER_OVERRIDE}" STREQUAL "")
+message(STATUS "Fetching GMPI WRAPPERS from github")
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
+FetchContent_Declare(
+  gmpi
+  GIT_REPOSITORY https://github.com/JeffMcClintock/GMPI_Wrappers
+  GIT_TAG origin/main
+  SOURCE_SUBDIR Core
+)
+FetchContent_MakeAvailable(gmpi)
+set(gmpi_wrappers_folder ${gmpi_SOURCE_DIR})
+else()
+message(STATUS "Using local GMPI WRAPPERS folder")
+set(gmpi_wrappers_folder ${GMPI_WRAPPER_FOLDER_OVERRIDE})
 endif()
 
 # GET VST3 SDK
