@@ -58,12 +58,6 @@ public:
 	{
 		return inputHost->releaseCapture();
 	}
-
-	gmpi::ReturnCode OnKeyPress(wchar_t c) override
-	{
-		_RPTWN(0, L"key %c\n", c);
-		return ReturnCode::Unhandled;
-	}
 };
 
 namespace

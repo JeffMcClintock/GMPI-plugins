@@ -22,7 +22,7 @@ SMTG_EXPORT_SYMBOL bool bundleExit (void)
 }
 #endif
 
-// need to export the factory symbol from the plugin DLL, the static library can't export symbols on mac.
+// need to export the factory symbol from the main plugin DLL, because the VST3_Wrapper static library can't export symbols on mac.
 SMTG_EXPORT_SYMBOL Steinberg::IPluginFactory* PLUGIN_API GetPluginFactory()
 {
 	return MyVstPluginFactory::GetInstance();
