@@ -53,10 +53,10 @@ FetchContent_Declare(
   SOURCE_SUBDIR Core
 )
 FetchContent_MakeAvailable(gmpi)
-set(gmpi_wrappers_folder ${gmpi_SOURCE_DIR})
+set(GMPI_ADAPTORS ${gmpi_SOURCE_DIR})
 else()
 message(STATUS "Using local GMPI WRAPPERS folder")
-set(gmpi_wrappers_folder ${GMPI_WRAPPER_FOLDER_OVERRIDE})
+set(GMPI_ADAPTORS ${GMPI_WRAPPER_FOLDER_OVERRIDE})
 endif()
 
 # GET VST3 SDK
@@ -76,8 +76,6 @@ message(STATUS "Using local VST3 folder")
 set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
 endif()
 message(STATUS "VST3_SDK: ${VST3_SDK}")
-
-set(GMPI_ADAPTORS ${CMAKE_CURRENT_SOURCE_DIR}/adaptors)
 
 ##################################################################################
 
@@ -102,7 +100,7 @@ include(${gmpi_sdk_folder}/gmpi_plugin.cmake)
 
 add_subdirectory(plugins)
 add_subdirectory(plugins_c)
-add_subdirectory(adaptors)
+add_subdirectory(${GMPI_ADAPTORS} adaptors)
 
 
 # VST3 SDK base libraries
