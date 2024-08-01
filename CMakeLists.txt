@@ -47,13 +47,13 @@ if("${GMPI_WRAPPER_FOLDER_OVERRIDE}" STREQUAL "")
 message(STATUS "Fetching GMPI WRAPPERS from github")
 #note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
 FetchContent_Declare(
-  gmpi
+  gmpi_wrappers
   GIT_REPOSITORY https://github.com/JeffMcClintock/GMPI_Wrappers
   GIT_TAG origin/main
   SOURCE_SUBDIR Core
 )
-FetchContent_MakeAvailable(gmpi)
-set(GMPI_ADAPTORS ${gmpi_SOURCE_DIR})
+FetchContent_MakeAvailable(gmpi_wrappers)
+set(GMPI_ADAPTORS ${gmpi_wrappers_SOURCE_DIR})
 else()
 message(STATUS "Using local GMPI WRAPPERS folder")
 set(GMPI_ADAPTORS ${GMPI_WRAPPER_FOLDER_OVERRIDE})
@@ -99,13 +99,5 @@ include(${gmpi_sdk_folder}/gmpi_plugin.cmake)
 
 add_subdirectory(plugins)
 add_subdirectory(plugins_c)
-add_subdirectory(${GMPI_ADAPTORS} adaptors)
-
-
-# VST3 SDK base libraries
-#list(APPEND CMAKE_MODULE_PATH "${VST3_SDK}/cmake/modules")
-#include(SMTG_VST3_SDK)
-#set(VST_SDK TRUE) # used for Base module which provides only a subset of Base for VST-SDK
-#add_subdirectory(${VST3_SDK}/pluginterfaces ${CMAKE_CURRENT_BINARY_DIR}/pluginterfaces)
-#add_subdirectory(${VST3_SDK}/base           ${CMAKE_CURRENT_BINARY_DIR}/base)
+add_subdirectory(${GMPI_ADAPTORS} GMPI_Wrappers)
 
