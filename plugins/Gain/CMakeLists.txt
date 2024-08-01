@@ -4,7 +4,8 @@ project(Gain)
 
 gmpi_plugin(
     PROJECT_NAME ${PROJECT_NAME}
-    HAS_DSP BUILD_VST3_WRAPPER
+    HAS_DSP
+    FORMATS_LIST GMPI VST3
     SOURCE_FILES 
         ${PROJECT_NAME}.cpp
  )
