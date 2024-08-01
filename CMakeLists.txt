@@ -95,6 +95,10 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast /GS-")
 endif()
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math")
+endif()
+
 include(${gmpi_sdk_folder}/gmpi_plugin.cmake)
 
 add_subdirectory(plugins)
