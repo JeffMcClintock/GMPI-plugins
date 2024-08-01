@@ -13,12 +13,12 @@ class AGraphicsGui final : public PluginEditor
 public:
 	AGraphicsGui()
 	{
+		init(pinGain);
+
 		pinGain.onUpdate = [this](PinBase*)
 		{
 			drawingHost->invalidateRect(nullptr);
 		};
-
-		init(pinGain);
 	}
 
 	ReturnCode render(gmpi::drawing::api::IDeviceContext* drawingContext) override
