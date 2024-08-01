@@ -54,4 +54,4 @@ jobs:
           name: ${{ matrix.name}}_Plugins
           path: |
             **/*.gmpi
-            **/*.vst3/
+            **/*.vst3
