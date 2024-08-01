@@ -6,5 +6,5 @@ include_directories(
     )
 
 add_subdirectory(Gain)
-add_subdirectory(TestDatatypes)
 add_subdirectory(GainGui)
+add_subdirectory(TestDatatypes)

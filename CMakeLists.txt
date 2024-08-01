@@ -75,7 +75,6 @@ else()
 message(STATUS "Using local VST3 folder")
 set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
 endif()
-message(STATUS "VST3_SDK: ${VST3_SDK}")
 
 ##################################################################################
 
