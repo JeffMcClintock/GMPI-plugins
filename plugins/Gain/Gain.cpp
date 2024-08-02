@@ -17,7 +17,7 @@ struct Gain final : public Processor
 
 	ReturnCode open(IUnknown* host) override
 	{
-		// specify which member to process audio.
+		// specify the member function to process audio.
 		setSubProcess(&Gain::subProcess);
 
 		return Processor::open(host);
