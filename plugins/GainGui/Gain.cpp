@@ -2,7 +2,7 @@
 
 using namespace gmpi;
 
-struct GainGui final : public Processor
+struct Gain final : public Processor
 {
 	static constexpr size_t numChannels = 2;
 
@@ -11,7 +11,7 @@ struct GainGui final : public Processor
 
 	FloatInPin pinGain;
 
-	GainGui()
+	Gain()
 	{
 		init(pinInputs[0]);
 		init(pinInputs[1]);
@@ -23,7 +23,7 @@ struct GainGui final : public Processor
 	ReturnCode open(IUnknown* phost) override
 	{
 		// specify which member to process audio.
-		setSubProcess(&GainGui::subProcess);
+		setSubProcess(&Gain::subProcess);
 
 		return Processor::open(phost);
 	}
@@ -51,7 +51,7 @@ struct GainGui final : public Processor
 // Describe the plugin and register it with the framework.
 namespace
 {
-auto r = Register<GainGui>::withXml(R"XML(
+auto r = Register<Gain>::withXml(R"XML(
 <?xml version="1.0" encoding="utf-8" ?>
 
 <PluginList>
