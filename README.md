@@ -7,8 +7,9 @@ To clone and create the project, open a command prompt and proceed as follows:
 
 ```sh
 git clone https://github.com/JeffMcClintock/GMPI-plugins
+cd GMPI-Plugins
 mkdir build
 cd build
-cmake ../GMPI-Plugins
+cmake ..
 cmake --build .
 ```
