@@ -48,7 +48,7 @@ struct GainGui final : public Processor
 	}
 };
 
-// Describe the plugin, and register it with the framework.
+// Describe the plugin and register it with the framework.
 namespace
 {
 auto r = Register<GainGui>::withXml(R"XML(
