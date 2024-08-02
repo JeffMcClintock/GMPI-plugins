@@ -81,6 +81,7 @@ int32_t CGain_Setbuffer(GMPI_IAudioPlugin* ths, int32_t pin, float* buffer)
 		plugin->out2 = buffer;
 		break;
 	}
+
 	return GMPI_RETURN_CODE_OK;
 }
 
