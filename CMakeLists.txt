@@ -78,11 +78,6 @@ message(STATUS "Using local VST3 folder")
 set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
 endif()
 
-# plugins that want to link to the VST3 SDK need to be able to include files from the VST3 SDK
-include_directories(
-${VST3_SDK}
-)
-
 ##################################################################################
 
 project(GMPI_Samples)
