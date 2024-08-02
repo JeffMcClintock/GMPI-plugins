@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for MacOS" FORCE)
 set(SE_LOCAL_BUILD FALSE CACHE BOOL "Execute extra build steps for developers machine")
 set(GMPI_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI repo, or blank to fetch it automatically.")
 set(GMPI_UI_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI UI repo, or blank to fetch it automatically.")
