@@ -5,13 +5,13 @@ using namespace gmpi;
 using namespace gmpi::editor;
 using namespace gmpi::drawing;
 
-class AGraphicsGui final : public PluginEditor
+class GainGui final : public PluginEditor
 {
 	Pin<float> pinGain;
 	Point lastMouse{};
 
 public:
-	AGraphicsGui()
+	GainGui()
 	{
 		init(pinGain);
 
@@ -62,5 +62,5 @@ public:
 
 namespace
 {
-	auto r = Register<AGraphicsGui>::withId("GMPI: GainGui");
+	auto r = Register<GainGui>::withId("GMPI: GainGui");
 }
