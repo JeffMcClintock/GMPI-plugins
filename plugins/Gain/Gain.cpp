@@ -8,12 +8,9 @@ struct Gain final : public Processor
 	AudioOutPin pinOutput;
 	FloatInPin pinGain;
 
-	ReturnCode open(IUnknown* host) override
+	Gain()
 	{
-		// specify the member function to process audio.
-		setSubProcess(&Gain::subProcess);
-
-		return Processor::open(host);
+		setSubProcess(&Gain::subProcess); // specify the member function to process audio.
 	}
 
 	void subProcess(int sampleFrames)

@@ -11,19 +11,16 @@ struct Gain final : public Processor
 
 	FloatInPin pinGain;
 
-	ReturnCode open(IUnknown* phost) override
+	Gain()
 	{
-		// specify which member to process audio.
-		setSubProcess(&Gain::subProcess);
-
-		return Processor::open(phost);
+		setSubProcess(&Gain::subProcess); // specify the member function to process audio.
 	}
 
 	void subProcess(int sampleFrames)
 	{
 		// get pointers to in/output buffers.
-		const float* in[numChannels]{ getBuffer(pinInputs[0]),  getBuffer(pinInputs[1]) };
-		float*      out[numChannels]{ getBuffer(pinOutputs[0]), getBuffer(pinOutputs[1])};
+		const float* in[]{ getBuffer(pinInputs[0]),  getBuffer(pinInputs[1]) };
+		float*      out[]{ getBuffer(pinOutputs[0]), getBuffer(pinOutputs[1])};
 
 		// get parameter value.
 		const float gain = pinGain;
