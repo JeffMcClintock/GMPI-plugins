@@ -13,8 +13,6 @@ class GainGui final : public PluginEditor
 public:
 	GainGui()
 	{
-		init(pinGain);
-
 		pinGain.onUpdate = [this](PinBase*)
 		{
 			drawingHost->invalidateRect(nullptr);

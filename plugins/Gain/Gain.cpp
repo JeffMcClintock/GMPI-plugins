@@ -8,13 +8,6 @@ struct Gain final : public Processor
 	AudioOutPin pinOutput;
 	FloatInPin pinGain;
 
-	Gain()
-	{
-		init(pinInput);
-		init(pinOutput);
-		init(pinGain);
-	}
-
 	ReturnCode open(IUnknown* host) override
 	{
 		// specify the member function to process audio.
