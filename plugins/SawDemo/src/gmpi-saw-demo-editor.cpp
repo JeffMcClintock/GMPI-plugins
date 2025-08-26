@@ -45,6 +45,8 @@ class SawDemoGui final : public PluginEditor
     Pin<float> resonance;
     Pin<float> filterMode;
 
+    Pin<int32_t> polyCount;
+
     // host information
     Pin<float> bpm;
     Pin<float> qnp;
@@ -155,8 +157,8 @@ class SawDemoGui final : public PluginEditor
         std::string headerText =
             "tempo=" + std::to_string(bpm.value) +
             " ts=" + std::to_string(numerator.value) + "/" + std::to_string(denominator.value) +
-            " songpos=" + std::to_string(qnp.value);
-//            " poly=" + std::to_string(unisonCount.value);
+            " songpos=" + std::to_string(qnp.value) +
+            "\npoly=" + std::to_string(polyCount.value);
         g.drawTextU(headerText, smallFont, headerRect, brush);
 
         // footer text
@@ -226,5 +228,5 @@ class SawDemoGui final : public PluginEditor
 
 namespace
 {
-auto r = Register<SawDemoGui>::withId("GMPI: SawDemo");
+auto r = Register<SawDemoGui>::withId("GMPI: GmpiSawDemo");
 }

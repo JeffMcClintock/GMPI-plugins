@@ -7,16 +7,40 @@
  * Released under the MIT License. See LICENSE.md for full text.
  */
 
-#include <array>
+#ifndef CLAP_SAW_DEMO_H
+#define CLAP_SAW_DEMO_H
+/*
+ * GmpiSawDemo is the core synthesizer class. It uses the GMPI C++ projection
+ * to present the GMPI C API as a C++ object model.
+ *
+ * The core features here are
+ *
+ * - Hold the plugin description
+ * - Advertise parameters and ports
+ * - Provide an event handler which responds to events and returns sound
+ * - Do voice management. Which is really not very sophisticated (it's just an array of 64
+ *   voice objects and we choose the next free one, and if you ask for a 65th voice, nothing
+ *   happens).
+ * - UI creation is handled by a separate editor object,
+ *   coded in gmpi-saw-demo-editor
+ *
+ * This demo is coded to be relatively familiar and close to programming styles from other
+ * formats where the editor and synth collaborate without undue dependancies; as described in gmpi-saw-demo-editor
+ * the editor and synth communicate via the parameters; and the editor code is
+ * cleanly separated from the Processor code.
+ */
 #include "Processor.h"
+#include <array>
 #include "saw-voice.h"
 
-struct SawDemo final : public gmpi::Processor
+namespace sst::clap_saw_demo
+{
+struct GmpiSawDemo final : public gmpi::Processor
 {
     static constexpr int max_voices = 64;
 
-    SawDemo() = default;
-    ~SawDemo() override = default;
+    GmpiSawDemo() = default;
+    ~GmpiSawDemo() override = default;
 
     /*
      * open() makes sure sampleRate is distributed through
@@ -31,7 +55,7 @@ struct SawDemo final : public gmpi::Processor
             v.sampleRate = host->getSampleRate();
 
         // specify the member function to process audio.
-        setSubProcess(&SawDemo::subProcess);
+        setSubProcess(&GmpiSawDemo::subProcess);
 
         return r;
     }
@@ -47,19 +71,22 @@ struct SawDemo final : public gmpi::Processor
      * comments in the cpp file to understand it and the helper functions we have
      * delegated to.
      */
-    void subProcess(int frames_count);
+     
+    // Convert 0-1 linear into 0-4s exponential
+    float scaleTimeParamToSeconds(float param);
 
+    void subProcess(int frames_count);
+    void onSetPins() override; // handle inbound parameter events
+    void onMidiMessage(int pin, const uint8_t *midiMessage, int size) override; // handle MIDI events
     void pushParamsToVoices();
     void handleNoteOn(int port_index, int channel, int key, int noteid);
     void handleNoteOff(int port_index, int channel, int key);
-    void activateVoice(sst::clap_saw_demo::SawDemoVoice &v, int port_index, int channel, int key, int noteid);
+    void activateVoice(SawDemoVoice &v, int port_index, int channel, int key, int noteid);
     /*
      * CLAP plugins should implement ::paramsFlush. to update the UI when processing isn't active.
      * GMPI dosen't require this. Parameter updates are communicated to the UI regardless of if the processor is sleeping or not.
      */
 
-    void onMidiMessage(int pin, const uint8_t *midiMessage, int size) override;
-    void onSetPins() override;
 
     // I/O Pins
     gmpi::MidiInPin pinMIDI;
@@ -80,7 +107,11 @@ struct SawDemo final : public gmpi::Processor
     gmpi::FloatInPin cutoff;
     gmpi::FloatInPin resonance;
     gmpi::IntInPin filterMode;
+    gmpi::IntOutPin polyCount;
 
     // "Voice Management" is "randomly pick a voice to kill and put it in stolen voices"
-    std::array<sst::clap_saw_demo::SawDemoVoice, max_voices> voices;
+    std::array<SawDemoVoice, max_voices> voices;
 };
+} // namespace sst::clap_saw_demo
+
+#endif
