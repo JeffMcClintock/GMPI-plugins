@@ -1,18 +1,3 @@
-/* Copyright (c) 2007-2025 SynthEdit Ltd
-
-Permission to use, copy, modify, and /or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS.IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
-
 #include <algorithm>
 #include "GmpiMidi.h"
 #include "SawDemo.h"
@@ -147,7 +132,6 @@ void SawDemo::pushParamsToVoices()
 
 void SawDemo::activateVoice(SawDemoVoice &v, int port_index, int channel, int key, int noteid)
 {
-    // !!!TODO Normalised values to real
     v.unison = std::max(1, std::min(7, (int)unisonCount));
     v.filterMode = filterMode;
     v.note_id = noteid;
@@ -198,7 +182,7 @@ void SawDemo::handleNoteOn(int port_index, int channel, int key, int noteid)
         // to the voice I guess. This is just a demo synth though.
         auto idx = rand() % max_voices;
         auto &v = voices[idx];
-        //            terminatedVoices.emplace_back(v.portid, v.channel, v.key, v.note_id);
+
         activateVoice(v, port_index, channel, key, noteid);
     }
 }
