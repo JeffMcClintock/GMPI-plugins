@@ -98,9 +98,17 @@ class SawDemoGui final : public PluginEditor
             }
         }
 
+        // redraw when any parameter changes.
         for (auto &knob : knobs)
         {
             knob.pin.onUpdate = [this](PinBase *) { drawingHost->invalidateRect(nullptr); };
+        }
+
+        // redraw when any time info changes.
+        PinBase* timePins[] = {&bpm, &qnp, &numerator, &denominator, &bypass};
+        for (PinBase *pin : timePins)
+        {
+            pin->onUpdate = [this](PinBase *) { drawingHost->invalidateRect(nullptr); };
         }
     }
 
