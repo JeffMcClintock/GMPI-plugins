@@ -107,7 +107,7 @@ class SawDemoGui final : public PluginEditor
         }
 
         // redraw when any time info changes.
-        PinBase* timePins[] = {&bpm, &qnp, &numerator, &denominator, &bypass};
+        PinBase *timePins[] = {&bpm, &qnp, &numerator, &denominator, &bypass, &polyCount};
         for (PinBase *pin : timePins)
         {
             pin->onUpdate = [this](PinBase *) { drawingHost->invalidateRect(nullptr); };
@@ -127,7 +127,7 @@ class SawDemoGui final : public PluginEditor
 
         ClipDrawingToBounds _(g, bounds);
 
-        auto font = g.getFactory().createTextFormat(24.0f);
+        auto font = g.getFactory().createTextFormat(20.0f);
         font.setTextAlignment(TextAlignment::Center);
 
         auto smallFont = g.getFactory().createTextFormat(12.0f);
@@ -153,17 +153,21 @@ class SawDemoGui final : public PluginEditor
         brush.setColor(Colors::White);
         g.drawTextU("GMPI Saw Synth Demo", font, headerRect, brush);
 
-        headerRect.top += 12.0f;
+        headerRect.top += 15.0f;
+
+        char bpm_str[64];
+        std::snprintf(bpm_str, sizeof(bpm_str), "%.*g", 4, bpm.value);
+
         std::string headerText =
-            "tempo=" + std::to_string(bpm.value) +
-            " ts=" + std::to_string(numerator.value) + "/" + std::to_string(denominator.value) +
+            "tempo=" + std::string(bpm_str) + //std::to_string(bpm.value) +
+            " ts=" + std::to_string(static_cast<int>(numerator.value)) + "/" + std::to_string(static_cast<int>(denominator.value)) +
             " songpos=" + std::to_string(qnp.value) +
             "\npoly=" + std::to_string(polyCount.value);
         g.drawTextU(headerText, smallFont, headerRect, brush);
 
         // footer text
         auto footerRect = bounds;
-        footerRect.top = footerRect.bottom - 50;
+        footerRect.top = footerRect.bottom - 57;
         g.drawTextU(
             "https://github.com/JeffMcClintock/GMPI-plugins\n\n"
                     "MIT License; GMPI 2.0"

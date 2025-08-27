@@ -67,6 +67,7 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
             <Pin parameterId="8" />
             <Pin parameterId="9" />
             <Pin parameterId="10" direction="out" />
+			<Pin name="BYPASS" datatype="bool" hostConnect="Processor/DawBypass" />
         </Audio>
 
         <GUI>
@@ -86,11 +87,11 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
             <Pin parameterId="10" />
 
             <!-- Here are the additional information provided by the DAW, tempo etc -->
-			<Pin name = "Host BPM" datatype = "float" hostConnect = "Time/BPM" />
-			<Pin name = "Host SP" datatype = "float" hostConnect = "Time/SongPosition" />
-			<Pin name = "Numerator" datatype = "int" hostConnect = "Time/Timesignature/Numerator" />
-			<Pin name = "Denominator" datatype = "int" hostConnect = "Time/Timesignature/Denominator" />
-			<Pin name = "BYPASS" datatype = "bool" />
+			<Pin name="Host BPM" datatype="float" hostConnect="Time/BPM" />
+			<Pin name="Host SP" datatype="float" hostConnect="Time/SongPosition" />
+			<Pin name="Numerator" datatype="int" hostConnect="Time/Timesignature/Numerator" />
+			<Pin name="Denominator" datatype="int" hostConnect="Time/Timesignature/Denominator" />
+			<Pin name="BYPASS" datatype="bool" hostConnect="Processor/DawBypass" />
         </GUI>
     </Plugin>
 </PluginList>
@@ -102,7 +103,7 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
  * generates audio if appropriate, writes outbound events, and informs the host
  * to continue operating.
  *
- * In the ClapSawDemo, the gmpi::Processor process loop has 3 basic stages
+ * In the SawDemo, the gmpi::Processor process loop has 3 basic stages
  *
  * 1. See if the UI has sent us any events on the thread-safe UI Queue
  *    , and apply them to my internal state by calling the onSetPins() member function.
@@ -199,13 +200,16 @@ void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
     {
     case gmpi::midi_2_0::NoteOn:
     {
-        const auto note = gmpi::midi_2_0::decodeNote(msg);
-        handleNoteOn(0, header.channel, note.noteNumber, -1);
+        if (!isBypassed)
+        {
+            const auto note = gmpi::midi_2_0::decodeNote(msg);
+            handleNoteOn(0, header.channel, note.noteNumber, -1);
 
-        polyCount = polyCount + 1;
+            polyCount = polyCount + 1;
 
-        pinLeft.setStreaming(true);
-        pinRight.setStreaming(true);
+            pinLeft.setStreaming(true);
+            pinRight.setStreaming(true);
+        }
     }
     break;
 

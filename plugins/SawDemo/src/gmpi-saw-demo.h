@@ -108,6 +108,7 @@ struct GmpiSawDemo final : public gmpi::Processor
     gmpi::FloatInPin resonance;
     gmpi::IntInPin filterMode;
     gmpi::IntOutPin polyCount;
+    gmpi::BoolInPin isBypassed;
 
     // "Voice Management" is "randomly pick a voice to kill and put it in stolen voices"
     std::array<SawDemoVoice, max_voices> voices;
