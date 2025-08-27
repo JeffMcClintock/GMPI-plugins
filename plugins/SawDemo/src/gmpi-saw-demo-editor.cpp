@@ -1,4 +1,4 @@
-/* Copyright (c) 2007-2025 SynthEdit Ltd
+/* Copyright (c) 2007-2025 Jeff McClintock
 
 Permission to use, copy, modify, and /or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -182,6 +182,26 @@ class SawDemoGui final : public PluginEditor
 
         // main outline
         g.drawRectangle(bounds, brush);
+
+        // lines that change thickness depending on poly count
+        {
+            const auto left = knobs[2].rect.right + 10;
+            const auto top = knobs[2].rect.top + 20;
+            const auto right = (knobs[3].rect.left + knobs[3].rect.right)/2;
+            const auto bot = knobs[3].rect.top - 10;
+            Point linePoints[] = {{left, top}, {right, top}, {right, bot}};
+
+            g.drawLines(linePoints, std::size(linePoints), brush, 2 + polyCount.value / 5.0);
+        }
+        {
+            const auto left = knobs[8].rect.right + 10;
+            const auto top = 30 + (knobs[8].rect.top + knobs[8].rect.bottom) / 2;
+            const auto right = (knobs[3].rect.left + knobs[3].rect.right) / 2;
+            const auto bot = knobs[3].rect.bottom + 30;
+            Point linePoints[] = {{left, top}, {right, top}, {right, bot}};
+
+            g.drawLines(linePoints, std::size(linePoints), brush, 2 + polyCount.value / 5.0);
+        }
 
         // bypass indicator
         brush.setColor(bypass.value ? gmpi::drawing::Colors::Red : gmpi::drawing::Colors::Green);
