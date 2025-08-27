@@ -7,6 +7,7 @@ set(GMPI_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI repo, or blank 
 set(GMPI_UI_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI UI repo, or blank to fetch it automatically.")
 set(GMPI_WRAPPER_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI WRAPPERs repo, or blank to fetch it automatically.")
 set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
+set(AU2_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local Audio Unit SDK repo, or blank to fetch it automatically.")
 
 include(FetchContent)
 
@@ -64,7 +65,7 @@ endif()
 # GET VST3 SDK
 if("${VST3_SDK_FOLDER_OVERRIDE}" STREQUAL "")
 message(STATUS "Fetching VST3 from github")
-#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate projects for the GMPI examples)
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate example projects)
 FetchContent_Declare(
   vst3
   GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk
@@ -77,6 +78,25 @@ else()
 message(STATUS "Using local VST3 folder")
 set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
 endif()
+
+# GET AU2 SDK
+if(APPLE)
+if("${AU2_SDK_FOLDER_OVERRIDE}" STREQUAL "")
+message(STATUS "Fetching VST3 from github")
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate example projects)
+FetchContent_Declare(
+  au2
+  GIT_REPOSITORY https://github.com/apple/AudioUnitSDK
+  GIT_TAG origin/master
+  SOURCE_SUBDIR hooks
+)
+FetchContent_MakeAvailable(au2)
+set(AU_SDK ${au2_SOURCE_DIR})
+else()
+message(STATUS "Using local VST3 folder")
+set(AU_SDK ${AU2_SDK_FOLDER_OVERRIDE})
+endif()
+endif() // APPLE
 
 ##################################################################################
 
