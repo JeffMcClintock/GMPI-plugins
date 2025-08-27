@@ -6,7 +6,7 @@ gmpi_plugin(
 	PROJECT_NAME ${PROJECT_NAME}
 	HAS_DSP
 	HAS_GUI
- FORMATS_LIST GMPI VST3
+ FORMATS_LIST GMPI VST3 AU
 	SOURCE_FILES
 	  src/gmpi-saw-demo.h
 	  src/gmpi-saw-demo.cpp
