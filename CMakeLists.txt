@@ -82,21 +82,23 @@ endif()
 # GET AU2 SDK
 if(APPLE)
 if("${AU2_SDK_FOLDER_OVERRIDE}" STREQUAL "")
-message(STATUS "Fetching VST3 from github")
+message(STATUS "Fetching AudioUnit SDK from github")
 #note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate example projects)
 FetchContent_Declare(
   au2
   GIT_REPOSITORY https://github.com/apple/AudioUnitSDK
-  GIT_TAG origin/master
+  GIT_TAG origin/main
   SOURCE_SUBDIR hooks
 )
 FetchContent_MakeAvailable(au2)
 set(AU_SDK ${au2_SOURCE_DIR})
+set(AU_SDK_SRC ${au2_SOURCE_DIR}/src)
+set(AU_SDK_H ${au2_SOURCE_DIR}/include)
 else()
 message(STATUS "Using local VST3 folder")
 set(AU_SDK ${AU2_SDK_FOLDER_OVERRIDE})
 endif()
-endif() // APPLE
+endif() # APPLE
 
 ##################################################################################
 
