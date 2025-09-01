@@ -203,7 +203,7 @@ void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
         if (!isBypassed)
         {
             const auto note = gmpi::midi_2_0::decodeNote(msg);
-            handleNoteOn(0, header.channel, note.noteNumber, -1);
+            handleNoteOn(header.group, header.channel, note.noteNumber, -1);
 
             polyCount = polyCount + 1;
 
@@ -216,9 +216,77 @@ void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
     case gmpi::midi_2_0::NoteOff:
     {
         const auto note = gmpi::midi_2_0::decodeNote(msg);
-        handleNoteOff(0, header.channel, note.noteNumber);
+        handleNoteOff(header.group, header.channel, note.noteNumber);
 
         polyCount = polyCount - 1;
+    }
+    break;
+
+    case gmpi::midi_2_0::PitchBend:
+    {
+        const auto normalized = gmpi::midi_2_0::decodeController(msg).value;
+        const auto pitchBend = (normalized - 0.5f) * 2.0f;
+
+        for (auto& v : voices)
+        {
+            v.pitchBendWheel = pitchBend * 2; // just hardcode a pitch bend depth of 2
+            v.recalcPitch();
+        }
+    }
+
+	// Note-expression and Polyphonic modulation via per-note-controller messages.
+
+    // Aftertouch to Filter resonance
+    case gmpi::midi_2_0::PolyAfterTouch:
+    {
+        const auto aftertouch = gmpi::midi_2_0::decodePolyController(msg);
+
+        if (auto v = getVoice(header.group, header.channel, aftertouch.noteNumber); v)
+        {
+            v->resMod = aftertouch.value;
+            v->recalcFilter();
+        }
+    }
+    break;
+
+    case gmpi::midi_2_0::PolyControlChange:
+    {
+        const auto polyController = gmpi::midi_2_0::decodePolyController(msg);
+
+        // Polyphonic pitch modulation
+        if (polyController.type == gmpi::midi_2_0::PolyPitch)
+        {
+            const auto semitones = gmpi::midi_2_0::decodeNotePitch(msg);
+
+            if (auto v = getVoice(header.group, header.channel, polyController.noteNumber); v)
+            {
+                v->pitchNoteExpressionValue = semitones;
+                v->recalcPitch();
+            }
+        }
+        else
+        {
+            // Volume modulation
+            switch (polyController.type)
+            {
+            case gmpi::midi_2_0::PolyVolume:
+                if (auto v = getVoice(header.group, header.channel, polyController.noteNumber); v)
+                {
+                    v->volumeNoteExpressionValue = polyController.value - 1.0;
+                }
+                break;
+
+            // Brightness to Filter cutoff
+            case gmpi::midi_2_0::PolySoundController5:
+
+                if (auto v = getVoice(header.group, header.channel, polyController.noteNumber); v)
+                {
+                    v->cutoffMod = polyController.value;
+                    v->recalcFilter();
+                }
+                break;
+            }
+        }
     }
     break;
     }
@@ -290,6 +358,18 @@ void GmpiSawDemo::activateVoice(SawDemoVoice &v, int port_index, int channel, in
     v.pitchNoteExpressionValue = 0;
 
     v.start(key);
+}
+
+SawDemoVoice* GmpiSawDemo::getVoice(int port_index, int channel, int key)
+{
+    for (auto& v : voices)
+    {
+        if (v.isPlaying() && v.key == key && v.portid == port_index && v.channel == channel)
+        {
+            return &v;
+        }
+    }
+    return {};
 }
 
 void GmpiSawDemo::pushParamsToVoices()

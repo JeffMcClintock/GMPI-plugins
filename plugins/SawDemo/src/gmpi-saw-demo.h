@@ -82,11 +82,12 @@ struct GmpiSawDemo final : public gmpi::Processor
     void handleNoteOn(int port_index, int channel, int key, int noteid);
     void handleNoteOff(int port_index, int channel, int key);
     void activateVoice(SawDemoVoice &v, int port_index, int channel, int key, int noteid);
+    SawDemoVoice* getVoice(int port_index, int channel, int key);
+
     /*
      * CLAP plugins should implement ::paramsFlush. to update the UI when processing isn't active.
      * GMPI dosen't require this. Parameter updates are communicated to the UI regardless of if the processor is sleeping or not.
      */
-
 
     // I/O Pins
     gmpi::MidiInPin pinMIDI;
