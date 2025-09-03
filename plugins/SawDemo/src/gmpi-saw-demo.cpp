@@ -235,14 +235,13 @@ void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
     }
 
 	// Note-expression and Polyphonic modulation via per-note-controller messages.
-
-    // Aftertouch to Filter resonance
     case gmpi::midi_2_0::PolyAfterTouch:
     {
         const auto aftertouch = gmpi::midi_2_0::decodePolyController(msg);
 
         if (auto v = getVoice(header.group, header.channel, aftertouch.noteNumber); v)
         {
+            // Aftertouch to Filter resonance
             v->resMod = aftertouch.value;
             v->recalcFilter();
         }
@@ -252,38 +251,32 @@ void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
     case gmpi::midi_2_0::PolyControlChange:
     {
         const auto polyController = gmpi::midi_2_0::decodePolyController(msg);
+        auto v = getVoice(header.group, header.channel, polyController.noteNumber);
 
-        // Polyphonic pitch modulation
+        if(!v)
+			break;
+
         if (polyController.type == gmpi::midi_2_0::PolyPitch)
         {
+            // Polyphonic pitch modulation
             const auto semitones = gmpi::midi_2_0::decodeNotePitch(msg);
-
-            if (auto v = getVoice(header.group, header.channel, polyController.noteNumber); v)
-            {
-                v->pitchNoteExpressionValue = semitones;
-                v->recalcPitch();
-            }
+            v->pitchNoteExpressionValue = semitones;
+			_RPTN(0, "NoteExpression pitch %d %f\n", polyController.noteNumber, semitones);
+            v->recalcPitch();
         }
         else
         {
-            // Volume modulation
             switch (polyController.type)
             {
+            // Volume modulation
             case gmpi::midi_2_0::PolyVolume:
-                if (auto v = getVoice(header.group, header.channel, polyController.noteNumber); v)
-                {
-                    v->volumeNoteExpressionValue = polyController.value - 1.0;
-                }
+                v->volumeNoteExpressionValue = polyController.value;
                 break;
 
             // Brightness to Filter cutoff
             case gmpi::midi_2_0::PolySoundController5:
-
-                if (auto v = getVoice(header.group, header.channel, polyController.noteNumber); v)
-                {
-                    v->cutoffMod = polyController.value;
-                    v->recalcFilter();
-                }
+                v->cutoffMod = 100.0f * polyController.value;
+                v->recalcFilter();
                 break;
             }
         }
