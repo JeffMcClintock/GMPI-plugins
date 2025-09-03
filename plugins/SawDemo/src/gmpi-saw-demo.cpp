@@ -261,7 +261,7 @@ void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
             // Polyphonic pitch modulation
             const auto semitones = gmpi::midi_2_0::decodeNotePitch(msg);
             v->pitchNoteExpressionValue = semitones;
-			_RPTN(0, "NoteExpression pitch %d %f\n", polyController.noteNumber, semitones);
+//			_RPTN(0, "NoteExpression pitch %d %f\n", polyController.noteNumber, semitones);
             v->recalcPitch();
         }
         else
