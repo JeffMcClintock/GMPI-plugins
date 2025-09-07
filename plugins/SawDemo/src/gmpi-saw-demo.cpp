@@ -67,7 +67,7 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
             <Pin parameterId="8" />
             <Pin parameterId="9" />
             <Pin parameterId="10" direction="out" />
-			<Pin name="BYPASS" datatype="bool" hostConnect="Processor/DawBypass" />
+			<Pin name="BYPASS" datatype="bool" hostConnect="Process/Bypass" />
         </Audio>
 
         <GUI>
@@ -89,9 +89,9 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
             <!-- Here are the additional information provided by the DAW, tempo etc -->
 			<Pin name="Host BPM" datatype="float" hostConnect="Time/BPM" />
 			<Pin name="Host SP" datatype="float" hostConnect="Time/SongPosition" />
-			<Pin name="Numerator" datatype="int" hostConnect="Time/Timesignature/Numerator" />
-			<Pin name="Denominator" datatype="int" hostConnect="Time/Timesignature/Denominator" />
-			<Pin name="BYPASS" datatype="bool" hostConnect="Processor/DawBypass" />
+			<Pin name="Numerator" datatype="int" hostConnect="Time/Numerator" />
+			<Pin name="Denominator" datatype="int" hostConnect="Time/Denominator" />
+			<Pin name="BYPASS" datatype="bool" hostConnect="Process/Bypass" />
         </GUI>
     </Plugin>
 </PluginList>
