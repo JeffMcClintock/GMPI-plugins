@@ -56,42 +56,42 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
              * below is where we specify which parameters are hooked up to the Processor
              -->
 
-            <Pin parameterId="0" />
-            <Pin parameterId="1" />
-            <Pin parameterId="2" />
-            <Pin parameterId="3" />
-            <Pin parameterId="4" />
-            <Pin parameterId="5" />
-            <Pin parameterId="6" />
-            <Pin parameterId="7" />
-            <Pin parameterId="8" />
-            <Pin parameterId="9" />
+            <Pin parameterId="0" /> <!-- Unison Count   -->
+            <Pin parameterId="1" /> <!-- Unison Spread  -->
+            <Pin parameterId="2" /> <!-- Detuning       -->
+            <Pin parameterId="3" /> <!-- Attack         -->
+            <Pin parameterId="4" /> <!-- Release        -->
+            <Pin parameterId="5" /> <!-- Deactivate Amp -->
+            <Pin parameterId="6" /> <!-- Pre Filter VCA -->
+            <Pin parameterId="7" /> <!-- Cutoff         -->
+            <Pin parameterId="8" /> <!-- Resonance      -->
+            <Pin parameterId="9" /> <!-- Filter Type    -->
             <Pin parameterId="10" direction="out" />
-			<Pin name="BYPASS" datatype="bool" hostConnect="Process/Bypass" />
+			<Pin hostConnect="Process/Bypass" />
         </Audio>
 
         <GUI>
             <!--
                 * below is where we specify which parameters are hooked up to the GUI
             -->
-            <Pin parameterId="0" />
-            <Pin parameterId="1" parameterField="Normalized"/>
-            <Pin parameterId="2" parameterField="Normalized"/>
-            <Pin parameterId="3" parameterField="Normalized"/>
-            <Pin parameterId="4" parameterField="Normalized"/>
-            <Pin parameterId="5" parameterField="Normalized"/>
-            <Pin parameterId="6" parameterField="Normalized"/>
-            <Pin parameterId="7" parameterField="Normalized"/>
-            <Pin parameterId="8" parameterField="Normalized"/>
-            <Pin parameterId="9" parameterField="Normalized"/>
+            <Pin parameterId="0" parameterField="Normalized"/> <!-- Unison Count   -->
+            <Pin parameterId="1" parameterField="Normalized"/> <!-- Unison Spread  -->
+            <Pin parameterId="2" parameterField="Normalized"/> <!-- Detuning       -->
+            <Pin parameterId="3" parameterField="Normalized"/> <!-- Attack         -->
+            <Pin parameterId="4" parameterField="Normalized"/> <!-- Release        -->
+            <Pin parameterId="5" parameterField="Normalized"/> <!-- Deactivate Amp -->
+            <Pin parameterId="6" parameterField="Normalized"/> <!-- Pre Filter VCA -->
+            <Pin parameterId="7" parameterField="Normalized"/> <!-- Cutoff         -->
+            <Pin parameterId="8" parameterField="Normalized"/> <!-- Resonance      -->
+            <Pin parameterId="9" parameterField="Normalized"/> <!-- Filter Type    -->
             <Pin parameterId="10" />
 
             <!-- Here are the additional information provided by the DAW, tempo etc -->
-			<Pin name="Host BPM" datatype="float" hostConnect="Time/BPM" />
-			<Pin name="Host SP" datatype="float" hostConnect="Time/SongPosition" />
-			<Pin name="Numerator" datatype="int" hostConnect="Time/Numerator" />
-			<Pin name="Denominator" datatype="int" hostConnect="Time/Denominator" />
-			<Pin name="BYPASS" datatype="bool" hostConnect="Process/Bypass" />
+			<Pin name="Host BPM" hostConnect="Time/BPM" />
+			<Pin name="Host SP" hostConnect="Time/SongPosition" />
+			<Pin name="Numerator" hostConnect="Time/Numerator" />
+			<Pin name="Denominator" hostConnect="Time/Denominator" />
+			<Pin hostConnect="Process/Bypass" />
         </GUI>
     </Plugin>
 </PluginList>
