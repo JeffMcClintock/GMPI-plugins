@@ -155,6 +155,7 @@ class SawDemoGui final : public PluginEditor
 
         headerRect.top += 15.0f;
 
+        // format BPM
         char bpm_str[64];
         std::snprintf(bpm_str, sizeof(bpm_str), "%.*g", 4, bpm.value);
 
