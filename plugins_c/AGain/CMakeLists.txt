@@ -14,10 +14,8 @@ ${sdk_folder}
 )
 
 if(APPLE)
-#GUI Modules Only
 FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation )
 MARK_AS_ADVANCED (COREFOUNDATION_LIBRARY)
-
 endif()
 
 include (GenerateExportHeader)
