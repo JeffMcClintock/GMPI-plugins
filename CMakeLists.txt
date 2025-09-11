@@ -8,6 +8,7 @@ set(GMPI_UI_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI UI repo, or blan
 set(GMPI_WRAPPER_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI WRAPPERs repo, or blank to fetch it automatically.")
 set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
 set(AU2_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local Audio Unit SDK repo, or blank to fetch it automatically.")
+#set(CLAP_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local Audio Unit SDK repo, or blank to fetch it automatically.")
 
 include(FetchContent)
 
@@ -100,6 +101,34 @@ set(AU_SDK ${AU2_SDK_FOLDER_OVERRIDE})
 endif()
 endif() # APPLE
 
+# fetch CLAP SDK
+#if("${CLAP_SDK_FOLDER_OVERRIDE}" STREQUAL "")
+message(STATUS "Fetching CLAP SDK from github")
+#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate example projects)
+FetchContent_Declare(
+  clap
+  GIT_REPOSITORY https://github.com/free-audio/clap
+  GIT_TAG origin/main
+  SOURCE_SUBDIR conventions
+)
+FetchContent_MakeAvailable(clap)
+set(CLAP_SDK ${clap_SOURCE_DIR})
+#set(CLAP_SDK_SRC ${clap_SOURCE_DIR}/src)
+#set(CLAP_SDK_H ${clap_SOURCE_DIR}/include/clap)
+
+FetchContent_Declare(
+  clap_helpers
+  GIT_REPOSITORY https://github.com/free-audio/clap-helpers
+  GIT_TAG origin/main
+  SOURCE_SUBDIR tests
+)
+FetchContent_MakeAvailable(clap_helpers)
+set(CLAP_HELPERS_SDK ${clap_helpers_SOURCE_DIR})
+
+#else()
+#message(STATUS "Using local CLAP_SDK folder")
+#set(CLAP_SDK ${CLAP_SDK_FOLDER_OVERRIDE})
+#endif()
 ##################################################################################
 
 project(GMPI_Samples)
