@@ -1,4 +1,6 @@
-# Saw Demo Synth (adapted from the CLAP Saw Demo - Copyright (c) 2021, Paul Walker)
+# Saw Demo Synth
+
+(adapted from the CLAP Saw Demo - Copyright (c) 2021, Paul Walker)
 
 The Saw Demo Synth serves as an example in the following ways
 
