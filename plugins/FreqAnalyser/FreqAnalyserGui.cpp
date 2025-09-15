@@ -383,7 +383,7 @@ class FreqAnalyserGui final : public PluginEditor, public gmpi::TimerClient
 	{
 		const auto size = pinSpectrum.value.size();
 
-		if (size > sizeof(float))
+		if (size >= sizeof(float))
 		{
 			const auto data = (float*) pinSpectrum.value.data();
 
@@ -571,11 +571,10 @@ public:
 					dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, snap.penWidth);
 				}
 
-				//		if (pinMode == 0) // Log
 				{
 					// FREQUENCY LABELS
 					// Highest mark is nyquist rounded to nearest 10kHz.
-					const float topFrequency = 20000.0f; // calcTopFrequency3(sampleRateFft);
+					const float topFrequency = 20000.0f;
 					float frequencyStep = 1000.0;
 					if (width < 500)
 					{
@@ -588,9 +587,6 @@ public:
 						const float octave = displayOctaves - logf(topFrequency / hz) / logf(2.0f);
 
 						x = snap(leftBorder + graphWidth * octave / displayOctaves);
-
-						// hmm, can be misleading when grid line is one pixel off due to snapping
-		//				x = snapToPixelOffset + floorf(0.5f + x);
 
 						if (x <= leftBorder || hz < 5.0)
 							break;
@@ -612,15 +608,11 @@ public:
 								sprintf(txt, "%.0f", hz);
 							}
 
-							//				int stringLength = strlen(txt);
-							//SIZE size;
-							//::GetTextExtentPoint32(hDC, txt, stringLength, &size);
 							auto size = dtextFormat.getTextExtentU(txt);
 							// Ensure text don't overwrite text to it's right.
 							if (x + size.width / 2 < previousTextLeft)
 							{
 								extendLine = true;
-								//					TextOut(hDC, x, height - fontHeight, txt, stringLength);
 
 								gmpi::drawing::Rect textRect(x - size.width / 2, height - fontHeight, x + size.width / 2, height);
 								dc.drawTextU(txt, dtextFormat, textRect, fontBrush);
