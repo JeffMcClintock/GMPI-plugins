@@ -190,10 +190,10 @@ void GmpiSawDemo::onSetPins()
     pinRight.setStreaming(true);
 }
 
-void GmpiSawDemo::onMidiMessage(int pin, const uint8_t *midiMessage, int size)
+void GmpiSawDemo::onMidiMessage(int pin, std::span<const uint8_t> midiMessage)
 {
     // Parse MIDI 2.0
-    gmpi::midi::message_view msg(midiMessage, size);
+    gmpi::midi::message_view msg(midiMessage);
     const auto header = gmpi::midi_2_0::decodeHeader(msg);
 
     switch (header.status)

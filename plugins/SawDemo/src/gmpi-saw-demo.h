@@ -77,7 +77,7 @@ struct GmpiSawDemo final : public gmpi::Processor
 
     void subProcess(int frames_count);
     void onSetPins() override; // handle inbound parameter events
-    void onMidiMessage(int pin, const uint8_t *midiMessage, int size) override; // handle MIDI events
+    void onMidiMessage(int pin, std::span<const uint8_t> midiMessage) override; // handle MIDI events
     void pushParamsToVoices();
     void handleNoteOn(int port_index, int channel, int key, int noteid);
     void handleNoteOff(int port_index, int channel, int key);

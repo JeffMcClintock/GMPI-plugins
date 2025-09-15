@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PluginList>
+    <Plugin id="SE Freq Analyser" name="Freq Analyser" category="Controls">
+        <Parameters>
+            <Parameter id="0" datatype="blob" name="Capture Data A" private="true" ignorePatchChange="true" persistant="false"/>
+        </Parameters>
+        <Audio>
+            <Pin name="Capture Data A" datatype="blob" direction="out" private="true" parameterId="0"/>
+            <Pin name="Signal in" datatype="float" rate="audio" linearInput="true"/>
+            <Pin name="FFT Size" datatype="enum" default="2048" isMinimised="true" metadata="1024=1024,2048=2048,4096=4096,8192=8192,16384=16384"/>
+            <Pin name="Update Rate" datatype="enum" default="10" isMinimised="true" metadata="1 Hz=1,5 Hz=5,10 Hz=10,20 Hz=20,40 Hz=40,60 Hz=60"/>
+        </Audio>
+        <GUI graphicsApi="GmpiGui">
+            <Pin name="Capture Data A" datatype="blob" private="true" parameterId="0"/>
+            <Pin name="Mode" datatype="enum" isMinimised="true" metadata="Log,Linear"/>
+            <Pin name="dB High" datatype="int" default="20" isMinimised="true"/>
+            <Pin name="dB Low" datatype="int" default="-80" isMinimised="true"/>
+        </GUI>
+    </Plugin>
+</PluginList>
