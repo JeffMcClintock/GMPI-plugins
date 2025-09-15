@@ -6,7 +6,7 @@ gmpi_plugin(
 	PROJECT_NAME ${PROJECT_NAME}
 	HAS_DSP
 	HAS_GUI
- FORMATS_LIST GMPI CLAP
+ FORMATS_LIST VST3 GMPI CLAP
 	SOURCE_FILES
 		FreqAnalyser.cpp
 		FreqAnalyserGui.cpp
