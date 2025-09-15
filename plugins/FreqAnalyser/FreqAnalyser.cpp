@@ -45,7 +45,6 @@ struct FreqAnalyser final : public Processor
 	{
 		auto r = gmpi::Processor::open(host);
 
-		setSubProcess(&FreqAnalyser::subProcess);
 		setSleep(false); // disable automatic sleeping.
 
 		return r;
@@ -199,14 +198,14 @@ struct FreqAnalyser final : public Processor
 
 		if( pinUpdateRate.isUpdated() )
 		{
+			const float sr = host->getSampleRate();
+
 			Blob test;
-			test.assign(1000, 0);
+			test.insert(test.begin(), (uint8_t*) &sr, (uint8_t*) &sr + sizeof(sr));
 			pinCaptureDataA = test;
 		}
 
 		// Set processing method.
-		setSubProcess(&FreqAnalyser::subProcess);
-
 		if (pinSignalinL.isStreaming() || pinSignalinR.isStreaming())
 		{
 			sleepCount = -1; // indicates no sleep.
