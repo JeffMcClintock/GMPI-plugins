@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+#  Linux not working due to issue with VST3 SDK
+#          - name: Linux
+#            os: ubuntu-22.04
+
 jobs:
   build:
     name: ${{ matrix.name }}
@@ -15,8 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux
-            os: ubuntu-22.04
           - name: macOS
             os: macos-latest
           - name: Windows
