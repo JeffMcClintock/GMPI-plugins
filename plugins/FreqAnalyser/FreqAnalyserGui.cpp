@@ -432,7 +432,11 @@ class FreqAnalyserGui final : public PluginEditor, public gmpi::TimerClient
 
 public:
 	FreqAnalyserGui() = default;
-
+    ~FreqAnalyserGui()
+    {
+        stopTimer();
+    }
+    
 	ReturnCode measure(const gmpi::drawing::Size* availableSize,
 		gmpi::drawing::Size* returnDesiredSize) override
 	{
