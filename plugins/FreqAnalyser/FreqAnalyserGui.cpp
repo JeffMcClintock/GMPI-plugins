@@ -15,6 +15,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include "helpers/GmpiPluginEditor.h"
 #include "helpers/Timer.h"
 #include "helpers/SimplifyGraph.h"
+#include "helpers/PixelSnapper.h"
 
 using namespace gmpi;
 using namespace gmpi::editor;
@@ -511,6 +512,8 @@ public:
 			dc.BeginDraw();
 #else
 			{
+				pixelSnapper snap(0.5f, drawingHost->getRasterizationScale());
+
 				auto& dc = g;
 #endif
 				currentBackgroundSampleRate = sampleRateFft;
@@ -526,7 +529,6 @@ public:
 
 				auto fontBrush = dc.createSolidColorBrush(Colors::Gold);
 				auto brush2 = dc.createSolidColorBrush(Colors::Gray);
-				float penWidth = 1.0f;
 				auto fontHeight = dtextFormat.getTextExtentU("M").height;
 
 				// dB labels.
@@ -537,8 +539,7 @@ public:
 					float y = 0;
 					while (true)
 					{
-						y = (displayDbMax - db) * (height - bottomBorder) / displayDbRange;
-						y = snapToPixelOffset + floorf(0.5f + y);
+						y = snap((displayDbMax - db) * (height - bottomBorder) / displayDbRange);
 
 						if (y >= height - fontHeight)
 						{
@@ -547,7 +548,7 @@ public:
 
 						GraphXAxisYcoord = y;
 
-						dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, penWidth);
+						dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, snap.penWidth);
 
 						if (y > lastTextY + fontHeight * 1.2)
 						{
@@ -565,10 +566,9 @@ public:
 
 					// extra line at -3dB. To help check filter cuttoffs.
 					db = -3.f;
-					y = (displayDbMax - db) * (height - bottomBorder) / displayDbRange;
-					y = snapToPixelOffset + floorf(0.5f + y);
+					y = snap((displayDbMax - db) * (height - bottomBorder) / displayDbRange);
 
-					dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, penWidth);
+					dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, snap.penWidth);
 				}
 
 				//		if (pinMode == 0) // Log
@@ -587,7 +587,7 @@ public:
 					do {
 						const float octave = displayOctaves - logf(topFrequency / hz) / logf(2.0f);
 
-						x = leftBorder + graphWidth * octave / displayOctaves;
+						x = snap(leftBorder + graphWidth * octave / displayOctaves);
 
 						// hmm, can be misleading when grid line is one pixel off due to snapping
 		//				x = snapToPixelOffset + floorf(0.5f + x);
@@ -635,7 +635,7 @@ public:
 						{
 							lineBottom = GraphXAxisYcoord;
 						}
-						dc.drawLine(gmpi::drawing::Point(x, 0), gmpi::drawing::Point(x, lineBottom), brush2, penWidth);
+						dc.drawLine(gmpi::drawing::Point(x, 0), gmpi::drawing::Point(x, lineBottom), brush2, snap.penWidth);
 
 						//if (hz > 950 && hz < 1050)
 						//{
