@@ -65,7 +65,7 @@ struct FreqAnalyser final : public Processor
 			*signaloutR = *signalinR;
 
 			assert(index_ < captureSamples);
-			resultsA_[index_++] = *signalinL;
+			resultsA_[index_++] = 0.5f * (*signalinL + *signalinR); // combine left and right signals, for a single channel FFT.
 
 			if (index_ == captureSamples)
 			{

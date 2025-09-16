@@ -463,11 +463,6 @@ public:
 	{
 		Graphics g(drawingContext);
 
-//		auto textFormat = g.getFactory().createTextFormat();
-//		auto brush = g.createSolidColorBrush(Colors::Red);
-
-//		g.drawTextU("Hello World!", textFormat, bounds, brush);
-
 		auto r = bounds;
 
 		ClipDrawingToBounds cd(g, r);
@@ -528,11 +523,16 @@ public:
 				dtextFormat.setParagraphAlignment(ParagraphAlignment::Center);
 				dtextFormat.setWordWrapping(WordWrapping::NoWrap); // prevent word wrapping into two lines that don't fit box.
 
-				auto gradientBrush = dc.createLinearGradientBrush(Point(0, 0), Point(0, height), colorFromHex(0x39323A), colorFromHex(0x080309));
+				auto gradientBrush = dc.createLinearGradientBrush(
+					Point(0, 0), Point(0, height)
+					, colorFromHex(0x39323A), colorFromHex(0x080309)
+				);
+
 				dc.fillRectangle(r, gradientBrush);
 
 				auto fontBrush = dc.createSolidColorBrush(Colors::Gold);
-				auto brush2 = dc.createSolidColorBrush(Colors::Gray);
+				auto lineBrush = dc.createSolidColorBrush(colorFromHex(0x333333));
+				auto lineBrushBrighter = dc.createSolidColorBrush(colorFromHex(0x555555));
 				auto fontHeight = dtextFormat.getTextExtentU("M").height;
 
 				// dB labels.
@@ -552,7 +552,7 @@ public:
 
 						GraphXAxisYcoord = y;
 
-						dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, snap.penWidth);
+						dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), db == 0.0f ? lineBrushBrighter : lineBrush, snap.penWidth);
 
 						if (y > lastTextY + fontHeight * 1.2)
 						{
@@ -560,8 +560,7 @@ public:
 							char txt[10];
 							sprintf(txt, "%3.0f", (float)db);
 
-							//				TextOut(hDC, 0, y - fontHeight / 2, txt, (int)wcslen(txt));
-							gmpi::drawing::Rect textRect(0, y - fontHeight / 2, 30, y + fontHeight / 2);
+							gmpi::drawing::Rect textRect(2, y - fontHeight / 2, 30, y + fontHeight / 2);
 							dc.drawTextU(txt, dtextFormat, textRect, fontBrush);
 						}
 
@@ -572,7 +571,7 @@ public:
 					db = -3.f;
 					y = snap((displayDbMax - db) * (height - bottomBorder) / displayDbRange);
 
-					dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), brush2, snap.penWidth);
+					dc.drawLine(gmpi::drawing::Point(leftBorder, y), gmpi::drawing::Point(rightBorder, y), lineBrushBrighter, snap.penWidth);
 				}
 
 				{
@@ -626,17 +625,12 @@ public:
 						}
 
 						// Vertical line.
-						float lineBottom = height - fontHeight;
+						float lineBottom = height - fontHeight * 1.5f;
 						if (!extendLine)
 						{
 							lineBottom = GraphXAxisYcoord;
 						}
-						dc.drawLine(gmpi::drawing::Point(x, 0), gmpi::drawing::Point(x, lineBottom), brush2, snap.penWidth);
-
-						//if (hz > 950 && hz < 1050)
-						//{
-						//	_RPTN(0, "1k line @ %f\n", x);
-						//}
+						dc.drawLine(gmpi::drawing::Point(x, 0), gmpi::drawing::Point(x, lineBottom), extendLine ? lineBrushBrighter : lineBrush, snap.penWidth);
 
 						if (frequencyStep > hz * 0.99f)
 						{
@@ -806,20 +800,27 @@ public:
 
 			if (geometry && lineGeometry)
 			{
-				auto peakColor = colorFromHex(0xFF45A1A1);
+				auto peakColor = colorFromHex(0x45A1A1);
 				auto peakBrush = g.createSolidColorBrush(peakColor);
 
-				auto graphColor = colorFromHex(0xFF65B1D1);
+				auto graphColor = colorFromHex(0x65B1D1);
 				auto brush2 = g.createSolidColorBrush(graphColor);
 				const float penWidth = 1;
-				Color fill = colorFromHex(0xc08BA7BF);
+
+				Color fillTop = colorFromHex(0x8BA7BF, 0.6f);
+				Color fillBot = colorFromHex(0x8BA7BF, 0.4f);
 
 				auto plotClip = r;
 				plotClip.left = leftBorder;
 				plotClip.bottom = GraphXAxisYcoord;
 				ClipDrawingToBounds cd2(g, plotClip);
 
-				auto fillBrush = g.createSolidColorBrush(fill);
+				auto fillBrush = g.createLinearGradientBrush(
+					Point(0, r.top),
+					Point(0, r.bottom),
+					fillTop,
+					fillBot
+				);
 				g.fillGeometry(geometry, fillBrush);
 				g.drawGeometry(lineGeometry, brush2, penWidth);
 				g.drawGeometry(peakPath, peakBrush, penWidth);
