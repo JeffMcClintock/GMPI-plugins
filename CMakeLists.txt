@@ -6,11 +6,60 @@ set(SE_LOCAL_BUILD FALSE CACHE BOOL "Execute extra build steps for developers ma
 set(GMPI_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI repo, or blank to fetch it automatically.")
 set(GMPI_UI_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI UI repo, or blank to fetch it automatically.")
 set(GMPI_WRAPPER_FOLDER_OVERRIDE "" CACHE PATH "path of a local GMPI WRAPPERs repo, or blank to fetch it automatically.")
-set(VST3_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local vst3 repo, or blank to fetch it automatically.")
 set(AU2_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local Audio Unit SDK repo, or blank to fetch it automatically.")
-#set(CLAP_SDK_FOLDER_OVERRIDE "" CACHE PATH "path of a local Audio Unit SDK repo, or blank to fetch it automatically.")
 
 include(FetchContent)
+
+# CPM bootstrap (shared cache across builds)
+set(CPM_DOWNLOAD_VERSION 0.38.6)
+set(CPM_USE_NAMED_CACHE_DIRECTORIES ON)
+set(CPM_GIT_SHALLOW ON) # shallow clone for speed
+
+if(NOT DEFINED CPM_SOURCE_CACHE)
+  if(WIN32)
+    set(CPM_SOURCE_CACHE "$ENV{USERPROFILE}/.cpm" CACHE STRING "CPM cache dir")
+  else()
+    set(CPM_SOURCE_CACHE "$ENV{HOME}/.cache/CPM" CACHE STRING "CPM cache dir")
+  endif()
+endif()
+
+set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+if(NOT EXISTS "${CPM_DOWNLOAD_LOCATION}")
+  file(DOWNLOAD
+    "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake"
+    "${CPM_DOWNLOAD_LOCATION}"
+    TLS_VERIFY ON
+  )
+endif()
+include("${CPM_DOWNLOAD_LOCATION}")
+
+# Fetch VST3 SDK via CPM
+CPMAddPackage(
+NAME vst3_sdk
+GITHUB_REPOSITORY steinbergmedia/vst3sdk
+GIT_TAG v3.7.14_build_55       # or a specific commit SHA
+DOWNLOAD_ONLY YES              # we only need sources; actual add_subdirectory happens later
+)
+set(VST3_SDK ${vst3_sdk_SOURCE_DIR})
+
+# Fetch CLAP SDK via CPM
+CPMAddPackage(
+NAME clap_sdk
+GITHUB_REPOSITORY free-audio/clap
+GIT_TAG 1.2.6                  # or a specific commit SHA
+DOWNLOAD_ONLY YES              # we only need sources; actual add_subdirectory happens later
+)
+set(CLAP_SDK ${clap_sdk_SOURCE_DIR})
+
+# Fetch CLAP helpers via CPM
+CPMAddPackage(
+NAME clap_helpers
+GITHUB_REPOSITORY free-audio/clap-helpers
+GIT_TAG 58ab81b                 # or a specific commit SHA
+DOWNLOAD_ONLY YES              # we only need sources; actual add_subdirectory happens later
+)
+set(CLAP_HELPERS_SDK ${clap_helpers_SOURCE_DIR})
+
 
 # GMPI SDK
 if("${GMPI_SDK_FOLDER_OVERRIDE}" STREQUAL "")
@@ -63,23 +112,6 @@ message(STATUS "Using local GMPI WRAPPERS folder")
 set(GMPI_ADAPTORS ${GMPI_WRAPPER_FOLDER_OVERRIDE})
 endif()
 
-# GET VST3 SDK
-if("${VST3_SDK_FOLDER_OVERRIDE}" STREQUAL "")
-message(STATUS "Fetching VST3 from github")
-#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate example projects)
-FetchContent_Declare(
-  vst3
-  GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk
-  GIT_TAG origin/master
-  SOURCE_SUBDIR tutorials
-)
-FetchContent_MakeAvailable(vst3)
-set(VST3_SDK ${vst3_SOURCE_DIR})
-else()
-message(STATUS "Using local VST3 folder")
-set(VST3_SDK ${VST3_SDK_FOLDER_OVERRIDE})
-endif()
-
 # GET AU2 SDK
 if(APPLE)
 if("${AU2_SDK_FOLDER_OVERRIDE}" STREQUAL "")
@@ -100,27 +132,6 @@ message(STATUS "Using local AudioUnit folder")
 set(AU_SDK ${AU2_SDK_FOLDER_OVERRIDE})
 endif()
 endif() # APPLE
-
-# fetch CLAP SDK
-message(STATUS "Fetching CLAP SDK from github")
-#note: SOURCE_SUBDIR is a subfolder with NO cmake file (so we don't needlessly generate example projects)
-FetchContent_Declare(
-  clap
-  GIT_REPOSITORY https://github.com/free-audio/clap
-  GIT_TAG origin/main
-  SOURCE_SUBDIR conventions
-)
-FetchContent_MakeAvailable(clap)
-set(CLAP_SDK ${clap_SOURCE_DIR})
-
-FetchContent_Declare(
-  clap_helpers
-  GIT_REPOSITORY https://github.com/free-audio/clap-helpers
-  GIT_TAG origin/main
-  SOURCE_SUBDIR tests
-)
-FetchContent_MakeAvailable(clap_helpers)
-set(CLAP_HELPERS_SDK ${clap_helpers_SOURCE_DIR})
 
 ##################################################################################
 

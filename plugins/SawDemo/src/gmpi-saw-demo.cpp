@@ -56,17 +56,17 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
              * below is where we specify which parameters are hooked up to the Processor
              -->
 
-            <Pin parameterId="0" /> <!-- Unison Count   -->
-            <Pin parameterId="1" /> <!-- Unison Spread  -->
-            <Pin parameterId="2" /> <!-- Detuning       -->
-            <Pin parameterId="3" /> <!-- Attack         -->
-            <Pin parameterId="4" /> <!-- Release        -->
-            <Pin parameterId="5" /> <!-- Deactivate Amp -->
-            <Pin parameterId="6" /> <!-- Pre Filter VCA -->
-            <Pin parameterId="7" /> <!-- Cutoff         -->
-            <Pin parameterId="8" /> <!-- Resonance      -->
-            <Pin parameterId="9" /> <!-- Filter Type    -->
-            <Pin parameterId="10" direction="out" />
+            <Pin parameterId="0" />                           <!-- Unison Count   -->
+            <Pin parameterId="1" />                           <!-- Unison Spread  -->
+            <Pin parameterId="2" />                           <!-- Detuning       -->
+            <Pin parameterId="3" />                           <!-- Attack         -->
+            <Pin parameterId="4" />                           <!-- Release        -->
+            <Pin parameterId="5" />                           <!-- Deactivate Amp -->
+            <Pin parameterId="6" />                           <!-- Pre Filter VCA -->
+            <Pin parameterId="7" />                           <!-- Cutoff         -->
+            <Pin parameterId="8" />                           <!-- Resonance      -->
+            <Pin parameterId="9" />                           <!-- Filter Type    -->
+            <Pin parameterId="10" direction="out" />          <!-- Poly Count     -->
 			<Pin hostConnect="Process/Bypass" />
         </Audio>
 
@@ -84,13 +84,13 @@ auto r = Register<GmpiSawDemo>::withXml(R"XML(
             <Pin parameterId="7" parameterField="Normalized"/> <!-- Cutoff         -->
             <Pin parameterId="8" parameterField="Normalized"/> <!-- Resonance      -->
             <Pin parameterId="9" parameterField="Normalized"/> <!-- Filter Type    -->
-            <Pin parameterId="10" />
+            <Pin parameterId="10" /> 					       <!-- Poly Count     -->
 
             <!-- Here are the additional information provided by the DAW, tempo etc -->
-			<Pin name="Host BPM" hostConnect="Time/BPM" />
-			<Pin name="Host SP" hostConnect="Time/SongPosition" />
-			<Pin name="Numerator" hostConnect="Time/Numerator" />
-			<Pin name="Denominator" hostConnect="Time/Denominator" />
+			<Pin hostConnect="Time/BPM" />
+			<Pin hostConnect="Time/SongPosition" />
+			<Pin hostConnect="Time/Numerator" />
+			<Pin hostConnect="Time/Denominator" />
 			<Pin hostConnect="Process/Bypass" />
         </GUI>
     </Plugin>
