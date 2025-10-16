@@ -221,7 +221,7 @@ class SawDemoGui final : public PluginEditor
         draggingKnob = {};
         for (auto &knob : knobs)
         {
-            if (PointInRect(point, knob.rect))
+            if (pointInRect(point, knob.rect))
             {
                 draggingKnob = &knob;
             }
