@@ -7,18 +7,23 @@ using namespace gmpi::drawing;
 
 class GainGui final : public PluginEditor
 {
+	// provide a connection to the parameter
 	Pin<float> pinGain;
+
+	// track the mouse position for dragging.
 	Point lastMouse{};
 
 public:
 	GainGui()
 	{
+		// respond to parameter updates by redrawing the editor
 		pinGain.onUpdate = [this](PinBase*)
 		{
 			drawingHost->invalidateRect(nullptr);
 		};
 	}
 
+	// draw the knob
 	ReturnCode render(gmpi::drawing::api::IDeviceContext* drawingContext) override
 	{
 		Graphics g(drawingContext);
@@ -32,6 +37,7 @@ public:
 		return ReturnCode::Ok;
 	}
 
+	// handle mouse dragging
 	ReturnCode onPointerDown(Point point, int32_t flags) override
 	{
 		lastMouse = point;
@@ -45,7 +51,10 @@ public:
 
 		if (isCaptured)
 		{
+			// update the parameter
 			pinGain = std::clamp(pinGain.value + (lastMouse.y - point.y) * 0.02f, 0.0f, 1.0f);
+
+			// request redraw
 			drawingHost->invalidateRect(nullptr);
 		}
 		lastMouse = point;
@@ -58,6 +67,7 @@ public:
 	}
 };
 
+// Register the Processor with the framework. see also Gain.cpp for the metadata (parameters and I/O description)
 namespace
 {
 	auto r = Register<GainGui>::withId("GMPI: GainGui");
