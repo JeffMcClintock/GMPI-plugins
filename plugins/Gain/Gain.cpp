@@ -4,13 +4,17 @@ using namespace gmpi;
 
 struct Gain final : public Processor
 {
+	// provide connections to the audio I/O
 	AudioInPin pinInput;
 	AudioOutPin pinOutput;
+
+	// provide a connection to the parameter
 	FloatInPin pinGain;
 
 	Gain()
 	{
-		setSubProcess(&Gain::subProcess); // specify the member function to process audio.
+		// specify the member function to process audio.
+		setSubProcess(&Gain::subProcess);
 	}
 
 	void subProcess(int sampleFrames)
@@ -24,9 +28,7 @@ struct Gain final : public Processor
 
 		// Apply audio processing.
 		for(int i = 0 ; i < sampleFrames ; ++i)
-		{
 			output[i] = gain * input[i];
-		}
 	}
 };
 
