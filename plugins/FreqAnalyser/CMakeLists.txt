@@ -12,6 +12,6 @@ gmpi_plugin(
 		FreqAnalyserGui.cpp
 		real_fft.h
 		real_fft.cpp
-		${gmpi_ui_folder}/helpers/Timer.h
-		${gmpi_ui_folder}/helpers/Timer.cpp
+		${GMPI_UI_SDK}/helpers/Timer.h
+		${GMPI_UI_SDK}/helpers/Timer.cpp
 )

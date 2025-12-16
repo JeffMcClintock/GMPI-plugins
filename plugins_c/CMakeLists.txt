@@ -4,7 +4,7 @@ project(CommunityModules)
 enable_testing()
 
 include_directories(
-    ${gmpi_sdk_folder}/Projections/plain_c/Core
+    ${GMPI_SDK}/Projections/plain_c/Core
     )
 
 set(CMAKE_CXX_STANDARD 17)

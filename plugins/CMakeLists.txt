@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 project(CPP_Samples)
 
 include_directories(
-    ${gmpi_sdk_folder}/Core
+    ${GMPI_SDK}/Core
     )
 
 add_subdirectory(Gain)
