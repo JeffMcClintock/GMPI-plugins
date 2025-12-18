@@ -193,16 +193,16 @@ void GmpiSawDemo::onSetPins()
 void GmpiSawDemo::onMidiMessage(int pin, std::span<const uint8_t> midiMessage)
 {
     // Parse MIDI 2.0
-    gmpi::midi::message_view msg(midiMessage);
-    const auto header = gmpi::midi_2_0::decodeHeader(msg);
+    gmpi::midi2::message_view msg(midiMessage);
+    const auto header = gmpi::midi2::decodeHeader(msg);
 
     switch (header.status)
     {
-    case gmpi::midi_2_0::NoteOn:
+    case gmpi::midi2::NoteOn:
     {
         if (!isBypassed)
         {
-            const auto note = gmpi::midi_2_0::decodeNote(msg);
+            const auto note = gmpi::midi2::decodeNote(msg);
             handleNoteOn(header.group, header.channel, note.noteNumber, -1);
 
             polyCount = polyCount + 1;
@@ -213,18 +213,18 @@ void GmpiSawDemo::onMidiMessage(int pin, std::span<const uint8_t> midiMessage)
     }
     break;
 
-    case gmpi::midi_2_0::NoteOff:
+    case gmpi::midi2::NoteOff:
     {
-        const auto note = gmpi::midi_2_0::decodeNote(msg);
+        const auto note = gmpi::midi2::decodeNote(msg);
         handleNoteOff(header.group, header.channel, note.noteNumber);
 
         polyCount = polyCount - 1;
     }
     break;
 
-    case gmpi::midi_2_0::PitchBend:
+    case gmpi::midi2::PitchBend:
     {
-        const auto normalized = gmpi::midi_2_0::decodeController(msg).value;
+        const auto normalized = gmpi::midi2::decodeController(msg).value;
         const auto pitchBend = (normalized - 0.5f) * 2.0f;
 
         for (auto& v : voices)
@@ -235,9 +235,9 @@ void GmpiSawDemo::onMidiMessage(int pin, std::span<const uint8_t> midiMessage)
     }
 
 	// Note-expression and Polyphonic modulation via per-note-controller messages.
-    case gmpi::midi_2_0::PolyAfterTouch:
+    case gmpi::midi2::PolyAfterTouch:
     {
-        const auto aftertouch = gmpi::midi_2_0::decodePolyController(msg);
+        const auto aftertouch = gmpi::midi2::decodePolyController(msg);
 
         if (auto v = getVoice(header.group, header.channel, aftertouch.noteNumber); v)
         {
@@ -248,18 +248,18 @@ void GmpiSawDemo::onMidiMessage(int pin, std::span<const uint8_t> midiMessage)
     }
     break;
 
-    case gmpi::midi_2_0::PolyControlChange:
+    case gmpi::midi2::PolyControlChange:
     {
-        const auto polyController = gmpi::midi_2_0::decodePolyController(msg);
+        const auto polyController = gmpi::midi2::decodePolyController(msg);
         auto v = getVoice(header.group, header.channel, polyController.noteNumber);
 
         if(!v)
 			break;
 
-        if (polyController.type == gmpi::midi_2_0::PolyPitch)
+        if (polyController.type == gmpi::midi2::PolyPitch)
         {
             // Polyphonic pitch modulation
-            const auto semitones = gmpi::midi_2_0::decodeNotePitch(msg);
+            const auto semitones = gmpi::midi2::decodeNotePitch(msg);
             v->pitchNoteExpressionValue = semitones;
 //			_RPTN(0, "NoteExpression pitch %d %f\n", polyController.noteNumber, semitones);
             v->recalcPitch();
@@ -269,12 +269,12 @@ void GmpiSawDemo::onMidiMessage(int pin, std::span<const uint8_t> midiMessage)
             switch (polyController.type)
             {
             // Volume modulation
-            case gmpi::midi_2_0::PolyVolume:
+            case gmpi::midi2::PolyVolume:
                 v->volumeNoteExpressionValue = polyController.value;
                 break;
 
             // Brightness to Filter cutoff
-            case gmpi::midi_2_0::PolySoundController5:
+            case gmpi::midi2::PolySoundController5:
                 v->cutoffMod = 100.0f * polyController.value;
                 v->recalcFilter();
                 break;
