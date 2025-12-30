@@ -139,7 +139,7 @@ project(GMPI_Samples)
 
 enable_testing()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 add_definitions(-D_UNICODE)
 if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
