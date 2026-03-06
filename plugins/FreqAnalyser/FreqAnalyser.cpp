@@ -136,7 +136,7 @@ struct FreqAnalyser final : public Processor
 		// !! overwrites nyquist value?
 		resultsWindowed_[resultsWindowed_.size() / 2] = host->getSampleRate();
 
-		pinCaptureDataA.setValueRaw({ reinterpret_cast<uint8_t*>(resultsWindowed_.data()), static_cast<size_t>(datasize) });
+		pinCaptureDataA.setRaw({ reinterpret_cast<uint8_t*>(resultsWindowed_.data()), static_cast<size_t>(datasize) });
 		pinCaptureDataA.sendPinUpdate(block_offset);
 
 		const int captureRateSamples = (int) host->getSampleRate() / pinUpdateRate.getValue();
