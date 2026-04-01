@@ -192,7 +192,7 @@ class SawDemoGui final : public PluginEditor
             const auto bot = knobs[3].rect.top - 10;
             Point linePoints[] = {{left, top}, {right, top}, {right, bot}};
 
-            g.drawLines(linePoints, std::size(linePoints), brush, 2 + polyCount.value / 5.0);
+            g.drawLines(linePoints, brush, 2 + polyCount.value / 5.0);
         }
         {
             const auto left = knobs[8].rect.right + 10;
@@ -201,7 +201,7 @@ class SawDemoGui final : public PluginEditor
             const auto bot = knobs[3].rect.bottom + 30;
             Point linePoints[] = {{left, top}, {right, top}, {right, bot}};
 
-            g.drawLines(linePoints, std::size(linePoints), brush, 2 + polyCount.value / 5.0);
+            g.drawLines(linePoints, brush, 2 + polyCount.value / 5.0);
         }
 
         // bypass indicator
