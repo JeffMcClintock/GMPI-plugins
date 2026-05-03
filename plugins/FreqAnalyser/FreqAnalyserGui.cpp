@@ -451,12 +451,12 @@ public:
 		return PluginEditor::arrange(finalRect);
 	}
 
-	ReturnCode open(gmpi::api::IUnknown* host) override
+	ReturnCode setHost(gmpi::api::IUnknown* host) override
 	{
 		pinSpectrum.onUpdate = [this](PinBase*) { onSetCaptureDataA(); };
 		startTimer(50);
 
-		return PluginEditor::open(host);
+		return PluginEditor::setHost(host);
 	}
 
 	ReturnCode render(gmpi::drawing::api::IDeviceContext* drawingContext) override
