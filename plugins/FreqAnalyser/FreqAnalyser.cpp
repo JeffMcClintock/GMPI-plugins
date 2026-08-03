@@ -178,6 +178,8 @@ struct FreqAnalyser final : public Processor
 
 	void onSetPins() override
 	{
+		setSleep(false); // wakey wakey
+
 		if( pinFFTSize.isUpdated() )
 		{
 			index_ = 0;
@@ -204,6 +206,14 @@ struct FreqAnalyser final : public Processor
 			test.insert(test.begin(), (uint8_t*) &sr, (uint8_t*) &sr + sizeof(sr));
 			pinCaptureDataA = test;
 		}
+
+		// pass through streaming state (silence flags)
+		if(pinSignalinL.isUpdated())
+			pinSignaloutL.setStreaming(pinSignalinL.isStreaming());
+
+		if(pinSignalinR.isUpdated())
+			pinSignaloutR.setStreaming(pinSignalinR.isStreaming());
+
 
 		// Set processing method.
 		if (pinSignalinL.isStreaming() || pinSignalinR.isStreaming())
