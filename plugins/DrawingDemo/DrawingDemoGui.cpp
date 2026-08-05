@@ -57,31 +57,27 @@ public:
         return r;
     }
 
-    // "Given at most this much room, how much do you want?" — so the answer is
-    // our preferred size clamped DOWN to what is offered, never up.
+    // A FIXED-SIZE editor: the same answer whatever is offered, availableSize
+    // ignored. That is the SDK's convention, not a shortcut — VST3EditorBase's
+    // canResize() measures against 0x0 and 10000x10000 and calls a client
+    // resizable only if the two answers DIFFER, so returning a constant is
+    // precisely how a plugin declares it is not resizable.
     //
-    // This used to take the max, which crashed Ableton: the VST3 wrapper probes
-    // with availableSize {99999, 99999} to discover the preferred size
-    // (SEVSTGUIEditorWin.cpp), so max() asked for a 99999 x 99999 window, DXGI
-    // refused to make a swap chain that big, and CreateSwapPanel hit its
-    // assert(false). An oversized request fails at the swap chain, not at the
-    // window, so the stack points at graphics rather than at layout.
+    // Both other readings are wrong, and each fails somewhere different:
+    //   max(want, available) asked for 99999 x 99999 against the VST3 wrapper's
+    //     unbounded probe, and DXGI refused to make that swap chain (a
+    //     __debugbreak on attach in Ableton).
+    //   min(want, available) shrank the editor to whatever a host happened to
+    //     offer first — SynthEdit hands out a small default rect, so the whole
+    //     demo collapsed to a ~100px box.
     //
-    // The preferred size matters: the colour page's ramps want one pixel per
-    // 8-bit code, and below that they resample and banding becomes ambiguous —
-    // a missing level looks the same as a dropped column.
-    ReturnCode measure(const Size* availableSize, Size* returnDesiredSize) override
+    // The size matters: the colour page's ramps want one pixel per 8-bit code,
+    // and below that they resample, making a missing level indistinguishable
+    // from a dropped column — which is the very thing that page exists to show.
+    ReturnCode measure(const Size* /*availableSize*/, Size* returnDesiredSize) override
     {
-        const float wantW = (std::max)(demo::GradientsPage::preferredWidth,  demo::DialogsPage::preferredWidth);
-        const float wantH = (std::max)(demo::GradientsPage::preferredHeight, demo::DialogsPage::preferredHeight);
-
-        // A host that offers nothing (or garbage) gets our preferred size; a
-        // zero-size window is what makes the swap chain fail the other way.
-        const float offeredW = availableSize->width  > 0.0f ? availableSize->width  : wantW;
-        const float offeredH = availableSize->height > 0.0f ? availableSize->height : wantH;
-
-        returnDesiredSize->width  = (std::min)(wantW, offeredW);
-        returnDesiredSize->height = (std::min)(wantH, offeredH);
+        returnDesiredSize->width  = (std::max)(demo::GradientsPage::preferredWidth,  demo::DialogsPage::preferredWidth);
+        returnDesiredSize->height = (std::max)(demo::GradientsPage::preferredHeight, demo::DialogsPage::preferredHeight);
         return ReturnCode::Ok;
     }
 

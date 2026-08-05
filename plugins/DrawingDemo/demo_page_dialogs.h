@@ -399,9 +399,29 @@ inline void DialogsPage::run(Action action, gmpi::drawing::Rect anchor)
         if (!listener)
             return report("key listener", "no IKeyListener interface");
 
+        // A real callback, not nullptr. Passing null here read as harmless —
+        // "I do not care about the keys" — and instead crashed the host, since
+        // the Win32 listener dereferences it immediately.
+        gmpi::shared_ptr<IUnknown> cb;
+        auto* keys = new KeyListenerCallback(
+            [this](int32_t key, int32_t flags)
+            {
+                char buf[96];
+                snprintf(buf, sizeof buf, "key down 0x%02X (%c)  flags 0x%X",
+                         key, (key >= 32 && key < 127) ? char(key) : '.', flags);
+                report("key listener", buf);
+            },
+            {}, // key up: ignored, it would just overwrite the more useful line
+            [this]() { report("key listener", "focus lost — listener closed"); });
+
+        keys->onCopy  = [this]() { return editText; };
+        keys->onPaste = [this](std::string_view t) { report("key listener", "pasted: " + std::string(t)); };
+        cb.attach(keys);
+
         report("key listener", "listening — press keys, click away to end");
-        pendingDialog = unknown;
-        listener->showAsync(nullptr);
+        pendingCallback = cb;
+        pendingDialog   = unknown;
+        listener->showAsync(cb.get());
         break;
     }
     }
