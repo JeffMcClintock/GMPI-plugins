@@ -57,15 +57,31 @@ public:
         return r;
     }
 
-    // Ask for a window big enough that the colour page's ramps get one pixel per
-    // 8-bit code. Below that the ramps resample and banding becomes ambiguous:
-    // you cannot tell a missing level from a dropped column.
+    // "Given at most this much room, how much do you want?" — so the answer is
+    // our preferred size clamped DOWN to what is offered, never up.
+    //
+    // This used to take the max, which crashed Ableton: the VST3 wrapper probes
+    // with availableSize {99999, 99999} to discover the preferred size
+    // (SEVSTGUIEditorWin.cpp), so max() asked for a 99999 x 99999 window, DXGI
+    // refused to make a swap chain that big, and CreateSwapPanel hit its
+    // assert(false). An oversized request fails at the swap chain, not at the
+    // window, so the stack points at graphics rather than at layout.
+    //
+    // The preferred size matters: the colour page's ramps want one pixel per
+    // 8-bit code, and below that they resample and banding becomes ambiguous —
+    // a missing level looks the same as a dropped column.
     ReturnCode measure(const Size* availableSize, Size* returnDesiredSize) override
     {
         const float wantW = (std::max)(demo::GradientsPage::preferredWidth,  demo::DialogsPage::preferredWidth);
         const float wantH = (std::max)(demo::GradientsPage::preferredHeight, demo::DialogsPage::preferredHeight);
-        returnDesiredSize->width  = (std::max)(wantW, availableSize->width);
-        returnDesiredSize->height = (std::max)(wantH, availableSize->height);
+
+        // A host that offers nothing (or garbage) gets our preferred size; a
+        // zero-size window is what makes the swap chain fail the other way.
+        const float offeredW = availableSize->width  > 0.0f ? availableSize->width  : wantW;
+        const float offeredH = availableSize->height > 0.0f ? availableSize->height : wantH;
+
+        returnDesiredSize->width  = (std::min)(wantW, offeredW);
+        returnDesiredSize->height = (std::min)(wantH, offeredH);
         return ReturnCode::Ok;
     }
 
