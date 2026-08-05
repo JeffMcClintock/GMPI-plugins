@@ -37,7 +37,7 @@ include("${CPM_DOWNLOAD_LOCATION}")
 CPMAddPackage(
 NAME vst3_sdk
 GITHUB_REPOSITORY steinbergmedia/vst3sdk
-GIT_TAG v3.7.14_build_55       # or a specific commit SHA
+GIT_TAG v3.8.0_build_66        # 3.8.0 added Wayland (kPlatformTypeWaylandSurfaceID)
 DOWNLOAD_ONLY YES              # we only need sources; actual add_subdirectory happens later
 )
 set(VST3_SDK ${vst3_sdk_SOURCE_DIR})
