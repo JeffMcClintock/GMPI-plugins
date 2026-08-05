@@ -9,6 +9,7 @@ gmpi_plugin(
     SOURCE_FILES
         DrawingDemo.cpp
         DrawingDemoGui.cpp
+        demo_page_dialogs.h
         demo_page_gradients.h
         demo_page_shapes.h
         demo_page_text.h

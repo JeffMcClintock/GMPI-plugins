@@ -7,6 +7,7 @@
 // compared between the JUCE backend and the native ones. Text is the least
 // portable part of any drawing API, which is what makes it worth a page.
 
+#include <algorithm>
 #include <array>
 #include <string_view>
 
@@ -49,7 +50,10 @@ inline void drawTextPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
         { "Gradient",  FontWeight::Normal, FontStyle::Normal, FontStretch::Normal },
     };
 
-    const float textheight = size.height / 12.0f;
+    // Height alone sized this in the JUCE original, whose window was 400 wide.
+    // In a wider-but-shorter window the five style samples then overflow the
+    // right edge, so cap on width too -- the row is ~22 ems of text.
+    const float textheight = (std::min)(size.height / 12.0f, size.width / 22.0f);
     const float margin     = textheight / 2.0f;
 
     Rect textRect{ margin, margin, margin, margin + textheight };
@@ -106,10 +110,19 @@ inline void drawTextPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
         g.drawTextU(text, font, textRect, brush);
     }
 
-    // Colour emoji and script fallback. Note: on Windows this file must be saved
-    // as "UTF-8 with signature" for these literals to survive.
+    // Colour emoji and script fallback.
+    //
+    // Spelled with \u escapes rather than literal characters on purpose. Pasted
+    // CJK and emoji only survive if the file is saved as UTF-8 WITH a BOM --
+    // without one MSVC decodes the bytes as the system codepage and the string
+    // reaches the renderer as mojibake, which looks like a font-fallback bug and
+    // is not one. Escapes are encoding-independent, so the file can be plain
+    // UTF-8 and this still says what it means:
+    //   \u7D75\u6587\u5B57 = "emoji" in Japanese, exercising CJK fallback
+    //   \U0001F991 squid, \U0001F600 grinning face = colour-glyph fallback
     {
-        const auto text = reinterpret_cast<const char*>(u8"Color emoji: 絵文字 🦑 😀");
+        const auto text = reinterpret_cast<const char*>(
+            u8"Color emoji: \u7D75\u6587\u5B57 \U0001F991 \U0001F600");
 
         auto font = g.getFactory().createTextFormat(14.0f);
         const auto textSize = font.getTextExtentU(text);
