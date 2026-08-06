@@ -7,7 +7,9 @@
 // Ported from gmpi_ui/examples/exampleJucePlugin, so the same scene can be
 // compared between the JUCE backend and the native ones.
 
+#include <algorithm>
 #include <cstdint>
+#include <iterator>
 
 #include "GmpiUiDrawing.h"
 
@@ -72,7 +74,23 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
 
     g.clear(colorFromHex(0x323E44u));
 
-    const float margin = size.height / 24.0f;
+    // LAID OUT PROPORTIONALLY. The JUCE original hard-coded pixel positions for
+    // its 400x300 window, so in anything larger the whole scene huddled into the
+    // top-left corner with a void beneath it. Everything below is derived from
+    // `size` instead, in four bands: strokes/joins/curves, fills, outlines, and
+    // the alpha-compositing circles.
+    const float margin = (std::max)(14.0f, (std::min)(size.width, size.height) / 26.0f);
+    const float gap    = margin;
+
+    // Four equal columns carry the fills and outlines rows.
+    const float colW = (size.width - 2.0f * margin - 3.0f * gap) / 4.0f;
+
+    const float usableH  = size.height - 2.0f * margin;
+    const float bandTopH = usableH * 0.30f;   // lines, joins, curves
+    const float rowH     = usableH * 0.19f;   // fills, then outlines
+    const float topY     = margin;
+    const float fillsY   = topY + bandTopH + gap;
+    const float strokesY = fillsY + rowH + gap;
 
     const detail::lineStyle lineStyles[] = {
         { CapStyle::Flat,   Colors::Salmon,        DashStyle::Solid },
@@ -82,23 +100,25 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
         { CapStyle::Round,  Colors::DodgerBlue,    DashStyle::Dot   }
     };
 
-    float y  = margin;
-    float x1 = margin;
-    const float x2 = 98.0f;
-
     auto brush1 = g.createSolidColorBrush(Colors::Green);
 
-    for (const auto& style : lineStyles)
+    // Band 1, column 0: dash styles and line caps.
     {
-        StrokeStyleProperties strokeStyleProperties{};
-        strokeStyleProperties.lineCap   = style.capStyle;
-        strokeStyleProperties.dashStyle = style.dashStyle;
+        const float spacing = bandTopH / static_cast<float>(std::size(lineStyles) + 1);
+        float y = topY + spacing;
 
-        auto strokeStyle = g.getFactory().createStrokeStyle(strokeStyleProperties);
-        brush1.setColor(style.color);
+        for (const auto& style : lineStyles)
+        {
+            StrokeStyleProperties strokeStyleProperties{};
+            strokeStyleProperties.lineCap   = style.capStyle;
+            strokeStyleProperties.dashStyle = style.dashStyle;
 
-        g.drawLine({ x1, y }, { x2, y }, brush1, 6.0f, strokeStyle);
-        y += margin;
+            auto strokeStyle = g.getFactory().createStrokeStyle(strokeStyleProperties);
+            brush1.setColor(style.color);
+
+            g.drawLine({ margin, y }, { margin + colW, y }, brush1, 6.0f, strokeStyle);
+            y += spacing;
+        }
     }
 
     // Line joins.
@@ -108,43 +128,48 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
         { Colors::Aquamarine, LineJoin::Round }
     };
 
-    x1 = 120.0f;
-    y  = 50.0f;
-    float side = 30.0f;
-
-    for (const auto& style : linejoins)
+    // Band 1, column 1: line joins, three triangles sharing a baseline.
     {
-        StrokeStyleProperties strokeStyleProperties{};
-        strokeStyleProperties.lineJoin = style.lineJoin;
+        const float side     = (std::min)(colW / 2.6f, bandTopH / 2.6f);
+        const float baseline = topY + bandTopH * 0.72f;
+        float x1 = margin + colW + gap;
 
-        auto strokeStyle = g.getFactory().createStrokeStyle(strokeStyleProperties);
+        for (const auto& style : linejoins)
+        {
+            StrokeStyleProperties strokeStyleProperties{};
+            strokeStyleProperties.lineJoin = style.lineJoin;
 
-        auto geometry = g.getFactory().createPathGeometry();
-        auto sink = geometry.open();
-        sink.beginFigure({ x1, y });
-        sink.addLine({ x1 + side, y });
-        sink.addLine({ x1 + side * 0.5f, y - side * 0.866f });
-        sink.endFigure(FigureEnd::Closed);
-        sink.close();
+            auto strokeStyle = g.getFactory().createStrokeStyle(strokeStyleProperties);
 
-        brush1.setColor(style.color);
-        g.drawGeometry(geometry, brush1, 6.0f, strokeStyle);
+            auto geometry = g.getFactory().createPathGeometry();
+            auto sink = geometry.open();
+            sink.beginFigure({ x1, baseline });
+            sink.addLine({ x1 + side, baseline });
+            sink.addLine({ x1 + side * 0.5f, baseline - side * 0.866f });
+            sink.endFigure(FigureEnd::Closed);
+            sink.close();
 
-        x1 += side * 1.5f;
+            brush1.setColor(style.color);
+            g.drawGeometry(geometry, brush1, 6.0f, strokeStyle);
+
+            x1 += side * 1.4f;
+        }
     }
 
-    // Bezier curves.
-    x1 += side;
-    side = 70.0f;
+    // Band 1, columns 2-3: a fan of quadratic beziers.
     {
+        const float side = (std::min)(colW, bandTopH * 0.5f);
+        const float cx   = margin + 2.0f * (colW + gap) + colW;
+        const float cy   = topY + bandTopH * 0.5f;
+
         brush1.setColor(Colors::GreenYellow);
-        for (float dx = -side; dx < side; dx += 10.0f)
+        for (float dx = -side; dx < side; dx += side / 7.0f)
         {
             auto geometry = g.getFactory().createPathGeometry();
             auto sink = geometry.open();
-            sink.beginFigure({ x1, y });
-            sink.addQuadraticBezier({ { x1 + dx, y - side }, { x1 + side, y } });
-            sink.addQuadraticBezier({ { x1 - dx, y + side }, { x1, y } });
+            sink.beginFigure({ cx, cy });
+            sink.addQuadraticBezier({ { cx + dx, cy - side }, { cx + side, cy } });
+            sink.addQuadraticBezier({ { cx - dx, cy + side }, { cx, cy } });
             sink.endFigure(FigureEnd::Closed);
             sink.close();
 
@@ -152,15 +177,16 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
         }
     }
 
-    // Fills, then the same four brushes as strokes.
-    const float width = 80.0f;
+    // Bands 2 and 3: the four brush types, first as fills then as outlines, one
+    // brush per column so the two rows line up for comparison.
+    const float width = colW;
 
     for (int pass = 0; pass < 2; ++pass)
     {
-        const bool stroking = pass == 1;
-        const float y1 = stroking ? 170.0f : 90.0f;
-        const float y2 = y1 + 60.0f;
-        x1 = margin;
+        const bool  stroking = pass == 1;
+        const float y1 = stroking ? strokesY : fillsY;
+        const float y2 = y1 + rowH;
+        float x1 = margin;
 
         {
             auto solidBrush = g.createSolidColorBrush(Colors::LightSeaGreen);
@@ -169,7 +195,7 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
             else
                 g.fillRectangle({ x1, y1, x1 + width, y2 }, solidBrush);
         }
-        x1 += width + margin;
+        x1 += width + gap;
 
         {
             Gradientstop gradientStops[] = {
@@ -180,13 +206,13 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
             LinearGradientBrushProperties props{ { 0.0f, y1 }, { 0.0f, y2 } };
             auto gradientBrush = g.createLinearGradientBrush(props, {}, collection);
 
-            const RoundedRect rr{ { x1, y1, x1 + width, y2 }, margin, margin };
+            const RoundedRect rr{ { x1, y1, x1 + width, y2 }, rowH * 0.2f, rowH * 0.2f };
             if (stroking)
                 g.drawRoundedRectangle(rr, gradientBrush, 6.0f);
             else
                 g.fillRoundedRectangle(rr, gradientBrush);
         }
-        x1 += width + margin;
+        x1 += width + gap;
 
         {
             const Point gradientCenter{ x1 + width * 0.25f, y1 + (y2 - y1) * 0.25f };
@@ -197,20 +223,22 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
             auto collection = g.createGradientstopCollection(gradientStops);
             auto gradientBrush = g.createRadialGradientBrush(collection, gradientCenter, width);
 
-            const RoundedRect rr{ { x1, y1, x1 + width, y2 }, margin * 2.0f, margin * 2.0f };
+            const RoundedRect rr{ { x1, y1, x1 + width, y2 }, rowH * 0.4f, rowH * 0.4f };
             if (stroking)
                 g.drawRoundedRectangle(rr, gradientBrush, 8.0f);
             else
                 g.fillRoundedRectangle(rr, gradientBrush);
         }
-        x1 += width + margin;
+        x1 += width + gap;
 
         {
             auto tartan = detail::makeTartan(g);
             auto bitmapBrush = g.createBitmapBrush(tartan);
 
-            const float radius = (y2 - y1) * 0.5f;
-            const Point center{ x1 + radius, y1 + radius };
+            // Centred in its column, not pinned to the left of it, so the four
+            // brushes read as one grid.
+            const float radius = (std::min)(colW, y2 - y1) * 0.5f;
+            const Point center{ x1 + width * 0.5f, (y1 + y2) * 0.5f };
             if (stroking)
                 g.drawCircle(center, radius, bitmapBrush, 10.0f);
             else
@@ -218,10 +246,14 @@ inline void drawShapesPage(gmpi::drawing::Graphics& g, gmpi::drawing::Size size)
         }
     }
 
-    // Alpha compositing: three half-transparent primaries over black.
+    // Band 4: alpha compositing, three half-transparent primaries over black.
+    // Centred in whatever is left below the outlines row rather than pinned to
+    // the bottom edge — pinning left it stranded far below everything else.
     {
-        const float radius = size.height * 0.06f;
-        const Point p{ size.width * 0.5f, size.height - radius - margin };
+        const float bandTop = strokesY + rowH + gap;
+        const float bandH   = (std::max)(0.0f, size.height - margin - bandTop);
+        const float radius  = (std::min)(size.height * 0.06f, bandH * 0.42f);
+        const Point p{ size.width * 0.5f, bandTop + bandH * 0.5f };
 
         auto blackBrush = g.createSolidColorBrush(Colors::Black);
         g.fillCircle(p, radius * 1.8f, blackBrush);
